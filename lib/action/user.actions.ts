@@ -1,9 +1,11 @@
-'use server'
+'use client'
 import { auth } from '@/lib/firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { useRouter } from 'next/navigation'
 
 
-export const createUser = async (email: string, password: string) => {
+export const createUser = async ({firstName, lastName, email, password} : 
+    {firstName: string, lastName: string, email: string, password: string }) => {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         return userCredential.user;
@@ -14,7 +16,7 @@ export const createUser = async (email: string, password: string) => {
 }
 
 
-export const signIn = async (email: string, password: string) => {
+export const signIn = async ({email, password} : {email: string, password: string}) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         return userCredential.user;

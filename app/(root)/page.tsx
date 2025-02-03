@@ -1,7 +1,7 @@
 'use client'
 
 import Image from "next/image";
-import FallingmodelsWithTextures from "@/components/cube";
+import FallingmodelsWithTextures from "@/components/Logo3D";
 import Link from "next/link";
 
 export default function Home() {
