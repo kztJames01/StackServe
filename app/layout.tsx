@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Antonio } from "next/font/google";
 import "./globals.css";
+import Head from "next/head";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,10 +15,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const antonio = Antonio({
+  subsets: ["latin"],
+  variable: "--font-antonio", // Define a CSS variable for Antonio
+  weight: "400", // Default weight
+});
+
 export const metadata: Metadata = {
   title: "MakerSpace",
   description: "Community of Creators",
 };
+
 
 export default function RootLayout({
   children,
@@ -24,8 +34,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Head>
+        <link
+          rel="preload"
+          href="https://fonts.googleapis.com/css2?family=Antonio:wght@100..700&display=swap"
+          as="style"
+        />
+      </Head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${antonio.variable} antialiased`}
       >
         {children}
       </body>
