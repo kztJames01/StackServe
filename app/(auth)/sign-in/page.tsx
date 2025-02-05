@@ -1,7 +1,7 @@
 import React from 'react';
 import AuthForm from '@/components/AuthForm';
 import ThreeDBackground from '@/components/AniBackground';
-import Image from 'next/image';
+
 const SignIn = () => {
 
 

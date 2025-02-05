@@ -17,7 +17,7 @@ import { authFormSchema } from "@/lib/utils";
 import CustomInput from "./CustomInput";
 import { signIn, createUser } from "@/lib/action/user.actions";
 import { Card, CardContent } from "./ui/card";
-const AuthForm = ({ type }: { type: 'sign-in' | 'sign-up' }) => {
+const AuthForm = ({ type }: AuthFormProps) => {
     const [user, setUser] = useState(null);
     const router = useRouter();
     const [loading, setIsLoading] = useState(false);
