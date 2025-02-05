@@ -58,7 +58,7 @@ export function TeamSwitcher({
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}
           >
-            <DropdownMenuLabel className="text-xs text-muted-foreground">
+            <DropdownMenuLabel className="text-xs ">
               Teams
             </DropdownMenuLabel>
             {teams.map((team, index) => (
@@ -67,7 +67,7 @@ export function TeamSwitcher({
                 onClick={() => setActiveTeam(team)}
                 className="gap-2 p-2"
               >
-                <div className="flex size-6 items-center justify-center rounded-sm border">
+                <div className="flex size-6 items-center justify-center rounded-sm ">
                   <team.logo className="size-4 shrink-0" />
                 </div>
                 {team.name}
@@ -76,10 +76,10 @@ export function TeamSwitcher({
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuItem className="gap-2 p-2">
-              <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                <Plus className="size-4" />
+              <div className="flex size-6 items-center justify-center rounded-md">
+                <Plus className="size-4 text-primary-foreground" />
               </div>
-              <div className="font-medium text-muted-foreground">Add team</div>
+              <div className="font-medium text-primary-foreground">Add team</div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
