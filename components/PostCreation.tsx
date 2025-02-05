@@ -8,9 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import ThreeDBackground from "./AniBackground";
 
-export function CreatePostDrawer() {
-    const [isOpen, setIsOpen] = useState(false);
+export function CreatePostDrawer({onClose}: CreatePostDrawerProps) {
     const [sectors, setSectors] = useState<string[]>([]);
     const [visibility, setVisibility] = useState("public");
     const [caption, setCaption] = useState("");
@@ -36,22 +36,24 @@ export function CreatePostDrawer() {
             includeSocialMedia,
             selectedSocialMedia,
         });
-        setIsOpen(false);
+        onClose();
     };
 
     return (
         <>
-            <Button onClick={() => setIsOpen(true)}>Add Post</Button>
 
-            <Drawer open={isOpen} onOpenChange={setIsOpen}>
-                <DrawerContent className="h-[70vh]">
+            <Drawer open={true} onOpenChange={onClose} >
+                <ThreeDBackground/>
+                <DrawerContent className="h-[90vh] items-center ">
                     <DrawerHeader>
-                        <div className="flex items-center justify-between">
-                            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+                        <div className="flex items-center justify-between w-[50vw]">
+                            <Button variant="ghost" size="icon" onClick={onClose} className="bg-transparent text-primary">
                                 X
                             </Button>
                             <DrawerTitle>Create Post</DrawerTitle>
                             <Button
+                                variant="default"
+                                className="bg-secondary text-primary"
                                 onClick={handlePost}
                                 disabled={!caption || !description || sectors.length === 0}
                             >
@@ -60,7 +62,7 @@ export function CreatePostDrawer() {
                         </div>
                     </DrawerHeader>
 
-                    <div className="flex flex-col p-4 space-y-6 overflow-y-auto">
+                    <div className="flex-col p-4 space-y-6 overflow-y-auto w-[50vw] font-[family-name:var(--font-geist-sans)]">
                         {/* Avatar and Name */}
                         <div className="flex items-center space-x-4">
                             <Avatar>
@@ -74,10 +76,10 @@ export function CreatePostDrawer() {
 
                         {/* Sector Dropdown */}
                         <div className="space-y-2">
-                            <p className="text-sm font-medium">Choose Sectors (Max 3)</p>
+                            <p className="text-md font-medium">Choose Sectors (Max 3)</p>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" className="w-full">
+                                    <Button variant="outline" className="w-full border-none shadow-lg">
                                         Select Sectors
                                     </Button>
                                 </DropdownMenuTrigger>
@@ -87,6 +89,7 @@ export function CreatePostDrawer() {
                                             key={sector}
                                             onSelect={() => handleSectorSelect(sector)}
                                             disabled={sectors.length >= 3 && !sectors.includes(sector)}
+                                           
                                         >
                                             {sector}
                                         </DropdownMenuItem>
@@ -95,7 +98,7 @@ export function CreatePostDrawer() {
                             </DropdownMenu>
                             <div className="flex flex-wrap gap-2">
                                 {sectors.map((sector) => (
-                                    <span key={sector} className="px-2 py-1 bg-gray-100 rounded">
+                                    <span key={sector} className="px-2 py-1 bg-primary text-white shadow-lg rounded">
                                         {sector}
                                     </span>
                                 ))}
@@ -104,10 +107,10 @@ export function CreatePostDrawer() {
 
                         {/* Visibility Dropdown */}
                         <div className="space-y-2">
-                            <p className="text-sm font-medium">Visibility</p>
+                            <p className="text-md font-medium">Visibility</p>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" className="w-full">
+                                    <Button variant="outline" className="w-full border-none shadow-lg">
                                         {visibility === "public" ? "Public" : "Friends Only"}
                                     </Button>
                                 </DropdownMenuTrigger>
@@ -124,10 +127,11 @@ export function CreatePostDrawer() {
 
                         {/* Caption */}
                         <Textarea
-                            placeholder="Caption (bold)"
+                            placeholder="Caption"
                             value={caption}
                             onChange={(e) => setCaption(e.target.value)}
-                            className="font-bold border-none resize-none"
+                            className="font-bold border-none resize-none shadow-lg"
+                            rows={1}
                         />
 
                         {/* Description */}
@@ -135,7 +139,8 @@ export function CreatePostDrawer() {
                             placeholder="Description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className="border-none resize-none"
+                            className="border-none resize-none shadow-lg"
+                            rows={4}
                         />
 
                         {/* Social Media Checkbox */}
@@ -148,7 +153,7 @@ export function CreatePostDrawer() {
                                         setIncludeSocialMedia(checked as boolean)
                                     }
                                 />
-                                <label htmlFor="include-social-media" className="text-sm font-medium">
+                                <label htmlFor="include-social-media" className="text-md font-medium">
                                     Include Social Media
                                 </label>
                             </div>
@@ -156,9 +161,10 @@ export function CreatePostDrawer() {
                                 <div className="flex flex-wrap gap-2">
                                     {["Twitter", "LinkedIn", "Instagram"].map((platform) => (
                                         <Button
+                                            className="bg-transparent focus:bg-primary focus:text-white shadow-lg"
                                             key={platform}
                                             variant={
-                                                selectedSocialMedia.includes(platform) ? "default" : "outline"
+                                                selectedSocialMedia.includes(platform) ? "default": "secondary"
                                             }
                                             onClick={() =>
                                                 setSelectedSocialMedia((prev) =>
@@ -177,8 +183,8 @@ export function CreatePostDrawer() {
 
                         {/* Media Upload */}
                         <div className="space-y-2">
-                            <p className="text-sm font-medium">Add Media</p>
-                            <Input type="file" accept="image/*,video/*" />
+                            <p className="text-md font-medium">Add Media</p>
+                            <Input type="file" accept="image/*,video/*" className="border-none shadow-lg"/>
                         </div>
                     </div>
                 </DrawerContent>

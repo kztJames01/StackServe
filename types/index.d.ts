@@ -61,3 +61,7 @@ declare interface SidebarContextProps{
     openMobile: () => void;
     setOpenMobile: (open: boolean) => void;
 }
+
+declare interface CreatePostDrawerProps {
+    onClose: () => void;
+}

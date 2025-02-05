@@ -13,6 +13,8 @@ import { MenuIcon, PlusCircleIcon, SearchIcon, ShareIcon, UserIcon } from 'lucid
 import { AppSidebar } from '@/components/app-sidebar';
 import { SidebarProvider, SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from './ui/breadcrumb';
+import { isDataView } from 'util/types';
+import { CreatePostDrawer } from './PostCreation';
 
 // Mock data
 const posts = [
@@ -34,11 +36,9 @@ const posts = [
 ];
 
 export default function FeedPage() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState('home');
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isPostSheetOpen, setIsPostSheetOpen] = useState(false);
-    const { isMobile, state } = useSidebar();
     return (
         <SidebarProvider>
             <div className="flex min-h-screen bg-white w-full">
@@ -46,7 +46,7 @@ export default function FeedPage() {
                 <AppSidebar className="hidden lg:block" />
 
                 {/* Main Content */}
-                <main className="flex-1 lg:ml-64 lg:mr-72 p-4 lg:p-6">
+                <main className="flex-1 lg:ml-64 lg:mr-72 p-4 lg:p-6 font-[family-name:var(--font-geist-sans)]">
                     {/* Mobile Header */}
                     <div className="lg:hidden flex justify-between items-center mb-6">
                         
@@ -109,6 +109,8 @@ export default function FeedPage() {
                                 className="flex-1 rounded-lg p-3 resize-none"
                                 placeholder="Share your project update..."
                                 rows={1}
+                                onClick={() => setIsDrawerOpen(true)}
+                                readOnly
                             />
                             <button className="text-gray-500 hover:text-primary">
                                 <MediaIcon className="w-5 h-5" />
@@ -116,6 +118,9 @@ export default function FeedPage() {
                         </div>
                     </div>
 
+                    {isDrawerOpen && (
+                        <CreatePostDrawer onClose={() => setIsDrawerOpen(false)} />
+                    )}
                     {/* Posts Feed */}
                     {posts.map(post => (
                         <div key={post.id} className="shadow-lg rounded-xl lg:w-[50vw] p-4 mb-6">
