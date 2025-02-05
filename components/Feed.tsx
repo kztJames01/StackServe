@@ -60,10 +60,12 @@ export default function FeedPage() {
                             />
                             <SearchIcon className="absolute right-3 top-2.5 w-5 h-5 text-gray-500" />
                         </div>
-                        <Avatar>
-                            <AvatarImage src="/home.jpg" alt="Sarah Maker" />
-                            <AvatarFallback>SM</AvatarFallback>
-                        </Avatar>
+                        <button onClick={() => setIsProfileOpen(true)}>
+                            <Avatar>
+                                <AvatarImage src="/home.jpg" alt="Sarah Maker" />
+                                <AvatarFallback>SM</AvatarFallback>
+                            </Avatar>
+                        </button>
                     </div>
 
                     {/* Nav Bar and Search - Desktop */}
@@ -90,43 +92,33 @@ export default function FeedPage() {
                             <input
                                 type="text"
                                 placeholder="Search projects, creators, or tags..."
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                             <SearchIcon className="absolute right-3 top-2.5 w-5 h-5 text-gray-500" />
                         </div>
                     </div>
 
                     {/* Create Post Card */}
-                    <div className="bg-white rounded-xl hidden lg:block p-4 lg:w-[50vw]  mb-6 lg:mr-120">
+                    <div className="bg-white rounded-xl p-4 lg:w-[50vw] z-1 shadow-lg mb-6 lg:mr-120">
                         <div className="flex gap-3">
                             <Avatar>
                                 <AvatarImage src="/home.jpg" alt="Sarah Maker" />
                                 <AvatarFallback>SM</AvatarFallback>
                             </Avatar>
                             <textarea
-                                className="flex-1 border rounded-lg p-3 resize-none"
+                                className="flex-1 rounded-lg p-3 resize-none"
                                 placeholder="Share your project update..."
-                                rows={2}
+                                rows={1}
                             />
-                        </div>
-                        <div className="flex justify-between items-center mt-4">
-                            <div className="flex gap-3">
-                                <button className="text-gray-500 hover:text-primary">
-                                    <MediaIcon className="w-5 h-5" />
-                                </button>
-                                <button className="text-gray-500 hover:text-primary">
-                                    <MediaIcon className="w-5 h-5" />
-                                </button>
-                            </div>
-                            <button className="bg-primary text-white px-4 py-2 rounded-lg">
-                                Post
+                            <button className="text-gray-500 hover:text-primary">
+                                <MediaIcon className="w-5 h-5" />
                             </button>
                         </div>
                     </div>
 
                     {/* Posts Feed */}
                     {posts.map(post => (
-                        <div key={post.id} className="glassmorphism rounded-xl lg:w-[50vw] p-4 mb-6">
+                        <div key={post.id} className="shadow-lg rounded-xl lg:w-[50vw] p-4 mb-6">
                             {/* Post Header */}
                             <div className="flex items-center gap-3 mb-4">
                                 <Avatar>
@@ -278,26 +270,6 @@ export default function FeedPage() {
                     </div>
                 )}
 
-                {/* Mobile Bottom Navigation */}
-                <div
-                    className={`lg:hidden fixed bottom-0 left-0 right-0 bg-foreground border-t border-gray-200 ${isMobile && state === 'expanded' ? 'ml-64' : ''
-                        }`}
-                >
-                    <div className="flex justify-around p-4 text-background">
-                        <button>
-                            <DashboardIcon className="w-6 h-6" />
-                        </button>
-                        <button onClick={() => setIsPostSheetOpen(true)}>
-                            <PlusCircleIcon className="w-6 h-6" />
-                        </button>
-                        <button>
-                            <BellIcon className="w-6 h-6" />
-                        </button>
-                        <button onClick={() => setIsProfileOpen(true)}>
-                            <UserIcon className="w-6 h-6" />
-                        </button>
-                    </div>
-                </div>
             </div>
         </SidebarProvider>
     );
