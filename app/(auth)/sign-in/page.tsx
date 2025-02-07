@@ -6,10 +6,9 @@ const SignIn = () => {
 
 
     return (
-        <section className='flex-center size-full max-sm:px-6'>
-            <ThreeDBackground/>
+        <section className='flex-center size-full max-sm:px-6' style={{ position: 'relative', overflow: 'hidden' }}>
+            <ThreeDBackground />
             <AuthForm type='sign-in' />
-            
         </section>
     )
 };
