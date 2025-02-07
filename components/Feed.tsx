@@ -13,8 +13,9 @@ import { MenuIcon, PlusCircleIcon, SearchIcon, ShareIcon, UserIcon } from 'lucid
 import { AppSidebar } from '@/components/app-sidebar';
 import { SidebarProvider, SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from './ui/breadcrumb';
-import { isDataView } from 'util/types';
 import { CreatePostDrawer } from './PostCreation';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 // Mock data
 const posts = [
@@ -35,10 +36,19 @@ const posts = [
     // Add more posts...
 ];
 
+
 export default function FeedPage() {
+    const router = useRouter();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [isProfileSideBarOpen, setIsProfileSideBarOpen] = useState(false);
     const [isPostSheetOpen, setIsPostSheetOpen] = useState(false);
+
+
+    const goToProfile = () => {
+         router.push('/explore/profile');
+         setIsProfileSideBarOpen(false);
+        
+    }
     return (
         <SidebarProvider>
             <div className="flex min-h-screen bg-white w-full">
@@ -49,9 +59,9 @@ export default function FeedPage() {
                 <main className="flex-1 lg:ml-64 lg:mr-72 p-4 lg:p-6 font-[family-name:var(--font-geist-sans)]">
                     {/* Mobile Header */}
                     <div className="lg:hidden flex justify-between items-center mb-6">
-                        
+
                         <SidebarTrigger />
-                       
+
                         <div className="relative w-full max-w-md">
                             <input
                                 type="text"
@@ -60,7 +70,7 @@ export default function FeedPage() {
                             />
                             <SearchIcon className="absolute right-3 top-2.5 w-5 h-5 text-gray-500" />
                         </div>
-                        <button onClick={() => setIsProfileOpen(true)}>
+                        <button onClick={() => setIsProfileSideBarOpen(true)}>
                             <Avatar>
                                 <AvatarImage src="/home.jpg" alt="Sarah Maker" />
                                 <AvatarFallback>SM</AvatarFallback>
@@ -180,14 +190,20 @@ export default function FeedPage() {
                     </div>
 
                     <nav className="space-y-2">
-                        <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                            <UserIcon className="w-5 h-5" />
-                            <span>Profile</span>
-                        </button>
-                        <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                            <DashboardIcon className="w-5 h-5" />
-                            <span>Dashboard</span>
-                        </button>
+
+                        <Link href="/profile">
+                            <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
+                                <UserIcon className="w-5 h-5" />
+                                <span>Profile</span>
+                            </button>
+                        </Link>
+
+                        <Link href="/team">
+                            <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
+                                <DashboardIcon className="w-5 h-5" />
+                                <span>Dashboard</span>
+                            </button>
+                        </Link>
                         <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
                             <BellIcon className="w-5 h-5" />
                             <span>Notifications</span>
@@ -204,8 +220,8 @@ export default function FeedPage() {
                 </aside>
 
                 {/* Profile Sidebar Sheet - Mobile */}
-                {isProfileOpen && (
-                    <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setIsProfileOpen(false)}>
+                {isProfileSideBarOpen && (
+                    <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setIsProfileSideBarOpen(false)}>
                         <div className="fixed right-0 top-0 h-full w-72 bg-white p-4">
                             <div className="flex items-center gap-3 mb-6">
                                 <Avatar>
@@ -218,14 +234,18 @@ export default function FeedPage() {
                                 </div>
                             </div>
                             <nav className="space-y-2">
-                                <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                                    <UserIcon className="w-5 h-5" />
-                                    <span>Profile</span>
-                                </button>
-                                <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                                    <DashboardIcon className="w-5 h-5" />
-                                    <span>Dashboard</span>
-                                </button>
+                                <Link href="/profile">
+                                    <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
+                                        <UserIcon className="w-5 h-5" />
+                                        <span>Profile</span>
+                                    </button>
+                                </Link>
+                                <Link href="/team">
+                                    <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
+                                        <DashboardIcon className="w-5 h-5" />
+                                        <span>Dashboard</span>
+                                    </button>
+                                </Link>
                                 <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
                                     <BellIcon className="w-5 h-5" />
                                     <span>Notifications</span>

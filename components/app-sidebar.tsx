@@ -62,13 +62,10 @@ const data = {
           url: "#",
         },
         {
-          title: "Starred",
+          title: "Tasks",
           url: "#",
         },
-        {
-          title: "Settings",
-          url: "#",
-        },
+        
       ],
     },
     {

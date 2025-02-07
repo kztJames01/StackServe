@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import ThreeDBackground from "./AniBackground";
+
 
 export function CreatePostDrawer({onClose}: CreatePostDrawerProps) {
     const [sectors, setSectors] = useState<string[]>([]);
@@ -43,8 +43,9 @@ export function CreatePostDrawer({onClose}: CreatePostDrawerProps) {
         <>
 
             <Drawer open={true} onOpenChange={onClose} >
-                <ThreeDBackground/>
+                
                 <DrawerContent className="h-[90vh] items-center ">
+                    
                     <DrawerHeader>
                         <div className="flex items-center justify-between w-[50vw]">
                             <Button variant="ghost" size="icon" onClick={onClose} className="bg-transparent text-primary">
@@ -186,7 +187,8 @@ export function CreatePostDrawer({onClose}: CreatePostDrawerProps) {
                             <p className="text-md font-medium">Add Media</p>
                             <Input type="file" accept="image/*,video/*" className="border-none shadow-lg"/>
                         </div>
-                    </div>
+                    </div>  
+            
                 </DrawerContent>
             </Drawer>
         </>
