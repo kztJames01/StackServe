@@ -65,3 +65,9 @@ declare interface SidebarContextProps{
 declare interface CreatePostDrawerProps {
     onClose: () => void;
 }
+
+declare interface Note {
+    id: number;
+    content: string;
+    timestamp: string;
+}
