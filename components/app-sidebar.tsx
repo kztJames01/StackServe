@@ -52,13 +52,13 @@ const data = {
   ],
   navMain: [
     {
-      title: "Playground",
+      title: "Feed",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "History",
+          title: "Saved Posts",
           url: "#",
         },
         {
@@ -69,26 +69,26 @@ const data = {
       ],
     },
     {
-      title: "Models",
+      title: "Team Dashboard",
       url: "#",
       icon: Bot,
       items: [
         {
-          title: "Genesis",
+          title: "Notes",
           url: "#",
         },
         {
-          title: "Explorer",
+          title: "Working Space",
           url: "#",
         },
         {
-          title: "Quantum",
+          title: "Task",
           url: "#",
         },
       ],
     },
     {
-      title: "Documentation",
+      title: "Find Creators",
       url: "#",
       icon: BookOpen,
       items: [

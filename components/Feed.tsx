@@ -53,10 +53,10 @@ export default function FeedPage() {
         <SidebarProvider>
             <div className="flex min-h-screen bg-white w-full">
                 {/* Sidebar - Desktop */}
-                <AppSidebar className="hidden lg:block" />
+                <AppSidebar className="hidden lg:flex" />
 
                 {/* Main Content */}
-                <main className="flex-1 lg:ml-64 lg:mr-72 p-4 lg:p-6 font-[family-name:var(--font-geist-sans)]">
+                <main className="flex-1  p-4 lg:p-6 font-[family-name:var(--font-geist-sans)]">
                     {/* Mobile Header */}
                     <div className="lg:hidden flex justify-between items-center mb-6">
 

@@ -1,4 +1,3 @@
-// app/explore/page.tsx
 'use client';
 
 import { SidebarProvider } from '@/components/ui/sidebar';
