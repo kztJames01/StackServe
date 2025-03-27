@@ -9,14 +9,13 @@ import {
     DashboardIcon
 } from '@/components/Icon';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MenuIcon, PlusCircleIcon, SearchIcon, ShareIcon, UserIcon } from 'lucide-react';
+import { ShareIcon, UserIcon } from 'lucide-react';
 import { AppSidebar } from '@/components/app-sidebar';
-import { SidebarProvider, SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from './ui/breadcrumb';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { CreatePostDrawer } from './PostCreation';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-
+import Navigator from './Navigator';
 // Mock data
 const posts = [
     {
@@ -38,76 +37,20 @@ const posts = [
 
 
 export default function FeedPage() {
-    const router = useRouter();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [isProfileSideBarOpen, setIsProfileSideBarOpen] = useState(false);
+    const [isSideBarOpen, setIsSideBarOpen] = useState(false);
     const [isPostSheetOpen, setIsPostSheetOpen] = useState(false);
 
-
-    const goToProfile = () => {
-         router.push('/explore/profile');
-         setIsProfileSideBarOpen(false);
-        
-    }
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen bg-white w-full">
-                {/* Sidebar - Desktop */}
-                <AppSidebar className="hidden lg:flex" />
-
+            {/* Sidebar - Desktop */}
+            <AppSidebar className="hidden lg:flex" />
+            <div className="flex flex-col min-h-screen bg-additionalForeground w-full font-[family-name:var(--font-geist-sans)]">
+                <Navigator onSideBarOpen={() => setIsSideBarOpen(true)} breadcrumbs={[
+                    { title: 'Feed', href: '/explore' },
+                ]} />
                 {/* Main Content */}
-                <main className="flex-1  p-4 lg:p-6 font-[family-name:var(--font-geist-sans)]">
-                    {/* Mobile Header */}
-                    <div className="lg:hidden flex justify-between items-center mb-6">
-
-                        <SidebarTrigger />
-
-                        <div className="relative w-full max-w-md">
-                            <input
-                                type="text"
-                                placeholder="Search projects, creators, or tags..."
-                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                            />
-                            <SearchIcon className="absolute right-3 top-2.5 w-5 h-5 text-gray-500" />
-                        </div>
-                        <button onClick={() => setIsProfileSideBarOpen(true)}>
-                            <Avatar>
-                                <AvatarImage src="/home.jpg" alt="Sarah Maker" />
-                                <AvatarFallback>SM</AvatarFallback>
-                            </Avatar>
-                        </button>
-                    </div>
-
-                    {/* Nav Bar and Search - Desktop */}
-                    <div className="hidden lg:flex items-center justify-start mb-6">
-                        <div className='flex gap-2 m-3 items-center'>
-                            <SidebarTrigger />
-                            <Breadcrumb>
-                                <BreadcrumbList>
-                                    <BreadcrumbItem>
-                                        <BreadcrumbLink href="/">Home</BreadcrumbLink>
-                                    </BreadcrumbItem>
-                                    <BreadcrumbSeparator />
-                                    <BreadcrumbItem>
-                                        <BreadcrumbLink href="/components">Components</BreadcrumbLink>
-                                    </BreadcrumbItem>
-                                    <BreadcrumbSeparator />
-                                    <BreadcrumbItem>
-                                        <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
-                                    </BreadcrumbItem>
-                                </BreadcrumbList>
-                            </Breadcrumb>
-                        </div>
-                        <div className="relative w-full max-w-md">
-                            <input
-                                type="text"
-                                placeholder="Search projects, creators, or tags..."
-                                className="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                            />
-                            <SearchIcon className="absolute right-3 top-2.5 w-5 h-5 text-gray-500" />
-                        </div>
-                    </div>
-
+                <main className="flex-1  p-4 lg:p-6 ">
                     {/* Create Post Card */}
                     <div className="bg-white rounded-xl p-4 lg:w-[50vw] z-1 shadow-lg mb-6 lg:mr-120">
                         <div className="flex gap-3">
@@ -176,91 +119,49 @@ export default function FeedPage() {
                     ))}
                 </main>
 
-                {/* Profile Bar - Desktop */}
-                <aside className="hidden lg:block w-72 fixed right-0 top-0 h-full bg-white border-l border-gray-200 p-4">
-                    <div className="flex items-center gap-3 mb-6">
-                        <Avatar>
-                            <AvatarImage src="/home.jpg" alt="Sarah Maker" />
-                            <AvatarFallback>SM</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <h2 className="font-bold">Your Profile</h2>
-                            <p className="text-sm text-gray-500">Active Contributor ★4.8</p>
-                        </div>
-                    </div>
-
-                    <nav className="space-y-2">
-
-                        <Link href="/profile">
-                            <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                                <UserIcon className="w-5 h-5" />
-                                <span>Profile</span>
-                            </button>
-                        </Link>
-
-                        <Link href="/team">
-                            <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                                <DashboardIcon className="w-5 h-5" />
-                                <span>Dashboard</span>
-                            </button>
-                        </Link>
-                        <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                            <BellIcon className="w-5 h-5" />
-                            <span>Notifications</span>
-                        </button>
-                        <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                            <MessageIcon className="w-5 h-5" />
-                            <span>Messages</span>
-                        </button>
-                        <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                            <SettingsIcon className="w-5 h-5" />
-                            <span>Settings</span>
-                        </button>
-                    </nav>
-                </aside>
-
-                {/* Profile Sidebar Sheet - Mobile */}
-                {isProfileSideBarOpen && (
-                    <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setIsProfileSideBarOpen(false)}>
-                        <div className="fixed right-0 top-0 h-full w-72 bg-white p-4">
-                            <div className="flex items-center gap-3 mb-6">
-                                <Avatar>
-                                    <AvatarImage src="/home.jpg" alt="Sarah Maker" />
-                                    <AvatarFallback>SM</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <h2 className="font-bold">Your Profile</h2>
-                                    <p className="text-sm text-gray-500">Active Contributor ★4.8</p>
-                                </div>
+                {/* Profile Bar  */}
+                {isSideBarOpen && (
+                    <aside className="block w-72 fixed right-0 top-0 h-full bg-white border-l border-gray-200 p-4" onClick={() => setIsSideBarOpen(false)}>
+                        <div className="flex items-center gap-3 mb-6">
+                            <Avatar>
+                                <AvatarImage src="/home.jpg" alt="Sarah Maker" />
+                                <AvatarFallback>SM</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <h2 className="font-bold">Your Profile</h2>
+                                <p className="text-sm text-gray-500">Active Contributor ★4.8</p>
                             </div>
-                            <nav className="space-y-2">
-                                <Link href="/profile">
-                                    <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                                        <UserIcon className="w-5 h-5" />
-                                        <span>Profile</span>
-                                    </button>
-                                </Link>
-                                <Link href="/team">
-                                    <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                                        <DashboardIcon className="w-5 h-5" />
-                                        <span>Dashboard</span>
-                                    </button>
-                                </Link>
-                                <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                                    <BellIcon className="w-5 h-5" />
-                                    <span>Notifications</span>
-                                </button>
-                                <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                                    <MessageIcon className="w-5 h-5" />
-                                    <span>Messages</span>
-                                </button>
-                                <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
-                                    <SettingsIcon className="w-5 h-5" />
-                                    <span>Settings</span>
-                                </button>
-                            </nav>
                         </div>
-                    </div>
+
+                        <nav className="space-y-2">
+
+                            <Link href="/profile">
+                                <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
+                                    <UserIcon className="w-5 h-5" />
+                                    <span>Profile</span>
+                                </button>
+                            </Link>
+
+                            <Link href="/team">
+                                <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
+                                    <DashboardIcon className="w-5 h-5" />
+                                    <span>Dashboard</span>
+                                </button>
+                            </Link>
+                            <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
+                                <BellIcon className="w-5 h-5" />
+                                <span>Notifications</span>
+                            </button>
+                            <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
+                                <MessageIcon className="w-5 h-5" />
+                                <span>Messages</span>
+                            </button>
+                            <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg">
+                                <SettingsIcon className="w-5 h-5" />
+                                <span>Settings</span>
+                            </button>
+                        </nav>
+                    </aside>
                 )}
 
                 {/* Post Card Sheet - Mobile */}

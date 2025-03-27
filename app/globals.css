@@ -13,6 +13,41 @@
   display: none;
 }
 
+
+ .react-calendar-heatmap text {
+  font-size: 10px;
+  fill: #BB9457;
+}
+
+.react-calendar-heatmap .react-calendar-heatmap-small-text {
+  font-size: 5px;
+}
+
+.react-calendar-heatmap rect:hover {
+  stroke: #252422;
+  stroke-width: 1px;
+}
+
+.react-calendar-heatmap .color-scale-0 {
+  fill: #eeeeee;
+}
+.react-calendar-heatmap .color-scale-1 {
+  fill: var(--scale-1);
+}
+.react-calendar-heatmap .color-scale-2 {
+  fill: var(--scale-2);
+}
+.react-calendar-heatmap .color-scale-3 {
+  fill: var(--scale-3);
+}
+.react-calendar-heatmap .color-scale-4 {
+  fill: var(--scale-4);
+}
+.react-calendar-heatmap .color-scale-5 {
+  fill: var(--scale-5);
+}
+
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -23,7 +58,7 @@
   box-shadow: 0 8px 32px 0 rgba(189, 189, 189, 0.5);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  border-radius: 2px;
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
@@ -125,7 +160,13 @@ body {
     --background: #F2DFC9;
  
     --foreground: #252422;
-   
+    --additional-foreground: white;
+    --scale-1: #D1FAE5;
+    --scale-2: #A7F3D0;
+    --scale-3: #6EE7B7;
+    --scale-4: #34D399;
+    --scale-5: #10B981;
+
     --card: 25 24% 13%;
   
     --card-foreground: 37 100% 95%;
@@ -257,12 +298,6 @@ body {
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
   }
 }
 
