@@ -7,8 +7,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { useState } from "react";
 import { SaveIcon, CopyIcon } from "@/components/Icon";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { DndContext } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";import { DndContext } from "@dnd-kit/core";
 import { SidebarInset, SidebarProvider } from "./ui/sidebar";
 
 // Notion-style Task Block

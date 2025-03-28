@@ -19,12 +19,20 @@ export default {
   			foreground: {
   				DEFAULT: 'var(--foreground)'
   			},
+			additionalForeground: {
+				DEFAULT: 'var(--additional-foreground)'
+			},
   			primary: {
   				DEFAULT: 'var(--primary)'
   			},
   			primaryForeground: {
   				DEFAULT: 'var(--primary-foreground)'
   			},
+			scale1: 'var(--scale-1)',
+			scale2: 'var(--scale-2)',
+			scale3: 'var(--scale-3)',
+			scale4: 'var(--scale-4)',
+			scale5: 'var(--scale-5)',
   			muted: {
   				DEFAULT: 'var(--muted)',
   				foreground: 'var(--muted-foreground)'

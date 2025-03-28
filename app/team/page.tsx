@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/sidebar"
 
 
-import Team from "@/components/Team";
+import Team from "@/components/team/Team";
 export default function TeamProfile() {
   
     return (
