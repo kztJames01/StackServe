@@ -51,11 +51,11 @@ declare interface UrlQueryParams {
     value: string;
 }
 
-declare interface IconProps{
+declare interface IconProps {
     className?: String
 }
 
-declare interface SidebarContextProps{
+declare interface SidebarContextProps {
     isMobile: boolean
     state: 'open' | 'closed';
     openMobile: () => void;
@@ -66,8 +66,144 @@ declare interface CreatePostDrawerProps {
     onClose: () => void;
 }
 
-declare interface Note {
-    id: number;
-    content: string;
-    timestamp: string;
+
+
+
+
+declare interface ContributionGraphProps {
+    data: number[];
 }
+
+declare type BreadcrumbItemType = {
+    title: string;
+    href?: string;
+}
+
+declare interface NavigatorProps {
+    onSideBarOpen: () => void;
+    breadcrumbs?: BreadcrumbItemType[];
+}
+
+
+//Team
+
+declare interface TeamProfileProps {
+    teamId: string;
+}
+declare interface WorkingSpaceProps {
+    teamId: string;
+}
+
+declare interface TeamNotesProps {
+    teamId: string;
+}
+
+declare interface Note {
+    id: string;
+    title: string;
+    content: string;
+    createdBy: string;
+    createdAt: Date;
+    updatedAt: Date;
+    tags: string[];
+}
+declare interface Project {
+    id: string;
+    name: string;
+    description: string;
+    status: 'planning' | 'in-progress' | 'review' | 'completed';
+    dueDate: Date;
+    createdAt: Date;
+    tasks: Task[];
+}
+
+declare interface Task {
+    id: string;
+    title: string;
+    description: string;
+    status: 'todo' | 'in-progress' | 'done';
+    assignedTo: string;
+    dueDate: Date;
+}
+
+declare interface TeamMessageChannelProps {
+    teamId: string;
+}
+
+declare interface Message {
+    id: string;
+    content: string;
+    sender: string;
+    senderName: string;
+    timestamp: Date;
+    attachments?: string[];
+}
+
+declare interface Channel {
+    id: string;
+    name: string;
+    description?: string;
+    createdAt: Date;
+}
+
+declare interface TeamMembersProps {
+    teamId: string;
+    isAdmin: boolean;
+}
+
+declare interface TeamMember {
+    id: string;
+    userId: string;
+    role: 'admin' | 'member' | 'guest';
+    joinedAt: Date;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    photoURL?: string;
+}
+
+declare interface AIChatBoxProps {
+    teamId: string;
+}
+
+declare interface Message {
+    id: string;
+    content: string;
+    sender: string;
+    senderName: string;
+    timestamp: Date;
+    isAI: boolean;
+}
+
+//Creators
+
+declare type Creator = {
+    id: string;
+    name: string;
+    username: string;
+    avatar: string;
+    project: string;
+    skills: string[];
+    bio: string;
+    image: string;
+    tags: string[];
+    createdAt: Date;
+    updatedAt: Date;
+    userId: string;
+    isPublished: boolean;
+    isDeleted: boolean;
+    isVerified: boolean;
+    isFeatured: boolean;
+    email: string;
+    phone: string;
+    location: string;
+    website: string;
+    github: string;
+    linkedin: string;
+    twitter: string;
+    facebook: string;
+    instagram: string;
+    youtube: string;
+    projects: Project[];
+    contributions: Contribution[];
+};
