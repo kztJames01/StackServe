@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
@@ -47,8 +49,8 @@ const WorkingSpace: React.FC<WorkingSpaceProps> = ({ teamId }) => {
           return {
             id: projectDoc.id,
             ...projectData,
-            dueDate: projectData.dueDate.toDate(),
-            createdAt: projectData.createdAt.toDate(),
+            dueDate: projectData.dueDate,
+            createdAt: projectData.createdAt,
             tasks
           };
         }));

@@ -58,31 +58,31 @@ const data = {
       isActive: true,
       items: [
         {
-          title: "Saved Posts",
-          url: "#",
+          title: "Explore",
+          url: "/explore",
         },
         {
-          title: "Tasks",
+          title: "Saved Posts",
           url: "#",
         },
         
       ],
     },
     {
-      title: "Team Dashboard",
+      title: "Team",
       url: "#",
       icon: Bot,
       items: [
         {
-          title: "Notes",
-          url: "#",
+          title: "Main Page",
+          url: "/team",
         },
         {
           title: "Working Space",
           url: "#",
         },
         {
-          title: "Task",
+          title: "Notes",
           url: "#",
         },
       ],
@@ -93,20 +93,12 @@ const data = {
       icon: BookOpen,
       items: [
         {
-          title: "Introduction",
-          url: "#",
+          title: "Find",
+          url: "/find",
         },
         {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
+          title: "Chat",
+          url: "/find/chat",
         },
       ],
     },

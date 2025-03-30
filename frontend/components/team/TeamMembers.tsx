@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
@@ -31,6 +32,8 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ teamId, isAdmin }) => {
           
           return {
             id: memberDoc.id,
+            userId: memberData.userId,
+            role: memberData.role,
             ...memberData,
             joinedAt: memberData.joinedAt?.toDate() || new Date(),
             firstName: userData.firstName,
@@ -45,7 +48,6 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ teamId, isAdmin }) => {
         console.error('Error fetching team members:', error);
       }
     };
-
     fetchTeamMembers();
   }, [teamId]);
 

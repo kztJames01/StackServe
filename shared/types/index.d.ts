@@ -177,7 +177,7 @@ declare interface Message {
 
 //Creators
 
-declare type Creator = {
+declare interface Creator {
     id: string;
     name: string;
     username: string;

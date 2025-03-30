@@ -65,7 +65,7 @@ const MOCK_CREATORS = [
     skills: ["Data Visualization", "Python", "Clean Energy"],
     bio: "Visualizing the impact of renewable energy adoption worldwide"
   }
-]
+] as unknown as Creator[];
 
 export default function FindCreatorsPage() {
   const [creators, setCreators] = useState(MOCK_CREATORS)

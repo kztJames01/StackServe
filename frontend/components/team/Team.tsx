@@ -1,8 +1,10 @@
+'use client'
+
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { auth } from '../../lib/firebase';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
-import { UserIcon, UsersIcon, MediaIcon, PlusIcon, SaveIcon } from '../Icon';
+import { UserIcon, UsersIcon, MediaIcon,SaveIcon } from '../Icon';
 import TeamProfile from '@/components/team/TeamProfile';
 import WorkingSpace from '@/components/team/WorkingSpace';
 import AIChatBox from '@/components/team/AIChatBox';
@@ -13,18 +15,21 @@ import TeamMembers from '@/components/team/TeamMembers';
 const TeamDashboard = () => {
   const [activeTab, setActiveTab] = useState('workspace');
   const [user, setUser] = useState(null);
+  const teamId = useSearchParams().get('teamId');
   const router = useRouter();
-  const { teamId } = router.query;
 
   useEffect(() => {
+    if(!teamId){
+      console.log("No teamId provided");
+    }
+    // Check if user is authenticated
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
+      if (currentUser ) {
+        setUser(currentUser as any);
       } else {
-        router.push('/auth/sign-in');
+        router.push('/sign-in');
       }
     });
-
     return () => unsubscribe();
   }, [router]);
 
@@ -93,7 +98,7 @@ const TeamDashboard = () => {
           </button>
         </SheetTrigger>
         <SheetContent side="right" className="w-80">
-          <TeamMembers teamId={teamId as string} />
+          <TeamMembers teamId={teamId as string} isAdmin={false} />
         </SheetContent>
       </Sheet>
     </div>
