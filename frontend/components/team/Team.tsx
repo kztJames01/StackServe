@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { auth } from '../../lib/firebase';
+import { useSession } from 'next-auth/react';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import { UserIcon, UsersIcon, MediaIcon,SaveIcon } from '../Icon';
 import TeamProfile from '@/components/team/TeamProfile';
@@ -17,23 +17,21 @@ const TeamDashboard = () => {
   const [user, setUser] = useState(null);
   const teamId = useSearchParams().get('teamId');
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     if(!teamId){
       console.log("No teamId provided");
     }
     // Check if user is authenticated
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      if (currentUser ) {
-        setUser(currentUser as any);
-      } else {
-        router.push('/sign-in');
-      }
-    });
-    return () => unsubscribe();
-  }, [router]);
+    if (status === 'authenticated') {
+      setUser(session.user);
+    } else {
+      router.push('/sign-in');
+    }
+  }, [router, status, teamId, session]);
 
-  if (!user) return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  if (status === 'loading') return <div className="flex items-center justify-center h-screen">Loading...</div>;
 
   return (
     <div className="flex h-screen bg-gray-50">

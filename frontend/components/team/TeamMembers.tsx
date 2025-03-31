@@ -1,9 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
-import { db, auth } from '../../lib/firebase';
+import { useSession } from 'next-auth/react';
+import { fetchWithAuth } from '../../lib/api';
 import { UsersIcon, UserIcon, PlusIcon } from '../Icon';
-
 
 const TeamMembers: React.FC<TeamMembersProps> = ({ teamId, isAdmin }) => {
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -13,102 +12,44 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ teamId, isAdmin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
       if (!teamId) return;
       
       try {
-        const membersQuery = query(collection(db, 'teamMembers'), where('teamId', '==', teamId));
-        const membersSnapshot = await getDocs(membersQuery);
-        
-        const membersData = await Promise.all(membersSnapshot.docs.map(async (memberDoc) => {
-          const memberData = memberDoc.data();
-          
-          // Fetch user details
-          const userQuery = query(collection(db, 'users'), where('uid', '==', memberData.userId));
-          const userSnapshot = await getDocs(userQuery);
-          const userData = userSnapshot.docs[0]?.data() || {};
-          
-          return {
-            id: memberDoc.id,
-            userId: memberData.userId,
-            role: memberData.role,
-            ...memberData,
-            joinedAt: memberData.joinedAt?.toDate() || new Date(),
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            email: userData.email,
-            photoURL: userData.photoURL,
-          };
-        }));
-        
-        setMembers(membersData);
+        const response = await fetchWithAuth(`/api/teams/${teamId}/members`);
+        setMembers(response.data);
       } catch (error) {
         console.error('Error fetching team members:', error);
       }
     };
+    
     fetchTeamMembers();
   }, [teamId]);
 
   const handleInviteMember = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!inviteEmail.trim() || !auth.currentUser) return;
+    if (!inviteEmail.trim() || !session) return;
     
     try {
       setIsLoading(true);
       setError(null);
       
-      // Check if user exists
-      const userQuery = query(collection(db, 'users'), where('email', '==', inviteEmail.toLowerCase()));
-      const userSnapshot = await getDocs(userQuery);
-      
-      if (userSnapshot.empty) {
-        setError('No user found with this email address');
-        setIsLoading(false);
-        return;
-      }
-      
-      const userData = userSnapshot.docs[0].data();
-      const userId = userData.uid;
-      
-      // Check if user is already a member
-      const memberQuery = query(
-        collection(db, 'teamMembers'),
-        where('teamId', '==', teamId),
-        where('userId', '==', userId)
-      );
-      const memberSnapshot = await getDocs(memberQuery);
-      
-      if (!memberSnapshot.empty) {
-        setError('This user is already a member of the team');
-        setIsLoading(false);
-        return;
-      }
-      
-      // Add user to team
-      await addDoc(collection(db, 'teamMembers'), {
-        teamId,
-        userId,
-        role: inviteRole,
-        invitedBy: auth.currentUser.uid,
-        joinedAt: serverTimestamp(),
+      const response = await fetchWithAuth(`/api/teams/${teamId}/members`, {
+        method: 'POST',
+        body: JSON.stringify({
+          email: inviteEmail,
+          role: inviteRole
+        })
       });
       
       // Add new member to the state
-      setMembers(prev => [...prev, {
-        id: 'temp-id', // This will be replaced when we refresh
-        userId,
-        role: inviteRole,
-        joinedAt: new Date(),
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        email: userData.email,
-        photoURL: userData.photoURL,
-      }]);
+      setMembers(prev => [...prev, response.data]);
       
-      setSuccess(`${userData.firstName} ${userData.lastName} has been added to the team`);
+      setSuccess(`${response.data.firstName} ${response.data.lastName} has been added to the team`);
       setInviteEmail('');
       setIsInviting(false);
       
@@ -116,20 +57,22 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ teamId, isAdmin }) => {
       setTimeout(() => {
         setSuccess(null);
       }, 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error inviting member:', error);
-      setError('An error occurred while inviting the member');
+      setError(error.message || 'An error occurred while inviting the member');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleRemoveMember = async (memberId: string, memberName: string) => {
-    if (!isAdmin || !auth.currentUser) return;
+    if (!isAdmin || !session) return;
     
     if (window.confirm(`Are you sure you want to remove ${memberName} from the team?`)) {
       try {
-        await deleteDoc(doc(db, 'teamMembers', memberId));
+        await fetchWithAuth(`/api/teams/${teamId}/members/${memberId}`, {
+          method: 'DELETE'
+        });
         
         // Remove member from state
         setMembers(prev => prev.filter(member => member.id !== memberId));
@@ -140,9 +83,9 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ teamId, isAdmin }) => {
         setTimeout(() => {
           setSuccess(null);
         }, 3000);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error removing member:', error);
-        setError('An error occurred while removing the member');
+        setError(error.message || 'An error occurred while removing the member');
         
         // Clear error message after 3 seconds
         setTimeout(() => {
@@ -193,7 +136,7 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ teamId, isAdmin }) => {
             const initials = `${member.firstName?.[0] || ''}${member.lastName?.[0] || ''}`.toUpperCase();
             
             return (
-              <div key={member.id} className="bg-gray-50 rounded-lg p-4 flex items-start space-x-4">
+              <div key={member.userId} className="bg-gray-50 rounded-lg p-4 flex items-start space-x-4">
                 <div className="flex-shrink-0">
                   {member.photoURL ? (
                     <img
@@ -221,9 +164,9 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ teamId, isAdmin }) => {
                       {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
                     </span>
                     
-                    {isAdmin && auth.currentUser?.uid !== member.userId && (
+                    {isAdmin && session?.user?.id !== member.userId && (
                       <button
-                        onClick={() => handleRemoveMember(member.id, fullName)}
+                        onClick={() => handleRemoveMember(member.userId, fullName)}
                         className="text-xs text-red-600 hover:text-red-800"
                       >
                         Remove
@@ -233,8 +176,7 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ teamId, isAdmin }) => {
                 </div>
               </div>
             );
-          })}
-        </div>
+          })}        </div>
       </div>
       
       {/* Invite Member Modal */}
@@ -297,4 +239,3 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ teamId, isAdmin }) => {
 };
 
 export default TeamMembers;
-

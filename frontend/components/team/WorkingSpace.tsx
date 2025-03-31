@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
-import { db, auth } from '../../lib/firebase';
+import { useSession } from 'next-auth/react';
+import { fetchWithAuth } from '../../lib/api';
+import { collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from 'firebase/firestore';
 import { PlusIcon } from '../Icon';
 import { formatDateTime } from '../../lib/utils';
-
 
 const WorkingSpace: React.FC<WorkingSpaceProps> = ({ teamId }) => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -26,34 +26,15 @@ const WorkingSpace: React.FC<WorkingSpaceProps> = ({ teamId }) => {
     dueDate: new Date(),
   });
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchProjects = async () => {
       if (!teamId) return;
       
       try {
-        const projectsQuery = query(collection(db, 'projects'), where('teamId', '==', teamId));
-        const projectsSnapshot = await getDocs(projectsQuery);
-        
-        const projectsData = await Promise.all(projectsSnapshot.docs.map(async (projectDoc) => {
-          const projectData = projectDoc.data() as Omit<Project, 'id' | 'tasks'>;
-          
-          // Fetch tasks for this project
-          const tasksQuery = query(collection(db, 'tasks'), where('projectId', '==', projectDoc.id));
-          const tasksSnapshot = await getDocs(tasksQuery);
-          const tasks = tasksSnapshot.docs.map(taskDoc => ({
-            id: taskDoc.id,
-            ...taskDoc.data()
-          })) as Task[];
-          
-          return {
-            id: projectDoc.id,
-            ...projectData,
-            dueDate: projectData.dueDate,
-            createdAt: projectData.createdAt,
-            tasks
-          };
-        }));
+        const response = await fetchWithAuth(`/api/teams/${teamId}/projects`);
+        const projectsData = response.data;
         
         setProjects(projectsData);
         if (projectsData.length > 0 && !selectedProject) {
@@ -68,22 +49,8 @@ const WorkingSpace: React.FC<WorkingSpaceProps> = ({ teamId }) => {
       if (!teamId) return;
       
       try {
-        const membersQuery = query(collection(db, 'teamMembers'), where('teamId', '==', teamId));
-        const membersSnapshot = await getDocs(membersQuery);
-        
-        const membersData = await Promise.all(membersSnapshot.docs.map(async (memberDoc) => {
-          const memberData = memberDoc.data();
-          const userDoc = await getDocs(query(collection(db, 'users'), where('uid', '==', memberData.userId)));
-          const userData = userDoc.docs[0]?.data() || {};
-          
-          return {
-            id: memberDoc.id,
-            ...memberData,
-            ...userData
-          };
-        }));
-        
-        setTeamMembers(membersData);
+        const response = await fetchWithAuth(`/api/teams/${teamId}/members`);
+        setTeamMembers(response.data);
       } catch (error) {
         console.error('Error fetching team members:', error);
       }
@@ -97,20 +64,17 @@ const WorkingSpace: React.FC<WorkingSpaceProps> = ({ teamId }) => {
     e.preventDefault();
     
     try {
-      const projectData = {
-        ...newProject,
-        teamId,
-        createdAt: new Date(),
-        createdBy: auth.currentUser?.uid,
-      };
+      const response = await fetchWithAuth(`/api/teams/${teamId}/projects`, {
+        method: 'POST',
+        body: JSON.stringify({
+          ...newProject,
+          dueDate: newProject.dueDate.toISOString(),
+        })
+      });
       
-      const docRef = await addDoc(collection(db, 'projects'), projectData);
+      const newProjectData = response.data;
       
-      setProjects(prev => [...prev, {
-        id: docRef.id,
-        ...projectData,
-        tasks: []
-      }]);
+      setProjects(prev => [...prev, newProjectData]);
       
       setIsAddingProject(false);
       setNewProject({
@@ -120,7 +84,7 @@ const WorkingSpace: React.FC<WorkingSpaceProps> = ({ teamId }) => {
         dueDate: new Date(),
       });
       
-      setSelectedProject(docRef.id);
+      setSelectedProject(newProjectData.id);
     } catch (error) {
       console.error('Error adding project:', error);
     }
@@ -132,24 +96,21 @@ const WorkingSpace: React.FC<WorkingSpaceProps> = ({ teamId }) => {
     if (!selectedProject) return;
     
     try {
-      const taskData = {
-        ...newTask,
-        projectId: selectedProject,
-        teamId,
-        createdAt: new Date(),
-        createdBy: auth.currentUser?.uid,
-      };
+      const response = await fetchWithAuth(`/api/teams/${teamId}/projects/${selectedProject}/tasks`, {
+        method: 'POST',
+        body: JSON.stringify({
+          ...newTask,
+          dueDate: newTask.dueDate.toISOString(),
+        })
+      });
       
-      const docRef = await addDoc(collection(db, 'tasks'), taskData);
+      const newTaskData = response.data;
       
       setProjects(prev => prev.map(project => {
         if (project.id === selectedProject) {
           return {
             ...project,
-            tasks: [...project.tasks, {
-              id: docRef.id,
-              ...newTask
-            }]
+            tasks: [...project.tasks, newTaskData]
           };
         }
         return project;
@@ -170,8 +131,11 @@ const WorkingSpace: React.FC<WorkingSpaceProps> = ({ teamId }) => {
 
   const updateTaskStatus = async (taskId: string, newStatus: 'todo' | 'in-progress' | 'done') => {
     try {
-      await updateDoc(doc(db, 'tasks', taskId), {
-        status: newStatus
+      await fetchWithAuth(`/api/teams/${teamId}/tasks/${taskId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          status: newStatus
+        })
       });
       
       setProjects(prev => prev.map(project => {
@@ -500,12 +464,87 @@ const WorkingSpace: React.FC<WorkingSpaceProps> = ({ teamId }) => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700"
-                >
-                  Add Task
-                </button>
-              </div>
-            </form>
+                  className="px-4 py-2 border border-transparent rounded-mdshadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700"
+                  >
+                    Create Project
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        
+        {/* Add Task Modal */}
+        {isAddingTask && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <h2 className="text-xl font-semibold mb-4">Add New Task</h2>
+              <form onSubmit={handleAddTask}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Task Title</label>
+                    <input
+                      type="text"
+                      value={newTask.title}
+                      onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea
+                      value={newTask.description}
+                      onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                      rows={3}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Assigned To</label>
+                    <select
+                      value={newTask.assignedTo}
+                      onChange={(e) => setNewTask({ ...newTask, assignedTo: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    >
+                      <option value="">Select team member</option>
+                      {teamMembers.map(member => (
+                        <option key={member.id} value={member.userId}>
+                          {member.firstName} {member.lastName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Due Date</label>
+                    <input
+                      type="date"
+                      value={newTask.dueDate.toISOString().split('T')[0]}
+                      onChange={(e) => setNewTask({ ...newTask, dueDate: new Date(e.target.value) })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mt-6 flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingTask(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700"
+                  >
+                    Add Task
+                  </button>
+                </div>
+                </form>
           </div>
         </div>
       )}
@@ -514,4 +553,3 @@ const WorkingSpace: React.FC<WorkingSpaceProps> = ({ teamId }) => {
 };
 
 export default WorkingSpace;
-

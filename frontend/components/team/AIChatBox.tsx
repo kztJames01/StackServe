@@ -1,11 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from 'firebase/firestore';
-import { db, auth } from '../../lib/firebase';
+import { useSession } from 'next-auth/react';
+import { fetchWithAuth } from '../../lib/api';
 import { formatDateTime } from '../../lib/utils';
-
-
 
 const AIChatBox: React.FC<AIChatBoxProps> = ({ teamId }) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -13,24 +11,15 @@ const AIChatBox: React.FC<AIChatBoxProps> = ({ teamId }) => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchMessages = async () => {
       if (!teamId) return;
       
       try {
-        const messagesQuery = query(
-          collection(db, 'aiMessages'),
-          where('teamId', '==', teamId),
-          orderBy('timestamp', 'asc')
-        );
-        
-        const messagesSnapshot = await getDocs(messagesQuery);
-        const messagesData = messagesSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          timestamp: doc.data().timestamp?.toDate() || new Date(),
-        })) as Message[];
+        const response = await fetchWithAuth(`/api/teams/${teamId}/ai-messages`);
+        const messagesData = response.data;
         
         setMessages(messagesData);
         
@@ -42,12 +31,11 @@ const AIChatBox: React.FC<AIChatBoxProps> = ({ teamId }) => {
         const userNamesMap: Record<string, string> = {};
         
         for (const userId of userIds) {
-          const userQuery = query(collection(db, 'users'), where('uid', '==', userId));
-          const userSnapshot = await getDocs(userQuery);
+          const userResponse = await fetchWithAuth(`/api/users/${userId}`);
           
-          if (!userSnapshot.empty) {
-            const userData = userSnapshot.docs[0].data();
-            userNamesMap[userId] = `${userData.firstName} ${userData.lastName}`;
+          if (userResponse.data) {
+            const userData = userResponse.data;
+            userNamesMap[userId as string] = `${userData.firstName} ${userData.lastName}`;
           }
         }
         
@@ -71,83 +59,43 @@ const AIChatBox: React.FC<AIChatBoxProps> = ({ teamId }) => {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!input.trim() || !auth.currentUser) return;
+    if (!input.trim() || !session?.user) return;
     
     try {
       setIsLoading(true);
       
-      // Add user message to Firestore
-      const userMessage = {
-        content: input,
-        sender: auth.currentUser.uid,
-        senderName: userNames[auth.currentUser.uid] || 'Team Member',
-        teamId,
-        timestamp: serverTimestamp(),
-        isAI: false,
-      };
+      // Add user message to database
+      const userMessageResponse = await fetchWithAuth(`/api/teams/${teamId}/ai-messages`, {
+        method: 'POST',
+        body: JSON.stringify({
+          content: input,
+          isAI: false
+        })
+      });
       
-      const userMessageRef = await addDoc(collection(db, 'aiMessages'), userMessage);
+      const userMessage = userMessageResponse.data;
       
       // Add the message to the UI immediately
-      setMessages(prev => [...prev, {
-        id: userMessageRef.id,
-        ...userMessage,
-        timestamp: new Date(),
-      }]);
+      setMessages(prev => [...prev, userMessage]);
       
       setInput('');
       
-      // Simulate AI response (in a real app, you'd call your AI service here)
-      setTimeout(async () => {
-        // Generate AI response based on the user's input
-        const aiResponse = await generateAIResponse(input);
-        
-        // Add AI response to Firestore
-        const aiMessage = {
-          content: aiResponse,
-          sender: 'ai',
-          senderName: 'AI Assistant',
-          teamId,
-          timestamp: serverTimestamp(),
-          isAI: true,
-        };
-        
-        const aiMessageRef = await addDoc(collection(db, 'aiMessages'), aiMessage);
-        
-        // Add the AI message to the UI
-        setMessages(prev => [...prev, {
-          id: aiMessageRef.id,
-          ...aiMessage,
-          timestamp: new Date(),
-        }]);
-        
-        setIsLoading(false);
-      }, 1500);
+      // Request AI response
+      const aiResponseData = await fetchWithAuth(`/api/teams/${teamId}/ai-messages/generate`, {
+        method: 'POST',
+        body: JSON.stringify({
+          userMessage: input
+        })
+      });
+      
+      // Add AI response to the UI
+      setMessages(prev => [...prev, aiResponseData.data]);
+      
+      setIsLoading(false);
     } catch (error) {
       console.error('Error sending message:', error);
       setIsLoading(false);
     }
-  };
-
-  // This is a placeholder function - in a real app, you'd call your AI service
-  const generateAIResponse = async (userMessage: string): Promise<string> => {
-    // Simulate API call to an AI service
-    // In a real app, you'd replace this with a call to your AI service
-    
-    const responses = [
-      "That's an interesting point. Have you considered looking at it from this perspective?",
-      "Based on your team's goals, I would recommend focusing on these key areas...",
-      "Here's some market research that might be relevant to your question...",
-      "I've analyzed your project timeline, and I think you might want to adjust your milestones.",
-      "Let me help you brainstorm some solutions to this challenge.",
-      "I found some similar case studies that might be helpful for your team.",
-      "Have you considered these alternative approaches to your problem?",
-      "Based on successful startups in your industry, here are some strategies to consider.",
-      "I can help you create a more detailed plan for that initiative.",
-      "Let me summarize the key points from your team's recent discussions on this topic."
-    ];
-    
-    return responses[Math.floor(Math.random() * responses.length)];
   };
 
   return (
@@ -223,4 +171,3 @@ const AIChatBox: React.FC<AIChatBoxProps> = ({ teamId }) => {
 };
 
 export default AIChatBox;
-

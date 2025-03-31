@@ -1,12 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { collection, addDoc, query, where, orderBy, getDocs, serverTimestamp, updateDoc, doc, deleteDoc } from 'firebase/firestore';
-import { db, auth } from '../../lib/firebase';
+import { useSession } from 'next-auth/react';
+import { fetchWithAuth } from '../../lib/api';
 import { formatDateTime } from '../../lib/utils';
 import { PlusIcon, SaveIcon } from '../Icon';
-
-
 
 const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -21,25 +19,15 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
   });
   const [tagInput, setTagInput] = useState('');
   const [userNames, setUserNames] = useState<Record<string, string>>({});
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchNotes = async () => {
       if (!teamId) return;
       
       try {
-        const notesQuery = query(
-          collection(db, 'notes'),
-          where('teamId', '==', teamId),
-          orderBy('updatedAt', 'desc')
-        );
-        
-        const notesSnapshot = await getDocs(notesQuery);
-        const notesData = notesSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate() || new Date(),
-          updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-        })) as Note[];
+        const response = await fetchWithAuth(`/api/teams/${teamId}/notes`);
+        const notesData = response.data;
         
         setNotes(notesData);
         
@@ -58,12 +46,11 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
         const userNamesMap: Record<string, string> = {};
         
         for (const userId of userIds) {
-          const userQuery = query(collection(db, 'users'), where('uid', '==', userId));
-          const userSnapshot = await getDocs(userQuery);
+          const userResponse = await fetchWithAuth(`/api/users/${userId}`);
           
-          if (!userSnapshot.empty) {
-            const userData = userSnapshot.docs[0].data();
-            userNamesMap[userId] = `${userData.firstName} ${userData.lastName}`;
+          if (userResponse.data) {
+            const userData = userResponse.data;
+            userNamesMap[userId as string] = `${userData.firstName} ${userData.lastName}`;
           }
         }
         
@@ -77,7 +64,7 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
   }, [teamId]);
 
   const handleCreateNote = async () => {
-    if (!auth.currentUser) return;
+    if (!session?.user) return;
     
     setIsCreating(true);
     setIsEditing(true);
@@ -90,40 +77,34 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
   };
 
   const handleSaveNote = async () => {
-    if (!auth.currentUser) return;
+    if (!session?.user) return;
     
     try {
       if (isCreating) {
         // Create new note
-        const noteData = {
-          title: editedNote.title,
-          content: editedNote.content,
-          tags: editedNote.tags,
-          teamId,
-          createdBy: auth.currentUser.uid,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        };
+        const response = await fetchWithAuth(`/api/teams/${teamId}/notes`, {
+          method: 'POST',
+          body: JSON.stringify({
+            title: editedNote.title,
+            content: editedNote.content,
+            tags: editedNote.tags,
+          })
+        });
         
-        const docRef = await addDoc(collection(db, 'notes'), noteData);
-        
-        const newNote = {
-          id: docRef.id,
-          ...noteData,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        } as Note;
+        const newNote = response.data;
         
         setNotes(prev => [newNote, ...prev]);
-        setSelectedNote(docRef.id);
+        setSelectedNote(newNote.id);
         setIsCreating(false);
       } else if (selectedNote) {
         // Update existing note
-        await updateDoc(doc(db, 'notes', selectedNote), {
-          title: editedNote.title,
-          content: editedNote.content,
-          tags: editedNote.tags,
-          updatedAt: serverTimestamp(),
+        await fetchWithAuth(`/api/teams/${teamId}/notes/${selectedNote}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            title: editedNote.title,
+            content: editedNote.content,
+            tags: editedNote.tags,
+          })
         });
         
         setNotes(prev => prev.map(note => {
@@ -151,7 +132,9 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
     
     if (window.confirm('Are you sure you want to delete this note?')) {
       try {
-        await deleteDoc(doc(db, 'notes', selectedNote));
+        await fetchWithAuth(`/api/teams/${teamId}/notes/${selectedNote}`, {
+          method: 'DELETE'
+        });
         
         setNotes(prev => prev.filter(note => note.id !== selectedNote));
         
@@ -343,7 +326,7 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
                         onClick={() => handleRemoveTag(tag)}
                         className="ml-1 text-orange-600 hover:text-orange-800"
                       >
-                        &times;
+                        ×
                       </button>
                     </span>
                   ))}

@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react';
-import { collection, addDoc, query, where, orderBy, getDocs, serverTimestamp, onSnapshot } from 'firebase/firestore';
-import { db, auth } from '../../lib/firebase';
+import { useSession } from 'next-auth/react';
+import { fetchWithAuth } from '../../lib/api';
 import { formatDateTime } from '../../lib/utils';
 import { UserIcon } from '../Icon';
 
@@ -17,6 +17,7 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
   const [newChannel, setNewChannel] = useState({ name: '', description: '' });
   const [userProfiles, setUserProfiles] = useState<Record<string, any>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { data: session } = useSession();
 
   useEffect(() => {
     if (!teamId) return;
@@ -24,38 +25,27 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
     // Fetch channels
     const fetchChannels = async () => {
       try {
-        const channelsQuery = query(
-          collection(db, 'channels'),
-          where('teamId', '==', teamId),
-          orderBy('createdAt', 'asc')
-        );
+        const response = await fetchWithAuth(`/api/teams/${teamId}/channels`);
+        const channelsData = response.data;
         
-        const unsubscribe = onSnapshot(channelsQuery, (snapshot) => {
-          const channelsData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            createdAt: doc.data().createdAt?.toDate() || new Date(),
-          })) as Channel[];
-          
-          setChannels(channelsData);
-          
-          // Select the first channel if none is selected
-          if (channelsData.length > 0 && !selectedChannel) {
-            setSelectedChannel(channelsData[0].id);
-          }
-        });
+        setChannels(channelsData);
         
-        return unsubscribe;
+        // Select the first channel if none is selected
+        if (channelsData.length > 0 && !selectedChannel) {
+          setSelectedChannel(channelsData[0].id);
+        }
       } catch (error) {
         console.error('Error fetching channels:', error);
-        return () => {};
       }
     };
     
-    const unsubscribeFromChannels = fetchChannels();
+    fetchChannels();
+    
+    // Set up polling for new channels
+    const intervalId = setInterval(fetchChannels, 10000);
     
     return () => {
-      unsubscribeFromChannels.then(unsubscribe => unsubscribe());
+      clearInterval(intervalId);
     };
   }, [teamId]);
 
@@ -65,53 +55,40 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
     // Fetch messages for the selected channel
     const fetchMessages = async () => {
       try {
-        const messagesQuery = query(
-          collection(db, 'messages'),
-          where('channelId', '==', selectedChannel),
-          orderBy('timestamp', 'asc')
-        );
+        const response = await fetchWithAuth(`/api/teams/${teamId}/channels/${selectedChannel}/messages`);
+        const messagesData = response.data;
         
-        const unsubscribe = onSnapshot(messagesQuery, async (snapshot) => {
-          const messagesData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            timestamp: doc.data().timestamp?.toDate() || new Date(),
-          })) as Message[];
-          
-          setMessages(messagesData);
-          
-          // Fetch user profiles for all unique senders
-          const senderIds = [...new Set(messagesData.map(msg => msg.sender))];
-          
-          for (const senderId of senderIds) {
-            if (!userProfiles[senderId]) {
-              const userQuery = query(collection(db, 'users'), where('uid', '==', senderId));
-              const userSnapshot = await getDocs(userQuery);
-              
-              if (!userSnapshot.empty) {
-                const userData = userSnapshot.docs[0].data();
-                setUserProfiles(prev => ({
-                  ...prev,
-                  [senderId]: userData
-                }));
-              }
+        setMessages(messagesData);
+        
+        // Fetch user profiles for all unique senders
+        const senderIds = [...new Set(messagesData.map(msg => msg.sender))];
+        
+        for (const senderId of senderIds) {
+          if (!userProfiles[senderId as string]) {
+            const userResponse = await fetchWithAuth(`/api/users/${senderId}`);
+            //need to check
+            if (userResponse.data) {
+              setUserProfiles(prev => ({
+                ...prev,
+                [senderId as string]: userResponse.data
+              }));
             }
           }
-        });
-        
-        return unsubscribe;
+        }
       } catch (error) {
         console.error('Error fetching messages:', error);
-        return () => {};
       }
     };
     
-    const unsubscribeFromMessages = fetchMessages();
+    fetchMessages();
+    
+    // Set up polling for new messages
+    const intervalId = setInterval(fetchMessages, 5000);
     
     return () => {
-      unsubscribeFromMessages.then(unsubscribe => unsubscribe());
+      clearInterval(intervalId);
     };
-  }, [selectedChannel, userProfiles]);
+  }, [selectedChannel, teamId, userProfiles]);
 
   useEffect(() => {
     scrollToBottom();
@@ -124,20 +101,19 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!input.trim() || !auth.currentUser || !selectedChannel) return;
+    if (!input.trim() || !session?.user || !selectedChannel) return;
     
     try {
-      const userProfile = userProfiles[auth.currentUser.uid] || {};
-      const senderName = `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim() || 'Team Member';
+      const userProfile = userProfiles[session.user.id] || {};
+      const senderName = `${session.user.firstName || ''} ${session.user.lastName || ''}`.trim() || 'Team Member';
       
-      // Add message to Firestore
-      await addDoc(collection(db, 'messages'), {
-        content: input,
-        sender: auth.currentUser.uid,
-        senderName,
-        channelId: selectedChannel,
-        teamId,
-        timestamp: serverTimestamp(),
+      // Add message to database
+      await fetchWithAuth(`/api/teams/${teamId}/channels/${selectedChannel}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({
+          content: input,
+          senderName,
+        })
       });
       
       setInput('');
@@ -149,16 +125,16 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
   const handleAddChannel = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newChannel.name.trim() || !auth.currentUser) return;
+    if (!newChannel.name.trim() || !session?.user) return;
     
     try {
-      // Add channel to Firestore
-      await addDoc(collection(db, 'channels'), {
-        name: newChannel.name,
-        description: newChannel.description,
-        teamId,
-        createdBy: auth.currentUser.uid,
-        createdAt: serverTimestamp(),
+      // Add channel to database
+      await fetchWithAuth(`/api/teams/${teamId}/channels`, {
+        method: 'POST',
+        body: JSON.stringify({
+          name: newChannel.name,
+          description: newChannel.description,
+        })
       });
       
       setNewChannel({ name: '', description: '' });
