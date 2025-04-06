@@ -14,9 +14,21 @@
         "start": "concurrently \"npm run start --workspace=frontend\" \"npm run start --workspace=backend\""
     },
     "devDependencies": {
-        "concurrently": "^8.2.0"
+        "@types/express": "^5.0.1",
+        "@types/node": "^22.13.14",
+        "concurrently": "^8.2.0",
+        "nodemon": "^3.1.9",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.2"
     },
     "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2",
+        "express-rate-limit": "^7.5.0",
+        "helmet": "^8.1.0",
+        "mongoose": "^8.13.1",
+        "next-auth": "^4.24.11",
         "react-hook-form": "^7.55.0"
     }
 }

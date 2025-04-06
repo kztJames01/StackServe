@@ -10,6 +10,13 @@ declare type LoginUser = {
     password: string;
 };
 
+declare type User = {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    password: string;
+};
 
 declare type SignUpParams = {
     firstName: string;
@@ -94,6 +101,9 @@ declare interface WorkingSpaceProps {
     teamId: string;
 }
 
+declare interface AIChatBoxProps {
+    teamId: string;
+}
 declare interface TeamNotesProps {
     teamId: string;
 }
@@ -104,6 +114,7 @@ declare interface Note {
     content: string;
     createdBy: string;
     createdAt: Date;
+    teamId: string;
     updatedAt: Date;
     tags: string[];
 }
@@ -114,6 +125,8 @@ declare interface Project {
     status: 'planning' | 'in-progress' | 'review' | 'completed';
     dueDate: Date;
     createdAt: Date;
+    createdBy: string;
+    teamId: string;
     tasks: Task[];
 }
 
@@ -124,7 +137,11 @@ declare interface Task {
     status: 'todo' | 'in-progress' | 'done';
     assignedTo: string;
     dueDate: Date;
-}
+    projectId: string;
+    teamId: string;
+    createdAt: Date;
+    createdBy: string;
+  }
 
 declare interface TeamMessageChannelProps {
     teamId: string;
@@ -136,7 +153,9 @@ declare interface Message {
     sender: string;
     senderName: string;
     timestamp: Date;
+    channelId?: string;
     attachments?: string[];
+    isAI?: boolean;
 }
 
 declare interface Channel {
@@ -144,6 +163,8 @@ declare interface Channel {
     name: string;
     description?: string;
     createdAt: Date;
+    teamId: string;
+    createdBy: string;
 }
 
 declare interface TeamMembersProps {
@@ -160,10 +181,6 @@ declare interface TeamMember {
     lastName?: string;
     email?: string;
     photoURL?: string;
-}
-
-declare interface AIChatBoxProps {
-    teamId: string;
 }
 
 declare interface Message {
