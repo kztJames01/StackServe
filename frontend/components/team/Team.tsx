@@ -17,7 +17,8 @@ const TeamDashboard = () => {
   const [user, setUser] = useState(null);
   const teamId = useSearchParams().get('teamId');
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession() as {data : ExtendedSession | null};
+  const { status } = useSession();
 
   useEffect(() => {
     if(!teamId){
@@ -25,7 +26,7 @@ const TeamDashboard = () => {
     }
     // Check if user is authenticated
     if (status === 'authenticated') {
-      setUser(session.user);
+      setUser(user);
     } else {
       router.push('/sign-in');
     }

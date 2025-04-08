@@ -17,7 +17,7 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
   const [newChannel, setNewChannel] = useState({ name: '', description: '' });
   const [userProfiles, setUserProfiles] = useState<Record<string, any>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { data: session } = useSession();
+  const { data: session } = useSession() as {data: ExtendedSession | null};
 
   useEffect(() => {
     if (!teamId) return;
@@ -56,7 +56,7 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
     const fetchMessages = async () => {
       try {
         const response = await fetchWithAuth(`/api/teams/${teamId}/channels/${selectedChannel}/messages`);
-        const messagesData = response.data;
+        const messagesData = response.data as Message[];
         
         setMessages(messagesData);
         
