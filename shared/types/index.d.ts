@@ -224,3 +224,13 @@ declare interface Creator {
     projects: Project[];
     contributions: Contribution[];
 };
+declare interface SessionUser {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    email: string;
+  }
+  
+ declare interface ExtendedSession {
+    user: SessionUser;
+  }
