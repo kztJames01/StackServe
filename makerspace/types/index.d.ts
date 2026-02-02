@@ -50,3 +50,24 @@ declare interface UrlQueryParams {
     key: string;
     value: string;
 }
+
+declare interface IconProps{
+    className?: String
+}
+
+declare interface SidebarContextProps{
+    isMobile: boolean
+    state: 'open' | 'closed';
+    openMobile: () => void;
+    setOpenMobile: (open: boolean) => void;
+}
+
+declare interface CreatePostDrawerProps {
+    onClose: () => void;
+}
+
+declare interface Note {
+    id: number;
+    content: string;
+    timestamp: string;
+}
