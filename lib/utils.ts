@@ -16,7 +16,7 @@ export function UrlQuery({ params, key, value }: UrlQueryParams) {
         skipEmptyString: true,
     });
 }
-export const parseStringify = (value: any) => JSON.parse(JSON.stringify(value));
+export const parseStringify = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 export const authFormSchema = (type:string)=> z.object({
     firstName: type === 'sign-in'? z.string().optional(): z.string().min(2),

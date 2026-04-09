@@ -17,7 +17,8 @@ MakerSpace is a collaborative platform designed for teams to manage projects, ta
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **UI Components**: [Radix UI](https://www.radix-ui.com/) & [Lucide React](https://lucide.dev/)
-- **Backend/Auth**: [Firebase](https://firebase.google.com/)
+- **Frontend Auth**: [Firebase](https://firebase.google.com/)
+- **API Backend**: [Express.js](https://expressjs.com/) (in `backend/`)
 - **3D Graphics**: [Three.js](https://threejs.org/)
 - **Form Handling**: [React Hook Form](https://react-hook-form.com/) & [Zod](https://zod.dev/)
 
@@ -53,8 +54,15 @@ MakerSpace is a collaborative platform designed for teams to manage projects, ta
    NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
    ```
 
-4. Run the development server:
+4. Run the frontend development server:
    ```bash
+   npm run dev
+   ```
+
+5. Run the Express API server:
+   ```bash
+   cd backend
+   npm install
    npm run dev
    ```
 
@@ -65,6 +73,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - `app/`: Contains the Next.js App Router pages and layouts.
 - `components/`: Reusable UI components, including a dedicated `ui/` folder for base primitives.
 - `lib/`: Utility functions and Firebase configuration.
+- `backend/`: Express API (`/api/feed`, `/api/profile`, `/api/profile/projects`, `/api/profile/posts`, `/api/tasks`).
 - `hooks/`: Custom React hooks.
 - `types/`: TypeScript type definitions.
 
