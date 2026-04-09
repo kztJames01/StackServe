@@ -1,77 +1,41 @@
 'use client'
-import { useState } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Button } from "./ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 
-import { Textarea } from "./ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Button } from './ui/button';
+import { CardSection } from './layout/dashboard-shell';
+import { Textarea } from './ui/textarea';
 
 export default function TeamProfile() {
-    const [note, setNote] = useState<string>('');
-    const [notes, setNotes] = useState<Note[]>([]);
-
-    const handleSaveNote = () => {
-        if (note.trim()) {
-            const newNote = {
-                id: Date.now(),
-                content: note,
-                timestamp: new Date().toISOString(),
-            };
-            setNotes((prevNotes: any) => [newNote, ...prevNotes]);
-            setNote('');
-        }
-    };
-    const cards = [
-        { title: 'AI-Powered Playground', content: <AIBox/> },
-        { title: 'Team Progress', content: <div className="h-4 bg-gray-100 rounded" /> },
-        { title: 'Team Members', content: <Members/> },
-        { title: 'Take Notes', content: <Textarea placeholder="Write your notes here..." className="min-h-[50vh] focus:outline-none"/> },
-        { title: 'Project History', content: <div className="space-y-4" /> },
-    ];
-
-    return (
-
-        <div className="bg-white p-8 space-y-6">
-            {cards.map((card, index) => (
-                <Card key={card.title} className={`
-              shadow-lg rounded-xl border-0 
-              ${index % 2 === 0 ? 'bg-white text-primary-foreground' : 'bg-primary text-background'}
-            `}>
-                    <CardHeader>
-                        <CardTitle>{card.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {card.content}
-                    </CardContent>
-                </Card>
-            ))}
-
+  return (
+    <div className="space-y-6">
+      <CardSection tone="white">
+        <h2 className="text-lg font-semibold">Team Members</h2>
+        <div className="mt-4 flex gap-4">
+          <Member initials="JD" />
+          <Member initials="AB" />
         </div>
+      </CardSection>
 
-    );
+      <CardSection tone="brown">
+        <h2 className="text-lg font-semibold">AI-Powered Playground</h2>
+        <p className="mt-1 text-sm">Capture idea prompts and request suggestions.</p>
+        <Textarea placeholder="Write down your ideas..." className="mt-4 min-h-[180px] bg-white" />
+        <Button className="mt-4 bg-[#252422] text-white hover:bg-[#1f1e1b]">Get AI Suggestions</Button>
+      </CardSection>
+
+      <CardSection tone="white">
+        <h2 className="text-lg font-semibold">Team Notes</h2>
+        <Textarea placeholder="Write sprint notes and decisions here..." className="mt-4 min-h-[240px]" />
+      </CardSection>
+    </div>
+  );
 }
 
-export function Members(){
-    return (
-        <div className="flex gap-4">
-            <Avatar>
-                <AvatarImage src="/home.jpg" />
-                <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-            <Avatar>
-                <AvatarImage src="/home.jpg" />
-                <AvatarFallback>AB</AvatarFallback>
-            </Avatar>
-        </div>
-    );
+function Member({ initials }: { initials: string }) {
+  return (
+    <Avatar>
+      <AvatarImage src="/home.jpg" />
+      <AvatarFallback>{initials}</AvatarFallback>
+    </Avatar>
+  );
 }
-
-export function AIBox(){
-    return (
-        <div>
-            <Textarea placeholder="Write down your ideas..." className="min-h-[200px]" />
-            <Button className="mt-4 text-background bg-primary">Get AI Suggestions</Button>
-        </div>
-    );
-}
-
