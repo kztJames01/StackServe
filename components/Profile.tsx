@@ -1,104 +1,104 @@
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+"use client";
+
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import CalendarHeatMap from "react-calendar-heatmap";
+import "react-calendar-heatmap/dist/styles.css";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import CalendarHeatMap from 'react-calendar-heatmap'; // Custom component for contribution graph
+import { CardSection } from "@/components/layout/dashboard-shell";
+import { getProfile } from "@/lib/api/client";
+
+const fetchContributions = async () => {
+  const data: { date: string; count: number }[] = [];
+  const today = new Date();
+  for (let i = 365; i >= 0; i -= 1) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const count = Math.random() > 0.7 ? Math.floor(Math.random() * 10) : 0;
+    if (count > 0) {
+      data.push({ date: date.toISOString().split("T")[0], count });
+    }
+  }
+  return data;
+};
 
 export default function ProfilePage() {
-    const projects = [
-        { id: 1, title: "Project 1", description: "A cool project", image: "/home.jpg" },
-        { id: 2, title: "Project 2", description: "Another cool project", image: "/home.jpg" },
-    ];
+  const { data: user } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: getProfile,
+  });
 
-    const posts = [
-        { id: 1, content: "Just launched my new project!", likes: 10, comments: 5 },
-        { id: 2, content: "Working on something exciting...", likes: 15, comments: 8 },
-    ];
+  const { data: contributions } = useQuery({
+    queryKey: ["contributions"],
+    queryFn: fetchContributions,
+  });
 
-    return (
-        <div className="flex p-8 gap-8">
-            {/* Left Side */}
-            <div className="w-1/4 space-y-6">
-                <Avatar className="h-32 w-32">
-                    <AvatarImage src="/avatar.jpg" />
-                    <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <div>
-                    <h2 className="text-2xl font-bold">John Doe</h2>
-                    <p className="text-gray-500">Computer Science, Stanford University</p>
-                </div>
-                <div className="space-y-2">
-                    <Button variant="outline" className="w-full">GitHub</Button>
-                    <Button variant="outline" className="w-full">LinkedIn</Button>
-                    <Button variant="outline" className="w-full">Twitter</Button>
-                </div>
-                <div>
-                    <h3 className="text-lg font-semibold">Skills</h3>
-                    <div className="flex flex-wrap gap-2">
-                        <span className="bg-gray-100 px-2 py-1 rounded">React</span>
-                        <span className="bg-gray-100 px-2 py-1 rounded">Python</span>
-                        <span className="bg-gray-100 px-2 py-1 rounded">Design</span>
-                    </div>
-                </div>
+  return (
+    <div className="space-y-6">
+      <CardSection tone="white">
+        <div className="flex flex-wrap items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={user?.avatar || "/home.jpg"} />
+              <AvatarFallback>{user?.name?.slice(0, 2) || "FN"}</AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="text-2xl font-semibold">{user?.name || "Founder"}</h2>
+              <p className="text-sm text-neutral-600">{user?.bio || "Founder in Residence"}</p>
             </div>
-
-            {/* Right Side */}
-            <div className="w-3/4 space-y-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Contributions</CardTitle>
-                        <CardDescription>Your activity in the community</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <CalendarHeatMap values={[]} />
-                    </CardContent>
-                </Card>
-
-                <Tabs defaultValue="projects">
-                    <TabsList>
-                        <TabsTrigger value="projects">Projects</TabsTrigger>
-                        <TabsTrigger value="posts">Posts</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="projects">
-                        <Carousel>
-                            <CarouselContent>
-                                {projects.map((project) => (
-                                    <CarouselItem key={project.id}>
-                                        <Card>
-                                            <CardHeader>
-                                                <CardTitle>{project.title}</CardTitle>
-                                                <CardDescription>{project.description}</CardDescription>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <img src={project.image} alt={project.title} className="w-full h-48 object-cover rounded" />
-                                            </CardContent>
-                                        </Card>
-                                    </CarouselItem>
-                                ))}
-                            </CarouselContent>
-                        </Carousel>
-                    </TabsContent>
-                    <TabsContent value="posts">
-                        <div className="space-y-4">
-                            {posts.map((post) => (
-                                <Card key={post.id}>
-                                    <CardHeader>
-                                        <CardTitle>Post</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <p>{post.content}</p>
-                                        <div className="flex gap-4 mt-4">
-                                            <span>Likes: {post.likes}</span>
-                                            <span>Comments: {post.comments}</span>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    </TabsContent>
-                </Tabs>
-            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <Link href={user?.socials.github || "#"}>GitHub</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href={user?.socials.linkedin || "#"}>LinkedIn</Link>
+            </Button>
+          </div>
         </div>
-    );
+        <div className="mt-4 flex flex-wrap gap-2">
+          {(user?.skills || []).map((skill) => (
+            <span key={skill} className="rounded-full bg-[#BB9457]/25 px-3 py-1 text-xs font-medium text-[#252422]">
+              {skill}
+            </span>
+          ))}
+        </div>
+      </CardSection>
+
+      <CardSection tone="black">
+        <h3 className="text-lg font-semibold">Contributions</h3>
+        <p className="mb-4 mt-1 text-sm text-[#F5EFE6]/80">Your activity over the past year.</p>
+        <div className="overflow-x-auto">
+          <CalendarHeatMap
+            values={contributions || []}
+            classForValue={(value) => {
+              if (!value) return "color-empty";
+              if (value.count >= 8) return "color-scale-4";
+              if (value.count >= 5) return "color-scale-3";
+              if (value.count >= 2) return "color-scale-2";
+              return "color-scale-1";
+            }}
+          />
+        </div>
+      </CardSection>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <CardSection tone="white">
+          <h3 className="text-lg font-semibold">Projects</h3>
+          <p className="mt-1 text-sm text-neutral-600">Manage public portfolio projects.</p>
+          <Button asChild className="mt-4 bg-[#252422] text-white hover:bg-[#1f1e1b]">
+            <Link href="/profile/projects">Open projects page</Link>
+          </Button>
+        </CardSection>
+        <CardSection tone="brown">
+          <h3 className="text-lg font-semibold">Posts</h3>
+          <p className="mt-1 text-sm">Publish updates that investors and collaborators can see.</p>
+          <Button asChild className="mt-4 bg-[#252422] text-white hover:bg-[#1f1e1b]">
+            <Link href="/profile/posts">Open posts page</Link>
+          </Button>
+        </CardSection>
+      </div>
+    </div>
+  );
 }

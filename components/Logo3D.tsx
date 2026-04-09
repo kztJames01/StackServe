@@ -6,6 +6,7 @@ const FallingmodelsWithTextures: React.FC = () => {
 
     useEffect(() => {
         if (!mountRef.current) return;
+        const mountNode = mountRef.current;
 
         // Scene, Camera, Renderer
         const scene = new THREE.Scene();
@@ -13,7 +14,7 @@ const FallingmodelsWithTextures: React.FC = () => {
         const renderer = new THREE.WebGLRenderer({ alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setClearColor(0xF2DFC9, 0); 
-        mountRef.current.appendChild(renderer.domElement);
+        mountNode.appendChild(renderer.domElement);
 
        
         const light = new THREE.DirectionalLight(0xF2DFC9, 1);
@@ -132,12 +133,14 @@ const FallingmodelsWithTextures: React.FC = () => {
             renderer.dispose();
             models.forEach((model) => model.geometry.dispose());
             models.forEach((model) => {
-                model.material instanceof Array ? 
-                model.material.forEach((material) => material.dispose()) : 
-                model.material.dispose();
+                if (Array.isArray(model.material)) {
+                    model.material.forEach((material) => material.dispose());
+                } else {
+                    model.material.dispose();
+                }
             });
-            if (mountRef.current) {
-                mountRef.current.removeChild(renderer.domElement);
+            if (mountNode.contains(renderer.domElement)) {
+                mountNode.removeChild(renderer.domElement);
             }
         };
     }, []);

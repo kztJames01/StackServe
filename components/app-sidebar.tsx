@@ -2,16 +2,13 @@
 
 import * as React from "react"
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
+  Briefcase,
+  Building2,
   Command,
-  Frame,
   GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
+  MessageSquare,
+  Rocket,
+  Sparkles,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -25,132 +22,46 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { platformNav, projectNav } from "@/lib/navigation"
 
-// This is sample data.
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "Founder",
+    email: "founder@nxtgen.community",
     avatar: "/home.jpg",
   },
   teams: [
     {
-      name: "Acme Inc",
+      name: "NxtGen Core",
       logo: GalleryVerticalEnd,
-      plan: "Enterprise",
+      plan: "Growth",
     },
     {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
+      name: "Startup Circle",
+      logo: Rocket,
+      plan: "Community",
     },
     {
-      name: "Evil Corp.",
+      name: "Investor Desk",
       logo: Command,
-      plan: "Free",
+      plan: "Network",
     },
   ],
-  navMain: [
-    {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Tasks",
-          url: "#",
-        },
-        
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
+  navMain: platformNav.map((item) => ({
+    ...item,
+    icon:
+      item.title === "Workspace"
+        ? Briefcase
+        : item.title === "Growth"
+          ? Building2
+          : item.title === "Community"
+            ? MessageSquare
+            : Sparkles,
+  })),
+  projects: projectNav.map((project, index) => ({
+    ...project,
+    icon: index % 2 === 0 ? Command : Rocket,
+  })),
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
