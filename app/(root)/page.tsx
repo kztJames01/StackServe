@@ -32,13 +32,13 @@ export default function Home() {
               <div className="flex gap-4">
                 <Link
                   href="/sign-up"
-                  className="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-colors"
+                  className="bg-[#252422] text-[#F5EFE6] px-8 py-3.5 rounded-xl font-semibold hover:bg-[#1a1917] hover:shadow-lg hover:shadow-[#252422]/20 hover:-translate-y-0.5 transition-all duration-300"
                 >
                   Join the Community
                 </Link>
                 <Link
                   href="/explore"
-                  className="bg-transparent border border-primary text-primary px-6 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors"
+                  className="bg-white/80 backdrop-blur-sm border border-[#252422]/20 text-[#252422] px-8 py-3.5 rounded-xl font-semibold hover:bg-white hover:border-[#252422]/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
                 >
                   Explore Projects
                 </Link>
@@ -106,3 +106,4 @@ export default function Home() {
     </>
   );
 }
+
