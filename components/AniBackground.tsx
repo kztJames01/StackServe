@@ -8,13 +8,14 @@ const ThreeDBackground = () => {
 
     useEffect(() => {
         if (!mountRef.current) return;
+        const mountNode = mountRef.current;
 
         // Scene, Camera, Renderer
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000); // Default aspect ratio of 1
         const renderer = new THREE.WebGLRenderer({ alpha: true });
         renderer.setClearColor(0x000000, 0); // Transparent background
-        mountRef.current.appendChild(renderer.domElement);
+        mountNode.appendChild(renderer.domElement);
 
         // Geometry and Material
         const geometry = new THREE.BoxGeometry(2, 2, 2);
@@ -46,15 +47,15 @@ const ThreeDBackground = () => {
 
         // Create a ResizeObserver to track the parent container's size
         const resizeObserver = new ResizeObserver(handleResize);
-        if (mountRef.current) {
-            resizeObserver.observe(mountRef.current);
+        if (mountNode) {
+            resizeObserver.observe(mountNode);
         }
 
         // Cleanup
         return () => {
             resizeObserver.disconnect();
-            if (mountRef.current) {
-                mountRef.current.removeChild(renderer.domElement);
+            if (mountNode.contains(renderer.domElement)) {
+                mountNode.removeChild(renderer.domElement);
             }
         };
     }, []);
