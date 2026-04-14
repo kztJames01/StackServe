@@ -1,0 +1,31 @@
+{
+  "pages": {
+    "/(auth)/sign-up/page": [
+      "static/chunks/node_modules_next_dist_8db7fb1f._.js",
+      "static/chunks/frontend_app_favicon_ico_mjs_e52104ae._.js",
+      "static/chunks/[root-of-the-server]__1d214523._.css",
+      "static/chunks/node_modules_e296b35b._.js",
+      "static/chunks/frontend_app_providers_tsx_72a6b65e._.js",
+      "static/chunks/frontend_app_layout_tsx_0a548d63._.js",
+      "static/chunks/node_modules_next_dist_client_components_builtin_global-error_98315283.js",
+      "static/chunks/node_modules_next_914b1570._.js",
+      "static/chunks/node_modules_zod_lib_index_mjs_d45abfbb._.js",
+      "static/chunks/94568_@firebase_auth_dist_esm2017_840f3a86._.js",
+      "static/chunks/node_modules_@firebase_firestore_dist_index_esm2017_d9c36ae7.js",
+      "static/chunks/node_modules_three_build_three_core_996ef05a.js",
+      "static/chunks/node_modules_three_build_three_module_0c59ee63.js",
+      "static/chunks/node_modules_c4c85e58._.js",
+      "static/chunks/frontend_d41acf32._.js",
+      "static/chunks/frontend_app_(auth)_sign-up_page_tsx_98315283._.js",
+      "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_57d40746._.js",
+      "static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js",
+      "static/chunks/node_modules_next_dist_compiled_next-devtools_index_a9cb0712.js",
+      "static/chunks/node_modules_next_dist_compiled_5150ccfd._.js",
+      "static/chunks/node_modules_next_dist_client_cf1d9188._.js",
+      "static/chunks/node_modules_next_dist_b0daae9a._.js",
+      "static/chunks/node_modules_@swc_helpers_cjs_b3dc30d6._.js",
+      "static/chunks/frontend_a0ff3932._.js",
+      "static/chunks/turbopack-frontend_cdba956c._.js"
+    ]
+  }
+}

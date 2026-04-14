@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isTeamMember(teamId) {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid));
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
+
+    // Tasks collection
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated() && 
+        (isTeamMember(resource.data.teamId) || resource.data.assignedTo == request.auth.uid);
+      
+      allow create: if isAuthenticated() && 
+        isTeamMember(request.resource.data.teamId);
+      
+      allow update: if isAuthenticated() && 
+        (isTeamMember(resource.data.teamId) || resource.data.assignedTo == request.auth.uid);
+      
+      allow delete: if isAuthenticated() && 
+        (isTeamMember(resource.data.teamId) || resource.data.assignedTo == request.auth.uid);
+    }
+
+    // Teams collection
+    match /teams/{teamId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && isTeamMember(teamId);
+      allow delete: if isAuthenticated() && 
+        get(/databases/$(database)/documents/teams/$(teamId)).data.ownerId == request.auth.uid;
+    }
+
+    // Team members subcollection
+    match /teams/{teamId}/members/{memberId} {
+      allow read: if isAuthenticated() && isTeamMember(teamId);
+      allow create: if isAuthenticated() && isTeamMember(teamId);
+      allow update: if isAuthenticated() && isTeamMember(teamId);
+      allow delete: if isAuthenticated() && 
+        (isOwner(memberId) || 
+         get(/databases/$(database)/documents/teams/$(teamId)).data.ownerId == request.auth.uid);
+    }
+
+    // Posts collection (for the feed)
+    match /posts/{postId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+      allow delete: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+
+    // Comments subcollection
+    match /posts/{postId}/comments/{commentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || 
+         get(/databases/$(database)/documents/posts/$(postId)).data.userId == request.auth.uid);
+    }
+
+    // Likes subcollection
+    match /posts/{postId}/likes/{likeId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && likeId == request.auth.uid;
+      allow delete: if isAuthenticated() && likeId == request.auth.uid;
+    }
+
+    // Projects collection
+    match /projects/{projectId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && 
+        (resource.data.ownerId == request.auth.uid || 
+         request.auth.uid in resource.data.collaborators);
+      allow delete: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+    }
+
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+  }
+}
