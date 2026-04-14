@@ -1,25 +1,23 @@
 const { Router } = require('express');
-const { feed, posts } = require('../seed');
+const {
+  deleteEntity,
+  getEntityById,
+  listEntities,
+  upsertEntity,
+} = require('../db/repository');
 
 const router = Router();
 
-function paginate(array, page, limit) {
-  const p = Math.max(1, parseInt(page) || 1);
-  const l = Math.min(100, Math.max(1, parseInt(limit) || 10));
-  const start = (p - 1) * l;
-  return { items: array.slice(start, start + l), page: p, limit: l, total: array.length };
-}
-
 // GET /api/feed
-router.get('/feed', (req, res) => {
+router.get('/feed', async (req, res) => {
   const { page, limit } = req.query;
-  const result = paginate(feed, page, limit);
-  res.json(result.items);
+  const result = await listEntities('feed', { page, limit });
+  res.json(result);
 });
 
 // POST /api/posts
-router.post('/posts', (req, res) => {
-  const userId = (req.user && req.user.id) || 'current-user';
+router.post('/posts', async (req, res) => {
+  const userId = (req.user && (req.user.id || req.user.uid)) || 'current-user';
   const { caption, description } = req.body || {};
 
   if (!caption) {
@@ -28,8 +26,8 @@ router.post('/posts', (req, res) => {
 
   const post = {
     id: `post-${Date.now()}`,
-    user: { name: userId, avatar: '/home.jpg', rating: '5.0' },
-    date: 'just now',
+    user: { id: userId, name: userId, avatar: '/home.jpg', rating: '5.0' },
+    date: new Date().toISOString(),
     caption,
     description: description || '',
     likes: 0,
@@ -37,25 +35,25 @@ router.post('/posts', (req, res) => {
     shares: 0,
   };
 
-  feed.unshift(post);
+  await upsertEntity('feed', post);
   return res.status(201).json({ data: post, message: 'Post created' });
 });
 
 // POST /api/posts/:id/like
-router.post('/posts/:id/like', (req, res) => {
-  const post = feed.find((p) => p.id === req.params.id);
+router.post('/posts/:id/like', async (req, res) => {
+  const post = await getEntityById('feed', req.params.id);
   if (!post) return res.status(404).json({ message: 'Post not found' });
 
   post.likes = (post.likes || 0) + 1;
+  await upsertEntity('feed', post);
   return res.json({ data: post, message: 'Post liked' });
 });
 
 // DELETE /api/posts/:id
-router.delete('/posts/:id', (req, res) => {
-  const index = feed.findIndex((p) => p.id === req.params.id);
-  if (index === -1) return res.status(404).json({ message: 'Post not found' });
+router.delete('/posts/:id', async (req, res) => {
+  const deleted = await deleteEntity('feed', req.params.id);
+  if (!deleted) return res.status(404).json({ message: 'Post not found' });
 
-  feed.splice(index, 1);
   return res.json({ message: 'Post deleted' });
 });
 

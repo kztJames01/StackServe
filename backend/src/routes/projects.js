@@ -1,5 +1,11 @@
 const { Router } = require('express');
-const { projects } = require('../seed');
+const {
+  deleteEntity,
+  getEntityById,
+  getEntityBySlug,
+  listEntities,
+  upsertEntity,
+} = require('../db/repository');
 
 const router = Router();
 
@@ -10,17 +16,18 @@ function paginate(array, page, limit) {
 }
 
 // GET /api/projects
-router.get('/projects', (req, res) => {
+router.get('/projects', async (req, res) => {
   const { tag, page, limit } = req.query;
-  let result = tag
-    ? projects.filter((proj) => proj.tags && proj.tags.includes(tag))
-    : projects;
+  let result = await listEntities('projects', { paginate: false });
+  if (tag) {
+    result = result.filter((proj) => proj.tags && proj.tags.includes(tag));
+  }
   res.json(paginate(result, page, limit));
 });
 
 // POST /api/projects
-router.post('/projects', (req, res) => {
-  const userId = (req.user && req.user.id) || 'current-user';
+router.post('/projects', async (req, res) => {
+  const userId = (req.user && (req.user.id || req.user.uid)) || 'current-user';
   const { title, description } = req.body || {};
 
   if (!title) return res.status(400).json({ message: 'title is required' });
@@ -33,41 +40,42 @@ router.post('/projects', (req, res) => {
     description: description || '',
     image: '/home.jpg',
     tags: req.body.tags || [],
+    collaborators: req.body.collaborators || [],
+    status: req.body.status || 'active',
     createdAt: new Date().toISOString(),
   };
 
-  projects.unshift(project);
+  await upsertEntity('projects', project);
   return res.status(201).json({ data: project, message: 'Project created' });
 });
 
 // GET /api/projects/:slug
-router.get('/projects/:slug', (req, res) => {
-  const project = projects.find(
-    (p) => String(p.id) === req.params.slug || p.slug === req.params.slug
-  );
+router.get('/projects/:slug', async (req, res) => {
+  const project = (await getEntityById('projects', req.params.slug)) || (await getEntityBySlug('projects', req.params.slug));
   if (!project) return res.status(404).json({ message: 'Project not found' });
   res.json(project);
 });
 
 // PATCH /api/projects/:id
-router.patch('/projects/:id', (req, res) => {
-  const project = projects.find((p) => String(p.id) === req.params.id);
+router.patch('/projects/:id', async (req, res) => {
+  const project = await getEntityById('projects', req.params.id);
   if (!project) return res.status(404).json({ message: 'Project not found' });
 
-  const allowed = ['title', 'description', 'image', 'tags'];
+  const allowed = ['title', 'description', 'image', 'tags', 'status', 'collaborators'];
   (req.body ? Object.keys(req.body) : []).forEach((key) => {
     if (allowed.includes(key)) project[key] = req.body[key];
   });
+
+  await upsertEntity('projects', project);
 
   return res.json({ data: project, message: 'Project updated' });
 });
 
 // DELETE /api/projects/:id
-router.delete('/projects/:id', (req, res) => {
-  const index = projects.findIndex((p) => String(p.id) === req.params.id);
-  if (index === -1) return res.status(404).json({ message: 'Project not found' });
+router.delete('/projects/:id', async (req, res) => {
+  const deleted = await deleteEntity('projects', req.params.id);
+  if (!deleted) return res.status(404).json({ message: 'Project not found' });
 
-  projects.splice(index, 1);
   return res.json({ message: 'Project deleted' });
 });
 

@@ -1,38 +1,43 @@
 const { Router } = require('express');
-const { history } = require('../seed');
+const {
+  listEntities,
+  upsertEntity,
+} = require('../db/repository');
 
 const router = Router();
 
 // GET /api/history
-router.get('/history', (req, res) => {
-  const userId = (req.user && req.user.id) || 'current-user';
+router.get('/history', async (req, res) => {
+  const userId = (req.user && (req.user.id || req.user.uid)) || 'current-user';
   const { page = 1, limit = 10 } = req.query;
   const p = Math.max(1, parseInt(page));
   const l = Math.min(100, Math.max(1, parseInt(limit)));
 
-  const userHistory = history.filter((h) => h.userId === userId);
+  const userHistory = await listEntities('history', {
+    paginate: false,
+    filter: (entry) => entry.userId === userId,
+  });
   res.json(userHistory.slice((p - 1) * l, (p - 1) * l + l));
 });
 
 // POST /api/history
-router.post('/history', (req, res) => {
-  const userId = (req.user && req.user.id) || 'current-user';
-  const { action, entityId, entityType } = req.body || {};
+router.post('/history', async (req, res) => {
+  const userId = (req.user && (req.user.id || req.user.uid)) || 'current-user';
+  const { action, entityId, entityType, title, description, type, projectId, date } = req.body || {};
 
-  if (!action) return res.status(400).json({ message: 'action is required' });
-  if (!entityId) return res.status(400).json({ message: 'entityId is required' });
-  if (!entityType) return res.status(400).json({ message: 'entityType is required' });
+  if (!title && !action) return res.status(400).json({ message: 'title is required' });
 
   const entry = {
     id: `hist-${Date.now()}`,
     userId,
-    action,
-    entityId,
-    entityType,
-    createdAt: new Date().toISOString(),
+    projectId: projectId || entityId || null,
+    title: title || action,
+    description: description || '',
+    type: type || entityType || 'milestone',
+    date: date || new Date().toISOString(),
   };
 
-  history.unshift(entry);
+  await upsertEntity('history', entry);
   return res.status(201).json({ data: entry, message: 'History recorded' });
 });
 
