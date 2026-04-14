@@ -1,0 +1,22 @@
+{
+  "app": {
+    "[project]/frontend/app/(auth)/sign-in/page": [
+      "static/media/caa3a2e1cccd8315-s.p.853070df.woff2",
+      "static/media/797e433ab948586e-s.p.dbea232f.woff2",
+      "static/media/311067066cc847c9-s.p.b4e3fd88.woff2"
+    ],
+    "[project]/frontend/app/(auth)/sign-up/page": [
+      "static/media/caa3a2e1cccd8315-s.p.853070df.woff2",
+      "static/media/797e433ab948586e-s.p.dbea232f.woff2",
+      "static/media/311067066cc847c9-s.p.b4e3fd88.woff2"
+    ],
+    "[project]/frontend/app/(root)/page": [
+      "static/media/caa3a2e1cccd8315-s.p.853070df.woff2",
+      "static/media/797e433ab948586e-s.p.dbea232f.woff2",
+      "static/media/311067066cc847c9-s.p.b4e3fd88.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}
