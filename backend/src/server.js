@@ -1,6 +1,7 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 require('dotenv').config();
+require('./instrument');
 const express = require('express');
 const cors = require('cors');
 
@@ -36,7 +37,6 @@ app.use('/api', require('./routes/investors'));
 app.use('/api', require('./routes/users'));
 app.use('/api', require('./routes/history'));
 
-//error handler
 app.use(errorHandler);
 
 async function startServer() {
