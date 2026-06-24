@@ -12,10 +12,14 @@
 
 # testing
 /coverage
+/playwright-report/
+/test-results/
+.env.sentry-build-plugin
 
 # next.js
 /.next/
 /out/
+frontend/.next/
 
 # production
 /build

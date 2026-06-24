@@ -2,30 +2,6 @@
 
 MakerSpace is a collaborative platform designed for teams to manage projects, tasks, and profiles. Built with a modern tech stack, it provides a seamless experience for team coordination and project tracking.
 
-## 🚀 Features
-
-- **User Authentication**: Secure sign-in and sign-up functionality powered by Firebase.
-- **Team Management**: Tools for managing teams and switching between different workspaces.
-- **Task Tracking**: A dedicated tasks section for organizing and monitoring project progress.
-- **User Profiles**: Personalized profile pages for team members.
-- **Explore**: A discovery area to find other projects or collaborators.
-- **Modern UI**: A beautiful, responsive interface built with Tailwind CSS, Radix UI, and Three.js for 3D elements.
-
-## 🛠️ Tech Stack
-
-- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **UI Components**: [Radix UI](https://www.radix-ui.com/) & [Lucide React](https://lucide.dev/)
-- **Frontend Auth**: [Firebase](https://firebase.google.com/)
-- **API Backend**: [Express.js](https://expressjs.com/) (in `backend/`)
-- **3D Graphics**: [Three.js](https://threejs.org/)
-- **Form Handling**: [React Hook Form](https://react-hook-form.com/) & [Zod](https://zod.dev/)
-
-## 🏁 Getting Started
-
-### Prerequisites
-
 - Node.js 18+
 - A Firebase project for authentication
 
@@ -66,16 +42,30 @@ MakerSpace is a collaborative platform designed for teams to manage projects, ta
    npm run dev
    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 📁 Project Structure
+## Monitoring & Testing
 
-- `app/`: Contains the Next.js App Router pages and layouts.
-- `components/`: Reusable UI components, including a dedicated `ui/` folder for base primitives.
-- `lib/`: Utility functions and Firebase configuration.
-- `backend/`: Express API (`/api/feed`, `/api/profile`, `/api/profile/projects`, `/api/profile/posts`, `/api/tasks`).
-- `hooks/`: Custom React hooks.
-- `types/`: TypeScript type definitions.
+### Sentry
+
+Error monitoring is wired for the Next.js frontend and Express API. It stays off until you set a DSN.
+
+1. Create a project at [sentry.io](https://sentry.io)
+2. Copy the DSN into `.env`
+3. Optional: set `SENTRY_ORG`, `SENTRY_PROJECT`, and `SENTRY_AUTH_TOKEN` for source map uploads on production builds
+
+### Playwright
+
+Smoke tests cover the landing page, sign-in page, auth redirect, and API health check.
+
+```bash
+npm run playwright:install   # first time only
+npm run db:start             # postgres for the API
+npm run test:e2e
+```
+
+### CI
+
+GitHub Actions runs lint, frontend build, and Playwright smoke tests on push/PR (`.github/workflows/ci.yml`).
 
 ## 📄 License
 
