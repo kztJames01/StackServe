@@ -4,12 +4,15 @@ const {
   listEntities,
   upsertEntity,
 } = require('../db/repository');
+const { requireAuth } = require('../middleware/validate');
+const { getUserId, getUserIdOr401 } = require('../middleware/authUser');
 
 const router = Router();
 
-// GET /api/conversations
 router.get('/conversations', async (req, res) => {
-  const userId = (req.user && (req.user.id || req.user.uid)) || 'current-user';
+  const userId = getUserIdOr401(req, res);
+  if (!userId) return;
+
   const { page = 1, limit = 10 } = req.query;
   const p = Math.max(1, parseInt(page));
   const l = Math.min(100, Math.max(1, parseInt(limit)));
@@ -21,8 +24,10 @@ router.get('/conversations', async (req, res) => {
   res.json(userConvs.slice((p - 1) * l, (p - 1) * l + l));
 });
 
-// GET /api/messages?conversationId=
 router.get('/messages', async (req, res) => {
+  const userId = getUserIdOr401(req, res);
+  if (!userId) return;
+
   const { conversationId, page = 1, limit = 20 } = req.query;
   if (!conversationId) return res.status(400).json({ message: 'conversationId is required' });
 
@@ -36,9 +41,8 @@ router.get('/messages', async (req, res) => {
   res.json(result);
 });
 
-// POST /api/messages
-router.post('/messages', async (req, res) => {
-  const userId = (req.user && (req.user.id || req.user.uid)) || 'current-user';
+router.post('/messages', requireAuth, async (req, res) => {
+  const userId = getUserId(req);
   const { conversationId, text, content, receiverId } = req.body || {};
   const messageText = text || content;
 
@@ -58,7 +62,6 @@ router.post('/messages', async (req, res) => {
 
   await upsertEntity('messages', message);
 
-  // Update conversation lastMessage
   const conv = await getEntityById('conversations', conversationId);
   if (conv) {
     conv.lastMessage = messageText;

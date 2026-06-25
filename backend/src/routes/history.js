@@ -3,12 +3,15 @@ const {
   listEntities,
   upsertEntity,
 } = require('../db/repository');
+const { requireAuth } = require('../middleware/validate');
+const { getUserId, getUserIdOr401 } = require('../middleware/authUser');
 
 const router = Router();
 
-// GET /api/history
 router.get('/history', async (req, res) => {
-  const userId = (req.user && (req.user.id || req.user.uid)) || 'current-user';
+  const userId = getUserIdOr401(req, res);
+  if (!userId) return;
+
   const { page = 1, limit = 10 } = req.query;
   const p = Math.max(1, parseInt(page));
   const l = Math.min(100, Math.max(1, parseInt(limit)));
@@ -20,9 +23,8 @@ router.get('/history', async (req, res) => {
   res.json(userHistory.slice((p - 1) * l, (p - 1) * l + l));
 });
 
-// POST /api/history
-router.post('/history', async (req, res) => {
-  const userId = (req.user && (req.user.id || req.user.uid)) || 'current-user';
+router.post('/history', requireAuth, async (req, res) => {
+  const userId = getUserId(req);
   const { action, entityId, entityType, title, description, type, projectId, date } = req.body || {};
 
   if (!title && !action) return res.status(400).json({ message: 'title is required' });
