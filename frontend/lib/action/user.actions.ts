@@ -5,7 +5,7 @@ import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
 } from 'firebase/auth'
-import { setCookie, deleteCookie } from 'cookies-next'
+import { storeAuthToken, clearAuthToken } from '@/lib/auth-cookie'
 import { updateMe } from '@/lib/api/client'
 
 export const createUser = async ({
@@ -22,11 +22,16 @@ export const createUser = async ({
   try {
     if (!auth) return null
     const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-    // Update display name via backend after successful registration
+    try {
+      const token = await userCredential.user.getIdToken()
+      await storeAuthToken(token)
+    } catch {
+      // cookie optional at signup
+    }
     try {
       await updateMe({ name: `${firstName} ${lastName}` })
     } catch {
-      // Non-fatal: backend may not be available at registration time
+      // backend might be down
     }
     return userCredential.user
   } catch (error) {
@@ -39,12 +44,11 @@ export const signIn = async ({ email, password }: { email: string; password: str
   try {
     if (!auth) return null
     const userCredential = await signInWithEmailAndPassword(auth, email, password)
-    // Store Firebase ID token in cookie for middleware auth checks
     try {
       const token = await userCredential.user.getIdToken()
-      setCookie('auth_token', token, { maxAge: 60 * 60 })
+      await storeAuthToken(token)
     } catch {
-      // Non-fatal: middleware will redirect to sign-in if cookie missing
+      // middleware needs cookie
     }
     return userCredential.user
   } catch (error) {
@@ -56,7 +60,7 @@ export const signIn = async ({ email, password }: { email: string; password: str
 export const signOut = async () => {
   try {
     if (auth) await firebaseSignOut(auth)
-    deleteCookie('auth_token')
+    clearAuthToken()
   } catch (error) {
     console.error('Error signing out:', error)
   }
