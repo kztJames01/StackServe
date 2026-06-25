@@ -1,8 +1,20 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import aj from '@/lib/arcjet';
 
-export function middleware(request: NextRequest) {
-  // Check cookie first, then Authorization header as fallback
+export async function middleware(request: NextRequest) {
+  if (aj) {
+    try {
+      const decision = await aj.protect(request);
+      if (decision.isDenied()) {
+        const status = decision.reason.isRateLimit() ? 429 : 403;
+        return NextResponse.json({ message: status === 429 ? 'Too many requests' : 'Forbidden' }, { status });
+      }
+    } catch {
+      // fail open if arcjet hiccups
+    }
+  }
+
   const cookieToken = request.cookies.get('auth_token')?.value;
   const headerToken = request.headers.get('Authorization')?.replace('Bearer ', '').trim();
   const token = cookieToken || headerToken;

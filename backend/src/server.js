@@ -9,6 +9,7 @@ const authMiddleware = require('./middleware/auth');
 const { bootstrapDatabase } = require('./db/bootstrap');
 const errorHandler = require('./middleware/errorHandler');
 const { apiRateLimit } = require('./middleware/rateLimit');
+const arcjetMiddleware = require('./middleware/arcjet');
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
@@ -19,6 +20,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
+app.use(arcjetMiddleware);
 app.use(apiRateLimit);
 app.use(authMiddleware);
 
