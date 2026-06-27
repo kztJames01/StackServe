@@ -6,10 +6,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { getFeedPosts } from "@/lib/api/client";
 import { CardSection } from "@/components/layout/dashboard-shell";
+import ApiErrorState from "@/components/ApiErrorState";
 import { Sparkles, MessageCircle, Share2, Heart, ArrowRight } from "lucide-react";
 
 export default function FeedPage() {
-  const { data: posts = [] } = useQuery({
+  const { data: posts = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ["feedPosts"],
     queryFn: getFeedPosts,
   });
@@ -42,36 +43,47 @@ export default function FeedPage() {
           </div>
         </CardSection>
 
-        {posts.map((post) => (
-          <CardSection key={post.id} tone="white">
-            <div className="mb-4 flex items-center gap-3">
-              <Avatar className="size-10 ring-2 ring-[#f8f5f0]">
-                <AvatarImage src={post.user.avatar} alt={post.user.name} />
-                <AvatarFallback className="bg-[#252422] text-[#F5EFE6]">{post.user.name.slice(0, 2)}</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-semibold text-[#252422]">{post.user.name}</p>
-                <p className="text-xs text-[#8a7f72]">{post.date}</p>
-              </div>
-            </div>
-            <h3 className="text-lg font-semibold text-[#252422] leading-tight">{post.caption}</h3>
-            <p className="mt-2 text-sm text-[#4a4744] leading-relaxed">{post.description}</p>
-            <div className="mt-5 flex items-center gap-6 text-sm">
-              <button className="flex items-center gap-2 text-[#8a7f72] hover:text-[#bb9457] transition-colors group">
-                <Heart className="size-4 group-hover:scale-110 transition-transform" />
-                <span>{post.likes}</span>
-              </button>
-              <button className="flex items-center gap-2 text-[#8a7f72] hover:text-[#bb9457] transition-colors group">
-                <MessageCircle className="size-4 group-hover:scale-110 transition-transform" />
-                <span>{post.comments}</span>
-              </button>
-              <button className="flex items-center gap-2 text-[#8a7f72] hover:text-[#bb9457] transition-colors group">
-                <Share2 className="size-4 group-hover:scale-110 transition-transform" />
-                <span>{post.shares}</span>
-              </button>
-            </div>
+        {isLoading ? (
+          <CardSection tone="white">
+            <p className="text-sm text-muted-foreground">Loading feed…</p>
           </CardSection>
-        ))}
+        ) : isError ? (
+          <ApiErrorState
+            message={error instanceof Error ? error.message : "Failed to load feed"}
+            onRetry={() => refetch()}
+          />
+        ) : (
+          posts.map((post) => (
+            <CardSection key={post.id} tone="white">
+              <div className="mb-4 flex items-center gap-3">
+                <Avatar className="size-10 ring-2 ring-[#f8f5f0]">
+                  <AvatarImage src={post.user.avatar} alt={post.user.name} />
+                  <AvatarFallback className="bg-[#252422] text-[#F5EFE6]">{post.user.name.slice(0, 2)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold text-[#252422]">{post.user.name}</p>
+                  <p className="text-xs text-[#8a7f72]">{post.date}</p>
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold text-[#252422] leading-tight">{post.caption}</h3>
+              <p className="mt-2 text-sm text-[#4a4744] leading-relaxed">{post.description}</p>
+              <div className="mt-5 flex items-center gap-6 text-sm">
+                <button className="flex items-center gap-2 text-[#8a7f72] hover:text-[#bb9457] transition-colors group">
+                  <Heart className="size-4 group-hover:scale-110 transition-transform" />
+                  <span>{post.likes}</span>
+                </button>
+                <button className="flex items-center gap-2 text-[#8a7f72] hover:text-[#bb9457] transition-colors group">
+                  <MessageCircle className="size-4 group-hover:scale-110 transition-transform" />
+                  <span>{post.comments}</span>
+                </button>
+                <button className="flex items-center gap-2 text-[#8a7f72] hover:text-[#bb9457] transition-colors group">
+                  <Share2 className="size-4 group-hover:scale-110 transition-transform" />
+                  <span>{post.shares}</span>
+                </button>
+              </div>
+            </CardSection>
+          ))
+        )}
       </div>
 
       <aside className="space-y-4">

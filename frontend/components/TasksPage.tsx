@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TaskSkeleton } from '@/components/TaskSkeleton';
 import { taskActions, Task } from '@/lib/action/task.actions';
 import { PlusIcon, TrashIcon } from 'lucide-react';
+import ApiErrorState from '@/components/ApiErrorState';
 
 const TASK_COLUMNS: Task['status'][] = ['todo', 'in-progress', 'done'];
 
@@ -15,7 +16,7 @@ export default function TasksPage() {
   const [isAdding, setIsAdding] = useState(false);
   const teamId = 'default-team';
 
-  const { data: tasks, isLoading } = useQuery({
+  const { data: tasks, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['tasks', teamId],
     queryFn: () => taskActions.getTasksByTeam(teamId),
   });
@@ -37,6 +38,14 @@ export default function TasksPage() {
 
   if (isLoading) {
     return <TaskSkeleton />;
+  }
+  if (isError) {
+    return (
+      <ApiErrorState
+        message={error instanceof Error ? error.message : 'Failed to load tasks'}
+        onRetry={() => refetch()}
+      />
+    );
   }
 
   return (

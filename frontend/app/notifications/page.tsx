@@ -3,11 +3,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell, CardSection } from '@/components/layout/dashboard-shell';
 import { getNotifications, markNotificationRead, markAllNotificationsRead } from '@/lib/api/client';
+import ApiErrorState from '@/components/ApiErrorState';
 
 export default function Page() {
   const queryClient = useQueryClient();
 
-  const { data: notifications = [], isLoading } = useQuery({
+  const { data: notifications = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ['notifications'],
     queryFn: getNotifications,
   });
@@ -37,6 +38,11 @@ export default function Page() {
         </div>
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : isError ? (
+          <ApiErrorState
+            message={error instanceof Error ? error.message : 'Failed to load notifications'}
+            onRetry={() => refetch()}
+          />
         ) : notifications.length === 0 ? (
           <p className="text-sm text-muted-foreground">No notifications.</p>
         ) : (

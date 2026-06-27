@@ -1,6 +1,17 @@
 import { auth } from "@/lib/firebase";
+import * as Sentry from "@sentry/nextjs";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
+
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
 
 async function getAuthHeaders(): Promise<Record<string, string>> {
   try {
@@ -12,27 +23,45 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const authHeaders = await getAuthHeaders();
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders,
-      ...(init?.headers ?? {}),
-    },
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || `Request failed with status ${response.status}`);
+function parseErrorMessage(text: string, status: number) {
+  try {
+    const body = JSON.parse(text);
+    if (body?.message) return body.message;
+  } catch {
+    // not json
   }
-
-  return (await response.json()) as T;
+  return text || `Request failed with status ${status}`;
 }
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const authHeaders = await getAuthHeaders();
+
+  try {
+    const response = await fetch(`${API_BASE}${path}`, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeaders,
+        ...(init?.headers ?? {}),
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      const message = parseErrorMessage(errorText, response.status);
+      const err = new ApiError(message, response.status);
+      Sentry.captureException(err, { extra: { path, status: response.status } });
+      throw err;
+    }
+
+    return (await response.json()) as T;
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    Sentry.captureException(err, { extra: { path } });
+    throw new ApiError("Network request failed", 0);
+  }
+}
 
 export type FeedPost = {
   id: string;
@@ -139,289 +168,151 @@ export type HistoryEntry = {
   type: string;
 };
 
-// ─── Fallback data ────────────────────────────────────────────────────────────
-
-const fallbackFeed: FeedPost[] = [
-  {
-    id: "1",
-    user: { name: "Sarah Maker", avatar: "/home.jpg", rating: "4.9" },
-    date: "2h ago",
-    caption: "Building an AI mentor for early-stage founders",
-    description: "Looking for a UI engineer and a growth operator to join this sprint.",
-    likes: 42,
-    comments: 15,
-    shares: 8,
-  },
-];
-
-const fallbackProfile: ProfileData = {
-  name: "John Doe",
-  bio: "Founder in Residence | Building products for creators",
-  avatar: "/home.jpg",
-  skills: ["React", "TypeScript", "Node.js", "Product Strategy"],
-  socials: {
-    github: "https://github.com/johndoe",
-    linkedin: "https://linkedin.com/in/johndoe",
-    twitter: "https://twitter.com/johndoe",
-  },
-};
-
-const fallbackProjects: ProjectItem[] = [
-  {
-    id: 1,
-    title: "AI Chatbot",
-    description: "Conversational assistant for startup ops.",
-    image: "/home.jpg",
-    tags: ["AI", "Python"],
-  },
-  {
-    id: 2,
-    title: "Founder CRM",
-    description: "Track outreach, investors, and user interviews.",
-    image: "/home.jpg",
-    tags: ["Next.js", "Node.js"],
-  },
-];
-
-const fallbackPosts: PostItem[] = [
-  {
-    id: 1,
-    content: "Shipped our MVP landing page today.",
-    likes: 24,
-    comments: 8,
-    date: "2 days ago",
-  },
-];
-
-// ─── Feed ─────────────────────────────────────────────────────────────────────
-
-export async function getFeedPosts(): Promise<FeedPost[]> {
-  try {
-    return await request<FeedPost[]>("/api/feed");
-  } catch {
-    return fallbackFeed;
-  }
+export async function getFeedPosts() {
+  return request<FeedPost[]>("/api/feed");
 }
 
-export async function createPost(content: string): Promise<{ data: FeedPost; message: string }> {
-  return request("/api/posts", {
+export async function createPost(content: string) {
+  return request<{ data: FeedPost; message: string }>("/api/posts", {
     method: "POST",
     body: JSON.stringify({ content }),
   });
 }
 
-export async function likePost(postId: string): Promise<{ likes: number }> {
-  return request(`/api/posts/${postId}/like`, { method: "POST" });
+export async function likePost(postId: string) {
+  return request<{ likes: number }>(`/api/posts/${postId}/like`, { method: "POST" });
 }
 
-export async function deletePost(postId: string): Promise<void> {
+export async function deletePost(postId: string) {
   await request(`/api/posts/${postId}`, { method: "DELETE" });
 }
 
-// ─── Profile ──────────────────────────────────────────────────────────────────
-
-export async function getProfile(): Promise<ProfileData> {
-  try {
-    return await request<ProfileData>("/api/profile");
-  } catch {
-    return fallbackProfile;
-  }
+export async function getProfile() {
+  return request<ProfileData>("/api/profile");
 }
 
-export async function updateProfile(data: Partial<ProfileData>): Promise<{ data: ProfileData; message: string }> {
-  return request("/api/profile", {
+export async function updateProfile(data: Partial<ProfileData>) {
+  return request<{ data: ProfileData; message: string }>("/api/profile", {
     method: "PATCH",
     body: JSON.stringify(data),
   });
 }
 
-export async function getProfileProjects(): Promise<ProjectItem[]> {
-  try {
-    return await request<ProjectItem[]>("/api/profile/projects");
-  } catch {
-    return fallbackProjects;
-  }
+export async function getProfileProjects() {
+  return request<ProjectItem[]>("/api/profile/projects");
 }
 
-export async function getProfilePosts(): Promise<PostItem[]> {
-  try {
-    return await request<PostItem[]>("/api/profile/posts");
-  } catch {
-    return fallbackPosts;
-  }
+export async function getProfilePosts() {
+  return request<PostItem[]>("/api/profile/posts");
 }
 
-// ─── Projects ─────────────────────────────────────────────────────────────────
-
-export async function getProjects(tag?: string): Promise<ProjectItem[]> {
-  try {
-    const qs = tag ? `?tag=${encodeURIComponent(tag)}` : "";
-    return await request<ProjectItem[]>(`/api/projects${qs}`);
-  } catch {
-    return [];
-  }
+export async function getProjects(tag?: string) {
+  const qs = tag ? `?tag=${encodeURIComponent(tag)}` : "";
+  return request<ProjectItem[]>(`/api/projects${qs}`);
 }
 
-export async function getProject(slug: string): Promise<ProjectItem> {
+export async function getProject(slug: string) {
   return request<ProjectItem>(`/api/projects/${slug}`);
 }
 
-export async function createProject(
-  data: Omit<ProjectItem, "id">
-): Promise<{ data: ProjectItem; message: string }> {
-  return request("/api/projects", {
+export async function createProject(data: Omit<ProjectItem, "id">) {
+  return request<{ data: ProjectItem; message: string }>("/api/projects", {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
-export async function updateProject(
-  id: string | number,
-  data: Partial<ProjectItem>
-): Promise<{ data: ProjectItem; message: string }> {
-  return request(`/api/projects/${id}`, {
+export async function updateProject(id: string | number, data: Partial<ProjectItem>) {
+  return request<{ data: ProjectItem; message: string }>(`/api/projects/${id}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
 }
 
-export async function deleteProject(id: string | number): Promise<void> {
+export async function deleteProject(id: string | number) {
   await request(`/api/projects/${id}`, { method: "DELETE" });
 }
 
-// ─── Teams ────────────────────────────────────────────────────────────────────
-
-export async function getTeams(): Promise<Team[]> {
-  try {
-    return await request<Team[]>("/api/teams");
-  } catch {
-    return [];
-  }
+export async function getTeams() {
+  return request<Team[]>("/api/teams");
 }
 
-export async function getTeam(id: string): Promise<Team> {
+export async function getTeam(id: string) {
   return request<Team>(`/api/teams/${id}`);
 }
 
-export async function createTeam(data: {
-  name: string;
-  description: string;
-}): Promise<{ data: Team; message: string }> {
-  return request("/api/teams", {
+export async function createTeam(data: { name: string; description: string }) {
+  return request<{ data: Team; message: string }>("/api/teams", {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
-// ─── Messages ─────────────────────────────────────────────────────────────────
-
-export async function getConversations(): Promise<Conversation[]> {
-  try {
-    return await request<Conversation[]>("/api/conversations");
-  } catch {
-    return [];
-  }
+export async function getConversations() {
+  return request<Conversation[]>("/api/conversations");
 }
 
-export async function getMessages(conversationId: string): Promise<Message[]> {
-  try {
-    return await request<Message[]>(`/api/messages?conversationId=${conversationId}`);
-  } catch {
-    return [];
-  }
+export async function getMessages(conversationId: string) {
+  return request<Message[]>(`/api/messages?conversationId=${conversationId}`);
 }
 
 export async function sendMessage(data: {
   conversationId: string;
   receiverId: string;
   content: string;
-}): Promise<{ data: Message; message: string }> {
-  return request("/api/messages", {
+}) {
+  return request<{ data: Message; message: string }>("/api/messages", {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
-// ─── Notifications ───────────────────────────────────────────────────────────
-
-export async function getNotifications(): Promise<Notification[]> {
-  try {
-    return await request<Notification[]>("/api/notifications");
-  } catch {
-    return [];
-  }
+export async function getNotifications() {
+  return request<Notification[]>("/api/notifications");
 }
 
-export async function markNotificationRead(id: string): Promise<void> {
+export async function markNotificationRead(id: string) {
   await request(`/api/notifications/${id}/read`, { method: "PATCH" });
 }
 
-export async function markAllNotificationsRead(): Promise<void> {
+export async function markAllNotificationsRead() {
   await request("/api/notifications/read-all", { method: "PATCH" });
 }
 
-// ─── Recruit ──────────────────────────────────────────────────────────────────
-
-export async function getRecruitListings(tag?: string): Promise<RecruitListing[]> {
-  try {
-    const qs = tag ? `?tag=${encodeURIComponent(tag)}` : "";
-    return await request<RecruitListing[]>(`/api/recruit${qs}`);
-  } catch {
-    return [];
-  }
+export async function getRecruitListings(tag?: string) {
+  const qs = tag ? `?tag=${encodeURIComponent(tag)}` : "";
+  return request<RecruitListing[]>(`/api/recruit${qs}`);
 }
 
-export async function createRecruitListing(
-  data: Omit<RecruitListing, "id" | "createdAt">
-): Promise<{ data: RecruitListing; message: string }> {
-  return request("/api/recruit", {
+export async function createRecruitListing(data: Omit<RecruitListing, "id" | "createdAt">) {
+  return request<{ data: RecruitListing; message: string }>("/api/recruit", {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
-// ─── Investors ───────────────────────────────────────────────────────────────
-
-export async function getInvestors(stage?: string): Promise<Investor[]> {
-  try {
-    const qs = stage ? `?stage=${encodeURIComponent(stage)}` : "";
-    return await request<Investor[]>(`/api/investors${qs}`);
-  } catch {
-    return [];
-  }
+export async function getInvestors(stage?: string) {
+  const qs = stage ? `?stage=${encodeURIComponent(stage)}` : "";
+  return request<Investor[]>(`/api/investors${qs}`);
 }
 
-// ─── Users ────────────────────────────────────────────────────────────────────
-
-export async function getMe(): Promise<ProfileData> {
-  try {
-    return await request<ProfileData>("/api/users/me");
-  } catch {
-    return fallbackProfile;
-  }
+export async function getMe() {
+  return request<ProfileData>("/api/users/me");
 }
 
-export async function updateMe(data: Partial<ProfileData>): Promise<{ data: ProfileData; message: string }> {
-  return request("/api/users/me", {
+export async function updateMe(data: Partial<ProfileData>) {
+  return request<{ data: ProfileData; message: string }>("/api/users/me", {
     method: "PATCH",
     body: JSON.stringify(data),
   });
 }
 
-// ─── History ──────────────────────────────────────────────────────────────────
-
-export async function getHistory(): Promise<HistoryEntry[]> {
-  try {
-    return await request<HistoryEntry[]>("/api/history");
-  } catch {
-    return [];
-  }
+export async function getHistory() {
+  return request<HistoryEntry[]>("/api/history");
 }
 
-export async function createHistoryEntry(
-  data: Omit<HistoryEntry, "id">
-): Promise<{ data: HistoryEntry; message: string }> {
-  return request("/api/history", {
+export async function createHistoryEntry(data: Omit<HistoryEntry, "id">) {
+  return request<{ data: HistoryEntry; message: string }>("/api/history", {
     method: "POST",
     body: JSON.stringify(data),
   });

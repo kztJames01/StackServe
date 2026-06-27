@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell, CardSection } from '@/components/layout/dashboard-shell';
 import { getMe, updateMe } from '@/lib/api/client';
+import ApiErrorState from '@/components/ApiErrorState';
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -11,7 +12,7 @@ export default function Page() {
   const [bio, setBio] = useState('');
   const [saved, setSaved] = useState(false);
 
-  const { data: me, isLoading } = useQuery({
+  const { data: me, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['me'],
     queryFn: getMe,
   });
@@ -37,6 +38,11 @@ export default function Page() {
       <CardSection tone="white">
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : isError ? (
+          <ApiErrorState
+            message={error instanceof Error ? error.message : 'Failed to load account'}
+            onRetry={() => refetch()}
+          />
         ) : (
           <form
             className="space-y-4 max-w-md"

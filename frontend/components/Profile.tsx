@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CardSection } from "@/components/layout/dashboard-shell";
 import { getProfile } from "@/lib/api/client";
+import ApiErrorState from "@/components/ApiErrorState";
 
 const fetchContributions = async () => {
   const data: { date: string; count: number }[] = [];
@@ -24,7 +25,7 @@ const fetchContributions = async () => {
 };
 
 export default function ProfilePage() {
-  const { data: user } = useQuery({
+  const { data: user, isError, error, refetch } = useQuery({
     queryKey: ["userProfile"],
     queryFn: getProfile,
   });
@@ -36,6 +37,12 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
+      {isError && (
+        <ApiErrorState
+          message={error instanceof Error ? error.message : "Failed to load profile"}
+          onRetry={() => refetch()}
+        />
+      )}
       <CardSection tone="white">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="flex items-center gap-4">
