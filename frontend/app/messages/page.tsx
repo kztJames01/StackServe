@@ -1,15 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell, CardSection } from '@/components/layout/dashboard-shell';
 import { getConversations, getMessages, sendMessage } from '@/lib/api/client';
 import ApiErrorState from '@/components/ApiErrorState';
+import { auth } from '@/lib/firebase';
+import { onIdTokenChanged } from 'firebase/auth';
+import { io, type Socket } from 'socket.io-client';
 
 export default function Page() {
   const queryClient = useQueryClient();
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [content, setContent] = useState('');
+  const socketRef = useRef<Socket | null>(null);
 
   const { data: conversations = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ['conversations'],
@@ -34,6 +38,49 @@ export default function Page() {
       setContent('');
     },
   });
+
+  useEffect(() => {
+    if (!auth) return;
+    let mounted = true;
+
+    const unsub = onIdTokenChanged(auth, async (user) => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+
+      if (!mounted || !user) return;
+      const token = await user.getIdToken();
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
+      const socket = io(base, {
+        transports: ['websocket'],
+        auth: { token },
+      });
+
+      socket.on('message:new', (message) => {
+        const conversationId = message?.conversationId;
+        if (!conversationId) return;
+        queryClient.invalidateQueries({ queryKey: ['conversations'] });
+        queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
+      });
+
+      socketRef.current = socket;
+    });
+
+    return () => {
+      mounted = false;
+      unsub();
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, [queryClient]);
+
+  useEffect(() => {
+    if (!activeConvId || !socketRef.current) return;
+    socketRef.current.emit('join-conversation', { conversationId: activeConvId });
+  }, [activeConvId]);
 
   return (
     <DashboardShell title="Messages" description="Direct conversations with founders, teammates, and partners.">

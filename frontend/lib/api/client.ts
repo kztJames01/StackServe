@@ -168,6 +168,23 @@ export type HistoryEntry = {
   type: string;
 };
 
+export type BillingStatus = {
+  plan: string;
+  subscriptionStatus: string;
+  currentPeriodEnd: string | null;
+  customerId: string | null;
+  subscriptionId: string | null;
+  priceId: string | null;
+};
+
+export type StorageUploadData = {
+  key: string;
+  uploadUrl: string;
+  fileUrl: string;
+  method: string;
+  headers?: Record<string, string>;
+};
+
 export async function getFeedPosts() {
   return request<FeedPost[]>("/api/feed");
 }
@@ -316,6 +333,56 @@ export async function createHistoryEntry(data: Omit<HistoryEntry, "id">) {
     method: "POST",
     body: JSON.stringify(data),
   });
+}
+
+export async function getBillingStatus() {
+  return request<BillingStatus>("/api/billing/status");
+}
+
+export async function createBillingCheckoutSession(priceId?: string) {
+  return request<{ url: string }>("/api/billing/create-checkout-session", {
+    method: "POST",
+    body: JSON.stringify(priceId ? { priceId } : {}),
+  });
+}
+
+export async function createBillingPortalSession() {
+  return request<{ url: string }>("/api/billing/create-portal-session", {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+}
+
+export async function createStorageUploadUrl(folder: "avatars" | "projects", file: File) {
+  return request<StorageUploadData>("/api/storage/upload-url", {
+    method: "POST",
+    body: JSON.stringify({
+      folder,
+      filename: file.name,
+      contentType: file.type,
+      size: file.size,
+    }),
+  });
+}
+
+export async function uploadFileToStorage(folder: "avatars" | "projects", file: File) {
+  const signed = await createStorageUploadUrl(folder, file);
+  const response = await fetch(signed.uploadUrl, {
+    method: signed.method || "PUT",
+    headers: {
+      "Content-Type": file.type,
+      ...(signed.headers || {}),
+    },
+    body: file,
+  });
+
+  if (!response.ok) {
+    const err = new ApiError("Upload failed", response.status);
+    Sentry.captureException(err, { extra: { folder, key: signed.key, status: response.status } });
+    throw err;
+  }
+
+  return signed;
 }
 
 export { request };
