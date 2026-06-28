@@ -56,8 +56,11 @@ router.get('/projects/:slug', async (req, res) => {
 });
 
 router.patch('/projects/:id', requireAuth, async (req, res) => {
+  const userId = getUserId(req);
   const project = await getEntityById('projects', req.params.id);
   if (!project) return res.status(404).json({ message: 'Project not found' });
+  const canEdit = project.ownerId === userId || (Array.isArray(project.collaborators) && project.collaborators.includes(userId));
+  if (!canEdit) return res.status(403).json({ message: 'Forbidden' });
 
   const allowed = ['title', 'description', 'image', 'tags', 'status', 'collaborators'];
   (req.body ? Object.keys(req.body) : []).forEach((key) => {
@@ -70,6 +73,11 @@ router.patch('/projects/:id', requireAuth, async (req, res) => {
 });
 
 router.delete('/projects/:id', requireAuth, async (req, res) => {
+  const userId = getUserId(req);
+  const project = await getEntityById('projects', req.params.id);
+  if (!project) return res.status(404).json({ message: 'Project not found' });
+  if (project.ownerId !== userId) return res.status(403).json({ message: 'Only owner can delete project' });
+
   const deleted = await deleteEntity('projects', req.params.id);
   if (!deleted) return res.status(404).json({ message: 'Project not found' });
 

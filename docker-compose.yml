@@ -42,6 +42,17 @@ services:
       REDIS_URL: redis://redis:6379
       CORS_ORIGIN: http://localhost:3000
       SEED_DB: "true"
+      APP_URL: http://localhost:3000
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_PRICE_ID: ${STRIPE_PRICE_ID:-}
+      STRIPE_API_VERSION: ${STRIPE_API_VERSION:-}
+      B2_ENDPOINT: ${B2_ENDPOINT:-}
+      B2_REGION: ${B2_REGION:-us-east-005}
+      B2_BUCKET: ${B2_BUCKET:-}
+      B2_KEY_ID: ${B2_KEY_ID:-}
+      B2_APPLICATION_KEY: ${B2_APPLICATION_KEY:-}
+      B2_PUBLIC_BASE_URL: ${B2_PUBLIC_BASE_URL:-}
     depends_on:
       postgres:
         condition: service_healthy

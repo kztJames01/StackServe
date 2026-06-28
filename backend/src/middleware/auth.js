@@ -76,4 +76,22 @@ async function authMiddleware(req, res, next) {
   }
 }
 
+async function verifyAuthToken(idToken) {
+  if (!idToken || typeof idToken !== 'string') return null;
+  initFirebase();
+  if (firebaseUnavailable) return null;
+  try {
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    return {
+      uid: decoded.uid,
+      email: decoded.email ?? null,
+      name: decoded.name ?? decoded.display_name ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 module.exports = authMiddleware;
+module.exports.verifyAuthToken = verifyAuthToken;
+module.exports.initFirebase = initFirebase;
