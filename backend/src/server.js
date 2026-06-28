@@ -2,6 +2,7 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 require('dotenv').config();
 require('./instrument');
+const http = require('http');
 const express = require('express');
 const cors = require('cors');
 
@@ -10,6 +11,9 @@ const { bootstrapDatabase } = require('./db/bootstrap');
 const errorHandler = require('./middleware/errorHandler');
 const { initRateLimiters, apiRateLimit } = require('./middleware/rateLimit');
 const arcjetMiddleware = require('./middleware/arcjet');
+const { initSocket } = require('./realtime/socket');
+const { billingRouter, billingWebhookHandler } = require('./routes/billing');
+const storageRoutes = require('./routes/storage');
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
@@ -19,6 +23,8 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   credentials: true,
 }));
+
+app.post('/api/billing/webhook', express.raw({ type: 'application/json' }), billingWebhookHandler);
 app.use(express.json());
 
 app.use(arcjetMiddleware);
@@ -38,6 +44,8 @@ app.use('/api', require('./routes/recruit'));
 app.use('/api', require('./routes/investors'));
 app.use('/api', require('./routes/users'));
 app.use('/api', require('./routes/history'));
+app.use('/api', billingRouter);
+app.use('/api', storageRoutes);
 
 app.use(errorHandler);
 
@@ -45,7 +53,11 @@ async function startServer() {
   await initRateLimiters();
   await bootstrapDatabase();
 
-  app.listen(port, host, () => {
+  const httpServer = http.createServer(app);
+  const io = initSocket(httpServer);
+  app.set('io', io);
+
+  httpServer.listen(port, host, () => {
     console.log(`makerspace-api running on http://${host}:${port}`);
   });
 }
