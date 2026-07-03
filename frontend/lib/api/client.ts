@@ -1,7 +1,9 @@
 import { auth } from "@/lib/firebase";
 import * as Sentry from "@sentry/nextjs";
+// shared with the mobile app
+import { DEFAULT_API_BASE, parseErrorMessage } from "../../../shared/apiHelpers";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE;
 
 export class ApiError extends Error {
   status: number;
@@ -21,16 +23,6 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
   } catch {
     return {};
   }
-}
-
-function parseErrorMessage(text: string, status: number) {
-  try {
-    const body = JSON.parse(text);
-    if (body?.message) return body.message;
-  } catch {
-    // not json
-  }
-  return text || `Request failed with status ${status}`;
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {

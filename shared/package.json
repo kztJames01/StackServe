@@ -1,0 +1,11 @@
+{
+  "name": "makerspace-shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "stuff shared between the web and mobile apps",
+  "exports": {
+    "./authSchema": "./authSchema.js",
+    "./apiHelpers": "./apiHelpers.js",
+    "./theme": "./theme.js"
+  }
+}
