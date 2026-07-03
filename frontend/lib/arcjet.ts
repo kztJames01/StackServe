@@ -1,9 +1,10 @@
 import arcjet, { detectBot, shield, slidingWindow } from '@arcjet/next';
 
 const key = process.env.ARCJET_KEY;
-const mode =
-  process.env.ARCJET_MODE ||
-  (process.env.NODE_ENV === 'production' ? 'LIVE' : 'DRY_RUN');
+const mode: 'LIVE' | 'DRY_RUN' =
+  process.env.ARCJET_MODE === 'LIVE' || process.env.ARCJET_MODE === 'DRY_RUN'
+    ? process.env.ARCJET_MODE
+    : process.env.NODE_ENV === 'production' ? 'LIVE' : 'DRY_RUN';
 
 const aj = key
   ? arcjet({
