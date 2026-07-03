@@ -12,33 +12,34 @@ export default function Home() {
         <FallingmodelsWithTextures />
 
         {/* Content Container (Left 50%) */}
-        <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center w-full lg:w-[50%] min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+        <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center w-full lg:w-[50%] min-h-screen p-4 pb-16 gap-10 sm:p-12 sm:gap-16 lg:p-20 font-[family-name:var(--font-geist-sans)]">
           <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-            <div className="flex flex-col items-center justify-center text-center bg-white/10 backdrop-blur-sm p-8 rounded-lg shadow-lg max-w-xl mx-auto">
+            <div className="flex flex-col items-center justify-center text-center bg-white/10 backdrop-blur-sm p-5 sm:p-8 rounded-lg shadow-lg max-w-xl mx-auto">
               <div className="flex items-center gap-4">
                 <Image
                   src="/logo/mobile-logo1.png"
                   alt="Logo"
                   width={70}
                   height={70}
+                  className="size-12 sm:size-[70px]"
                 />
-                <h1 className="text-3xl font-[family-name:var(--font-antonio)]">
+                <h1 className="text-2xl sm:text-3xl font-[family-name:var(--font-antonio)]">
                   NxtGen
                 </h1>
               </div>
-              <p className="text-lg text-primary m-8">
+              <p className="text-base sm:text-lg text-primary my-6 sm:m-8">
                 A global creator hub for students, and innovators to share ideas, collaborate on projects, and turn dreams into reality.
               </p>
-              <div className="flex gap-4">
+              <div className="flex w-full flex-col items-stretch gap-4 sm:w-auto sm:flex-row">
                 <Link
                   href="/sign-up"
-                  className="bg-[#252422] text-[#F5EFE6] px-8 py-3.5 rounded-xl font-semibold hover:bg-[#1a1917] hover:shadow-lg hover:shadow-[#252422]/20 hover:-translate-y-0.5 transition-all duration-300"
+                  className="text-center bg-[#252422] text-[#F5EFE6] px-8 py-3.5 rounded-xl font-semibold hover:bg-[#1a1917] hover:shadow-lg hover:shadow-[#252422]/20 hover:-translate-y-0.5 transition-all duration-300"
                 >
                   Join the Community
                 </Link>
                 <Link
                   href="/explore"
-                  className="bg-white/80 backdrop-blur-sm border border-[#252422]/20 text-[#252422] px-8 py-3.5 rounded-xl font-semibold hover:bg-white hover:border-[#252422]/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                  className="text-center bg-white/80 backdrop-blur-sm border border-[#252422]/20 text-[#252422] px-8 py-3.5 rounded-xl font-semibold hover:bg-white hover:border-[#252422]/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
                 >
                   Explore Projects
                 </Link>
