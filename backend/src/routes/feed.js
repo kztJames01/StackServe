@@ -5,19 +5,19 @@ const {
   listEntities,
   upsertEntity,
 } = require('../db/repository');
+const { requireAuth } = require('../middleware/validate');
+const { getUserId } = require('../middleware/authUser');
 
 const router = Router();
 
-// GET /api/feed
 router.get('/feed', async (req, res) => {
   const { page, limit } = req.query;
   const result = await listEntities('feed', { page, limit });
   res.json(result);
 });
 
-// POST /api/posts
-router.post('/posts', async (req, res) => {
-  const userId = (req.user && (req.user.id || req.user.uid)) || 'current-user';
+router.post('/posts', requireAuth, async (req, res) => {
+  const userId = getUserId(req);
   const { caption, description } = req.body || {};
 
   if (!caption) {
@@ -39,8 +39,7 @@ router.post('/posts', async (req, res) => {
   return res.status(201).json({ data: post, message: 'Post created' });
 });
 
-// POST /api/posts/:id/like
-router.post('/posts/:id/like', async (req, res) => {
+router.post('/posts/:id/like', requireAuth, async (req, res) => {
   const post = await getEntityById('feed', req.params.id);
   if (!post) return res.status(404).json({ message: 'Post not found' });
 
@@ -49,8 +48,7 @@ router.post('/posts/:id/like', async (req, res) => {
   return res.json({ data: post, message: 'Post liked' });
 });
 
-// DELETE /api/posts/:id
-router.delete('/posts/:id', async (req, res) => {
+router.delete('/posts/:id', requireAuth, async (req, res) => {
   const deleted = await deleteEntity('feed', req.params.id);
   if (!deleted) return res.status(404).json({ message: 'Post not found' });
 

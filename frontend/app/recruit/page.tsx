@@ -3,9 +3,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { DashboardShell, CardSection } from '@/components/layout/dashboard-shell';
 import { getRecruitListings } from '@/lib/api/client';
+import ApiErrorState from '@/components/ApiErrorState';
 
 export default function Page() {
-  const { data: listings = [], isLoading } = useQuery({
+  const { data: listings = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ['recruit'],
     queryFn: () => getRecruitListings(),
   });
@@ -15,6 +16,11 @@ export default function Page() {
       <CardSection tone="brown">
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Loading listings…</p>
+        ) : isError ? (
+          <ApiErrorState
+            message={error instanceof Error ? error.message : 'Failed to load recruit listings'}
+            onRetry={() => refetch()}
+          />
         ) : listings.length === 0 ? (
           <p className="text-sm text-muted-foreground">No open roles posted yet.</p>
         ) : (

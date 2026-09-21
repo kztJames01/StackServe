@@ -1,21 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell, CardSection } from '@/components/layout/dashboard-shell';
 import { getConversations, getMessages, sendMessage } from '@/lib/api/client';
+import ApiErrorState from '@/components/ApiErrorState';
+import { auth } from '@/lib/firebase';
+import { onIdTokenChanged } from 'firebase/auth';
+import { io, type Socket } from 'socket.io-client';
 
 export default function Page() {
   const queryClient = useQueryClient();
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [content, setContent] = useState('');
+  const socketRef = useRef<Socket | null>(null);
 
-  const { data: conversations = [], isLoading } = useQuery({
+  const { data: conversations = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ['conversations'],
     queryFn: getConversations,
   });
 
-  const { data: messages = [] } = useQuery({
+  const { data: messages = [], isError: isMessagesError, error: messagesError, refetch: refetchMessages } = useQuery({
     queryKey: ['messages', activeConvId],
     queryFn: () => getMessages(activeConvId!),
     enabled: !!activeConvId,
@@ -34,11 +39,59 @@ export default function Page() {
     },
   });
 
+  useEffect(() => {
+    if (!auth) return;
+    let mounted = true;
+
+    const unsub = onIdTokenChanged(auth, async (user) => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+
+      if (!mounted || !user) return;
+      const token = await user.getIdToken();
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
+      const socket = io(base, {
+        transports: ['websocket'],
+        auth: { token },
+      });
+
+      socket.on('message:new', (message) => {
+        const conversationId = message?.conversationId;
+        if (!conversationId) return;
+        queryClient.invalidateQueries({ queryKey: ['conversations'] });
+        queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
+      });
+
+      socketRef.current = socket;
+    });
+
+    return () => {
+      mounted = false;
+      unsub();
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, [queryClient]);
+
+  useEffect(() => {
+    if (!activeConvId || !socketRef.current) return;
+    socketRef.current.emit('join-conversation', { conversationId: activeConvId });
+  }, [activeConvId]);
+
   return (
     <DashboardShell title="Messages" description="Direct conversations with founders, teammates, and partners.">
       <CardSection tone="white">
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Loading conversations…</p>
+        ) : isError ? (
+          <ApiErrorState
+            message={error instanceof Error ? error.message : 'Failed to load conversations'}
+            onRetry={() => refetch()}
+          />
         ) : conversations.length === 0 ? (
           <p className="text-sm text-muted-foreground">No conversations yet.</p>
         ) : (
@@ -70,16 +123,23 @@ export default function Page() {
             <div className="flex-1 flex flex-col gap-3 overflow-hidden">
               {activeConvId ? (
                 <>
-                  <div className="flex-1 overflow-y-auto space-y-2">
-                    {messages.map((msg) => (
-                      <div key={msg.id} className="rounded-lg border p-3">
-                        <p className="text-sm">{msg.content}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(msg.createdAt).toLocaleTimeString()}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
+                  {isMessagesError ? (
+                    <ApiErrorState
+                      message={messagesError instanceof Error ? messagesError.message : 'Failed to load messages'}
+                      onRetry={() => refetchMessages()}
+                    />
+                  ) : (
+                    <div className="flex-1 overflow-y-auto space-y-2">
+                      {messages.map((msg) => (
+                        <div key={msg.id} className="rounded-lg border p-3">
+                          <p className="text-sm">{msg.content}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {new Date(msg.createdAt).toLocaleTimeString()}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <div className="flex gap-2">
                     <input
                       className="flex-1 border rounded-md px-3 py-2 text-sm"

@@ -1,7 +1,8 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import qs from 'query-string'
-import {z} from 'zod'
+// shared with the mobile app
+import { authFormSchema as sharedAuthFormSchema } from '../../shared/authSchema'
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -18,13 +19,7 @@ export function UrlQuery({ params, key, value }: UrlQueryParams) {
 }
 export const parseStringify = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
-export const authFormSchema = (type:string)=> z.object({
-    firstName: type === 'sign-in'? z.string().optional(): z.string().min(2),
-    lastName: type === 'sign-in'? z.string().optional(): z.string().min(2),
-    email: z.string().email(),
-    password: z.string().min(6),
-    confirmPassword: type === 'sign-in'? z.string().optional(): z.string().min(6),
-})
+export const authFormSchema = (type:string)=> sharedAuthFormSchema(type)
 export function encryptId(id: string) {
     return btoa(id);
 }

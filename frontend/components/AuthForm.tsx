@@ -132,7 +132,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
             </footer>
           </div>
 
-          <div className="relative hidden min-h-[320px] bg-muted md:block">
+          <div className="relative hidden min-h-[320px] bg-muted lg:block">
             <div className="absolute inset-0 z-10 bg-gradient-to-br from-[#252422]/30 via-transparent to-[#bb9457]/35" />
             <div className="absolute left-6 top-6 z-20 max-w-sm rounded-[1.5rem] border border-white/50 bg-white/18 p-4 text-white backdrop-blur-md lg:left-8 lg:top-8">
               <p className="text-xs uppercase tracking-[0.18em] text-white/70">Build with conviction</p>

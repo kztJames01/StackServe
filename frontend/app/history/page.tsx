@@ -3,9 +3,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { DashboardShell, CardSection } from '@/components/layout/dashboard-shell';
 import { getHistory } from '@/lib/api/client';
+import ApiErrorState from '@/components/ApiErrorState';
 
 export default function Page() {
-  const { data: entries = [], isLoading } = useQuery({
+  const { data: entries = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ['history'],
     queryFn: getHistory,
   });
@@ -15,6 +16,11 @@ export default function Page() {
       <CardSection tone="white">
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Loading history…</p>
+        ) : isError ? (
+          <ApiErrorState
+            message={error instanceof Error ? error.message : 'Failed to load history'}
+            onRetry={() => refetch()}
+          />
         ) : entries.length === 0 ? (
           <p className="text-sm text-muted-foreground">No history entries yet.</p>
         ) : (

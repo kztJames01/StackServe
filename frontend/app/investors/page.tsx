@@ -3,9 +3,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { DashboardShell, CardSection } from '@/components/layout/dashboard-shell';
 import { getInvestors } from '@/lib/api/client';
+import ApiErrorState from '@/components/ApiErrorState';
 
 export default function Page() {
-  const { data: investors = [], isLoading } = useQuery({
+  const { data: investors = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ['investors'],
     queryFn: () => getInvestors(),
   });
@@ -15,6 +16,11 @@ export default function Page() {
       <CardSection tone="black">
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Loading investors…</p>
+        ) : isError ? (
+          <ApiErrorState
+            message={error instanceof Error ? error.message : 'Failed to load investors'}
+            onRetry={() => refetch()}
+          />
         ) : investors.length === 0 ? (
           <p className="text-sm text-muted-foreground">No investors listed yet.</p>
         ) : (

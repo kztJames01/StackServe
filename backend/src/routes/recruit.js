@@ -5,10 +5,11 @@ const {
   listEntities,
   upsertEntity,
 } = require('../db/repository');
+const { requireAuth } = require('../middleware/validate');
+const { getUserId } = require('../middleware/authUser');
 
 const router = Router();
 
-// GET /api/recruit
 router.get('/recruit', async (req, res) => {
   const { tag, page = 1, limit = 10 } = req.query;
   const p = Math.max(1, parseInt(page));
@@ -22,9 +23,8 @@ router.get('/recruit', async (req, res) => {
   res.json(result.slice((p - 1) * l, (p - 1) * l + l));
 });
 
-// POST /api/recruit
-router.post('/recruit', async (req, res) => {
-  const userId = (req.user && (req.user.id || req.user.uid)) || 'current-user';
+router.post('/recruit', requireAuth, async (req, res) => {
+  const userId = getUserId(req);
   const { role, title, description } = req.body || {};
   const listingTitle = title || role;
 
@@ -48,8 +48,7 @@ router.post('/recruit', async (req, res) => {
   return res.status(201).json({ data: listing, message: 'Listing created' });
 });
 
-// PATCH /api/recruit/:id
-router.patch('/recruit/:id', async (req, res) => {
+router.patch('/recruit/:id', requireAuth, async (req, res) => {
   const listing = await getEntityById('recruit', req.params.id);
   if (!listing) return res.status(404).json({ message: 'Listing not found' });
 
@@ -63,8 +62,7 @@ router.patch('/recruit/:id', async (req, res) => {
   return res.json({ data: listing, message: 'Listing updated' });
 });
 
-// DELETE /api/recruit/:id
-router.delete('/recruit/:id', async (req, res) => {
+router.delete('/recruit/:id', requireAuth, async (req, res) => {
   const deleted = await deleteEntity('recruit', req.params.id);
   if (!deleted) return res.status(404).json({ message: 'Listing not found' });
 

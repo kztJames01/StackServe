@@ -1,6 +1,12 @@
+const Sentry = require('@sentry/node');
+
 //error handling 4xx for client, 5xx fo server
 function errorHandler(err, req, res, next) {
   console.error(`[error] ${req.method} ${req.url} —`, err);
+
+  if (process.env.SENTRY_DSN) {
+    Sentry.captureException(err);
+  }
   // Malformed JSON in request body.
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     return res.status(400).json({ message: 'Invalid JSON in request body' });

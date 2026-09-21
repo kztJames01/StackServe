@@ -11,51 +11,16 @@ export interface Task {
   createdAt?: string;
 }
 
-const fallbackTasks: Task[] = [
-  {
-    id: "task-1",
-    title: "Draft investor one-pager",
-    description: "Share traction and runway summary.",
-    status: "todo",
-    priority: "high",
-    assignedTo: "current-user",
-    teamId: "default-team",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "task-2",
-    title: "Set up onboarding flow",
-    description: "Define first-use activation for new founders.",
-    status: "in-progress",
-    priority: "medium",
-    assignedTo: "current-user",
-    teamId: "default-team",
-    createdAt: new Date().toISOString(),
-  },
-];
-
 export const taskActions = {
   async createTask(task: Omit<Task, "id" | "createdAt">) {
-    try {
-      return await request<Task>("/api/tasks", {
-        method: "POST",
-        body: JSON.stringify(task),
-      });
-    } catch {
-      return {
-        ...task,
-        id: `${Date.now()}`,
-        createdAt: new Date().toISOString(),
-      };
-    }
+    return request<Task>("/api/tasks", {
+      method: "POST",
+      body: JSON.stringify(task),
+    });
   },
 
   async getTasksByTeam(teamId: string) {
-    try {
-      return await request<Task[]>(`/api/tasks?teamId=${encodeURIComponent(teamId)}`);
-    } catch {
-      return fallbackTasks.filter((task) => task.teamId === teamId);
-    }
+    return request<Task[]>(`/api/tasks?teamId=${encodeURIComponent(teamId)}`);
   },
 
   async updateTaskStatus(taskId: string, status: Task["status"]) {
@@ -69,5 +34,5 @@ export const taskActions = {
     await request<{ ok: boolean }>(`/api/tasks/${taskId}`, {
       method: "DELETE",
     });
-  }
+  },
 };

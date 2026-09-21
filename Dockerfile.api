@@ -1,0 +1,20 @@
+# syntax=docker/dockerfile:1
+
+FROM node:20-alpine AS base
+WORKDIR /app
+
+FROM base AS deps
+COPY package*.json ./
+RUN npm ci
+
+FROM base AS runner
+ENV NODE_ENV=production
+ENV PORT=4000
+ENV HOST=0.0.0.0
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY backend ./backend
+
+EXPOSE 4000
+CMD ["node", "backend/src/server.js"]

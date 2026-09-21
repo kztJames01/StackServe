@@ -1,9 +1,6 @@
+const { runMigrations } = require('./migrate');
 const seed = require('../seed');
-const {
-  ensureSchema,
-  countEntities,
-  insertMany,
-} = require('./repository');
+const { countEntities, insertMany } = require('./repository');
 
 function buildUsers() {
   const users = new Map();
@@ -19,10 +16,7 @@ function buildUsers() {
   });
 
   for (const feedItem of seed.feed) {
-    if (!feedItem.user?.id) {
-      continue;
-    }
-
+    if (!feedItem.user?.id) continue;
     users.set(feedItem.user.id, {
       id: feedItem.user.id,
       userId: feedItem.user.id,
@@ -40,15 +34,12 @@ function buildUsers() {
 
 async function seedKind(kind, items) {
   const total = await countEntities(kind);
-  if (total > 0) {
-    return;
-  }
-
+  if (total > 0) return;
   await insertMany(kind, items);
 }
 
-async function bootstrapDatabase() {
-  await ensureSchema();
+async function seedDatabase() {
+  if (process.env.SEED_DB === 'false') return;
 
   await seedKind('feed', seed.feed);
   await seedKind('posts', seed.posts);
@@ -65,6 +56,9 @@ async function bootstrapDatabase() {
   await seedKind('users', buildUsers());
 }
 
-module.exports = {
-  bootstrapDatabase,
-};
+async function bootstrapDatabase() {
+  await runMigrations();
+  await seedDatabase();
+}
+
+module.exports = { bootstrapDatabase, runMigrations, seedDatabase };

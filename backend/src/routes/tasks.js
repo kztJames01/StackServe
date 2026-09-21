@@ -5,10 +5,11 @@ const {
   listEntities,
   upsertEntity,
 } = require('../db/repository');
+const { requireAuth } = require('../middleware/validate');
+const { getUserId } = require('../middleware/authUser');
 
 const router = Router();
 
-// GET /api/tasks?teamId=
 router.get('/tasks', async (req, res) => {
   const { teamId, page = 1, limit = 10 } = req.query;
   const p = Math.max(1, parseInt(page));
@@ -22,9 +23,8 @@ router.get('/tasks', async (req, res) => {
   res.json(result.slice((p - 1) * l, (p - 1) * l + l));
 });
 
-// POST /api/tasks
-router.post('/tasks', async (req, res) => {
-  const userId = (req.user && (req.user.id || req.user.uid)) || 'current-user';
+router.post('/tasks', requireAuth, async (req, res) => {
+  const userId = getUserId(req);
   const payload = req.body || {};
 
   if (!payload.title) return res.status(400).json({ message: 'title is required' });
@@ -44,8 +44,7 @@ router.post('/tasks', async (req, res) => {
   return res.status(201).json({ data: task, message: 'Task created' });
 });
 
-// PATCH /api/tasks/:id
-router.patch('/tasks/:id', async (req, res) => {
+router.patch('/tasks/:id', requireAuth, async (req, res) => {
   const task = await getEntityById('tasks', req.params.id);
   if (!task) return res.status(404).json({ message: 'Task not found' });
 
@@ -59,8 +58,7 @@ router.patch('/tasks/:id', async (req, res) => {
   return res.json({ data: task, message: 'Task updated' });
 });
 
-// DELETE /api/tasks/:id
-router.delete('/tasks/:id', async (req, res) => {
+router.delete('/tasks/:id', requireAuth, async (req, res) => {
   const deleted = await deleteEntity('tasks', req.params.id);
   if (!deleted) return res.status(404).json({ message: 'Task not found' });
 

@@ -3,10 +3,10 @@ const {
   listEntities,
   upsertEntity,
 } = require('../db/repository');
+const { requireAuth } = require('../middleware/validate');
 
 const router = Router();
 
-// GET /api/investors
 router.get('/investors', async (req, res) => {
   const { stage, page = 1, limit = 10 } = req.query;
   const p = Math.max(1, parseInt(page));
@@ -20,8 +20,7 @@ router.get('/investors', async (req, res) => {
   res.json(result.slice((p - 1) * l, (p - 1) * l + l));
 });
 
-// POST /api/investors
-router.post('/investors', async (req, res) => {
+router.post('/investors', requireAuth, async (req, res) => {
   const { name, focus, focusAreas, stage, website, contactUrl, bio, avatar, portfolio } = req.body || {};
 
   if (!name) return res.status(400).json({ message: 'name is required' });

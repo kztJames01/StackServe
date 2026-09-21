@@ -5,10 +5,11 @@ const {
   listEntities,
   upsertEntity,
 } = require('../db/repository');
+const { requireAuth } = require('../middleware/validate');
+const { getUserId } = require('../middleware/authUser');
 
 const router = Router();
 
-// GET /api/teams
 router.get('/teams', async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   const p = Math.max(1, parseInt(page));
@@ -17,9 +18,8 @@ router.get('/teams', async (req, res) => {
   res.json(teams);
 });
 
-// POST /api/teams
-router.post('/teams', async (req, res) => {
-  const userId = (req.user && (req.user.id || req.user.uid)) || 'current-user';
+router.post('/teams', requireAuth, async (req, res) => {
+  const userId = getUserId(req);
   const { name, description } = req.body || {};
 
   if (!name) return res.status(400).json({ message: 'name is required' });
@@ -37,15 +37,13 @@ router.post('/teams', async (req, res) => {
   return res.status(201).json({ data: team, message: 'Team created' });
 });
 
-// GET /api/teams/:id
 router.get('/teams/:id', async (req, res) => {
   const team = await getEntityById('teams', req.params.id);
   if (!team) return res.status(404).json({ message: 'Team not found' });
   res.json(team);
 });
 
-// PATCH /api/teams/:id
-router.patch('/teams/:id', async (req, res) => {
+router.patch('/teams/:id', requireAuth, async (req, res) => {
   const team = await getEntityById('teams', req.params.id);
   if (!team) return res.status(404).json({ message: 'Team not found' });
 
@@ -59,8 +57,7 @@ router.patch('/teams/:id', async (req, res) => {
   return res.json({ data: team, message: 'Team updated' });
 });
 
-// POST /api/teams/:id/members
-router.post('/teams/:id/members', async (req, res) => {
+router.post('/teams/:id/members', requireAuth, async (req, res) => {
   const team = await getEntityById('teams', req.params.id);
   if (!team) return res.status(404).json({ message: 'Team not found' });
 
@@ -76,8 +73,7 @@ router.post('/teams/:id/members', async (req, res) => {
   return res.status(201).json({ data: member, message: 'Member added' });
 });
 
-// DELETE /api/teams/:id/members/:memberId
-router.delete('/teams/:id/members/:memberId', async (req, res) => {
+router.delete('/teams/:id/members/:memberId', requireAuth, async (req, res) => {
   const team = await getEntityById('teams', req.params.id);
   if (!team) return res.status(404).json({ message: 'Team not found' });
 
