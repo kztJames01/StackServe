@@ -67,7 +67,7 @@ export default function ProjectDetailPage() {
             alt={project?.title || 'Project image'}
             className="mt-3 h-48 w-full rounded-lg border object-cover"
           />
-          <p className="mt-2 text-sm text-neutral-600">{project?.description || 'Define the problem, market, and execution status here.'}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{project?.description || 'Define the problem, market, and execution status here.'}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {(project?.tags || []).map((tag: string) => (
               <span key={tag} className="rounded-full bg-muted px-2 py-1 text-xs">{tag}</span>

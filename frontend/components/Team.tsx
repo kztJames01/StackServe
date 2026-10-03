@@ -19,8 +19,8 @@ export default function TeamProfile() {
       <CardSection tone="brown">
         <h2 className="text-lg font-semibold">AI-Powered Playground</h2>
         <p className="mt-1 text-sm">Capture idea prompts and request suggestions.</p>
-        <Textarea placeholder="Write down your ideas..." className="mt-4 min-h-[180px] bg-white" />
-        <Button className="mt-4 bg-[#252422] text-white hover:bg-[#1f1e1b]">Get AI Suggestions</Button>
+        <Textarea placeholder="Write down your ideas..." className="mt-4 min-h-[180px] bg-card" />
+        <Button className="mt-4 bg-secondary text-secondary-foreground hover:bg-secondary/90">Get AI Suggestions</Button>
       </CardSection>
 
       <CardSection tone="white">

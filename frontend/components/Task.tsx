@@ -30,14 +30,14 @@ const TaskBlock = ({ id, content, type = 'text' }: { id: string; content: string
         <div
             ref={setNodeRef}
             style={style}
-            className="group relative flex gap-2 items-start p-2 hover:bg-gray-50 rounded-lg transition-colors"
+            className="group relative flex gap-2 items-start p-2 hover:bg-muted rounded-lg transition-colors"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
             <button
                 {...attributes}
                 {...listeners}
-                className="handle opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-600 p-1 -ml-1"
+                className="handle opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-muted-foreground p-1 -ml-1"
             >
                 ⁞⁞
             </button>
@@ -46,14 +46,14 @@ const TaskBlock = ({ id, content, type = 'text' }: { id: string; content: string
                 {type === 'heading' ? (
                     <h2 className="text-2xl font-bold mb-4">{value}</h2>
                 ) : type === 'code' ? (
-                    <pre className="bg-gray-800 text-gray-100 p-4 rounded-lg">
+                    <pre className="bg-secondary text-secondary-foreground p-4 rounded-lg">
                         <code>{value}</code>
                     </pre>
                 ) : (
                     <Textarea
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
-                        className="border-none shadow-none resize-none hover:bg-gray-50 focus:bg-white"
+                        className="border-none shadow-none resize-none hover:bg-muted focus:bg-card"
                         placeholder="Type something..."
                     />
                 )}
@@ -62,7 +62,7 @@ const TaskBlock = ({ id, content, type = 'text' }: { id: string; content: string
             {isHovered && (
                 <button
                     onClick={handleCopy}
-                    className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-primary"
+                    className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary"
                 >
                     <CopyIcon className="w-4 h-4" />
                 </button>
@@ -84,7 +84,7 @@ export function Task() {
             <DndContext>
                 {blocks.map((block, index) => (
                     <Card key={block.id} className={`
-            ${index % 2 === 0 ? 'bg-white text-primary-foreground' : 'bg-primary text-white'}
+            ${index % 2 === 0 ? 'bg-card text-card-foreground' : 'bg-accent text-accent-foreground'}
             shadow-lg rounded-xl border-0
           `}>
                         <CardContent className="p-4">
@@ -99,7 +99,7 @@ export function Task() {
             </DndContext>
 
             <Button
-                className="mt-4 bg-white text-primary hover:bg-gray-50"
+                className="mt-4 bg-card text-primary hover:bg-muted"
                 onClick={() => setBlocks([...blocks, { id: Date.now().toString(), content: '' }])}
             >
                 + Add Block

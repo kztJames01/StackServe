@@ -54,7 +54,7 @@ export function CreatePostDrawer({onClose}: CreatePostDrawerProps) {
                             <DrawerTitle>Create Post</DrawerTitle>
                             <Button
                                 variant="default"
-                                className="bg-secondary text-primary"
+                                className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
                                 onClick={handlePost}
                                 disabled={!caption || !description || sectors.length === 0}
                             >
@@ -99,7 +99,7 @@ export function CreatePostDrawer({onClose}: CreatePostDrawerProps) {
                             </DropdownMenu>
                             <div className="flex flex-wrap gap-2">
                                 {sectors.map((sector) => (
-                                    <span key={sector} className="px-2 py-1 bg-primary text-white shadow-lg rounded">
+                                    <span key={sector} className="px-2 py-1 bg-primary text-primary-foreground shadow-lg rounded">
                                         {sector}
                                     </span>
                                 ))}
@@ -162,7 +162,7 @@ export function CreatePostDrawer({onClose}: CreatePostDrawerProps) {
                                 <div className="flex flex-wrap gap-2">
                                     {["Twitter", "LinkedIn", "Instagram"].map((platform) => (
                                         <Button
-                                            className="bg-transparent focus:bg-primary focus:text-white shadow-lg"
+                                            className="shadow-sm"
                                             key={platform}
                                             variant={
                                                 selectedSocialMedia.includes(platform) ? "default": "secondary"

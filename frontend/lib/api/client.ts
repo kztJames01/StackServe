@@ -1,4 +1,5 @@
 import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import * as Sentry from "@sentry/nextjs";
 // shared with the mobile app
 import { DEFAULT_API_BASE, parseErrorMessage } from "../../../shared/apiHelpers";
@@ -17,7 +18,12 @@ export class ApiError extends Error {
 
 async function getAuthHeaders(): Promise<Record<string, string>> {
   try {
-    const token = await auth?.currentUser?.getIdToken();
+    const currentAuth = auth;
+    if (!currentAuth) return {};
+    const user = await new Promise<import('firebase/auth').User | null>((resolve, reject) => {
+      const unsubscribe = onAuthStateChanged(currentAuth, (user) => { unsubscribe(); resolve(user); }, reject);
+    });
+    const token = await user?.getIdToken();
     if (!token) return {};
     return { Authorization: `Bearer ${token}` };
   } catch {
@@ -66,7 +72,16 @@ export type FeedPost = {
   shares: number;
 };
 
+export type AccountRole = 'maker' | 'employer' | 'investor' | 'educator';
+
 export type ProfileData = {
+  id?: string;
+  email?: string;
+  handle: string | null;
+  roles: AccountRole[];
+  studentStatus: 'unverified' | 'verified';
+  employerStatus: 'unverified' | 'verified';
+  isAdmin?: boolean;
   name: string;
   bio: string;
   avatar: string;
@@ -144,6 +159,12 @@ export type RecruitListing = {
 };
 
 export type Investor = {
+  status: 'verified';
+  orgDomain: string;
+  checkSize: string;
+  aumRange: string;
+  thesis: string;
+  portfolio: string[];
   id: string;
   name: string;
   bio: string;
@@ -177,14 +198,14 @@ export type StorageUploadData = {
   headers?: Record<string, string>;
 };
 
-export async function getFeedPosts() {
-  return request<FeedPost[]>("/api/feed");
+export async function getFeedPosts(audience: 'public' | 'students' = 'public') {
+  return request<FeedPost[]>(`/api/feed?audience=${audience}`);
 }
 
-export async function createPost(content: string) {
+export async function createPost(content: string, audience: 'public' | 'students' = 'public') {
   return request<{ data: FeedPost; message: string }>("/api/posts", {
     method: "POST",
-    body: JSON.stringify({ content }),
+    body: JSON.stringify({ content, audience }),
   });
 }
 

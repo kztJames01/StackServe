@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { onIdTokenChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { storeAuthToken, clearAuthToken } from '@/lib/auth-cookie';
@@ -8,10 +9,15 @@ import { storeAuthToken, clearAuthToken } from '@/lib/auth-cookie';
 const REFRESH_MS = 50 * 60 * 1000;
 
 export default function AuthSession() {
+  const queryClient = useQueryClient();
+  const previousUid = useRef<string | null | undefined>(undefined);
   useEffect(() => {
     if (!auth) return;
 
     const unsub = onIdTokenChanged(auth, async (user) => {
+      const changed = previousUid.current !== undefined && previousUid.current !== (user?.uid || null);
+      previousUid.current = user?.uid || null;
+      if (changed) await queryClient.resetQueries();
       if (!user) {
         clearAuthToken();
         return;
@@ -40,7 +46,7 @@ export default function AuthSession() {
       unsub();
       clearInterval(timer);
     };
-  }, []);
+  }, [queryClient]);
 
   return null;
 }

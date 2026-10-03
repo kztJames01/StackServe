@@ -52,7 +52,7 @@ export default function TasksPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Task Board</h2>
-        <Button onClick={() => setIsAdding(true)} className="flex gap-2 bg-[#252422] text-white hover:bg-[#1f1e1b]">
+        <Button onClick={() => setIsAdding(true)} className="flex gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90">
           <PlusIcon className="h-4 w-4" /> Add Task
         </Button>
       </div>
@@ -64,7 +64,7 @@ export default function TasksPage() {
               <CardTitle className="capitalize">{status}</CardTitle>
             </CardHeader>
             {tasks?.filter((task) => task.status === status).map((task) => (
-              <Card key={task.id} className="group bg-white">
+              <Card key={task.id} className="group bg-card">
                 <CardContent className="flex items-start justify-between p-4">
                   <div>
                     <p className="font-medium">{task.title}</p>
@@ -98,7 +98,7 @@ export default function TasksPage() {
                 Cancel
               </Button>
               <Button
-                className="bg-[#252422] text-white hover:bg-[#1f1e1b]"
+                className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
                 onClick={() => {
                   const title = (document.getElementById('task-title') as HTMLInputElement).value;
                   const description = (document.getElementById('task-desc') as HTMLTextAreaElement).value;

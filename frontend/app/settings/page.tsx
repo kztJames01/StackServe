@@ -1,12 +1,13 @@
 'use client';
 
 import { DashboardShell, CardSection } from '@/components/layout/dashboard-shell';
+import { AppearanceSettings } from '@/components/theme-provider';
 
 export default function Page() {
   return (
     <DashboardShell title="Settings" description="Workspace preferences and account-level controls.">
       <CardSection tone="white">
-        <p className="text-sm">Configure defaults for profile visibility, alerts, and workflow behavior.</p>
+        <AppearanceSettings />
       </CardSection>
     </DashboardShell>
   );
