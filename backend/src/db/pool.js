@@ -6,7 +6,7 @@ function buildConnectionString() {
   }
 
   const host = process.env.PGHOST || 'localhost';
-  const port = process.env.PGPORT || '5432';
+  const port = process.env.PGPORT || '5433';
   const database = process.env.PGDATABASE || 'makerspace';
   const user = process.env.PGUSER || 'makerspace';
   const password = process.env.PGPASSWORD || 'makerspace';

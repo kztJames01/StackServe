@@ -1,71 +1,45 @@
 const { Router } = require('express');
-const {
-  getEntityById,
-  listEntities,
-  upsertEntity,
-} = require('../db/repository');
+const { listEntities, applyPagination } = require('../db/repository');
+const { query } = require('../db/pool');
 const { requireAuth } = require('../middleware/validate');
-const { getUserId, getUserIdOr401 } = require('../middleware/authUser');
+const { getOwnProfile, updateOwnProfile, publicProfile } = require('../services/identity');
 
 const router = Router();
+const route = (handler) => (req, res, next) => Promise.resolve(handler(req, res)).catch(next);
 
-router.get('/profile', async (_req, res) => {
-  const profile = await getEntityById('profile', 'profile-current');
+router.get('/profile', requireAuth, route(async (req, res) => {
+  res.json(await getOwnProfile(req.user));
+}));
+
+router.patch('/profile', requireAuth, route(async (req, res) => {
+  const result = await updateOwnProfile(req.user, req.body);
+  if (result.error) return res.status(result.status || 400).json({ message: result.error });
+  res.json(result);
+}));
+
+router.get('/profiles/:handle', route(async (req, res) => {
+  const result = await query('SELECT p.*, u.roles FROM profiles p JOIN users u ON u.id = p.id WHERE p.handle = $1', [req.params.handle.toLowerCase()]);
+  if (!result.rows[0]) return res.status(404).json({ message: 'Profile not found' });
+  const profile = publicProfile(result.rows[0]);
+  const investor = await query(`SELECT name, stage, org_domain, check_size, aum_range, thesis, data->'portfolio' AS portfolio
+    FROM investor_profiles WHERE owner_id = $1 AND status = 'verified'`, [result.rows[0].id]);
+  if (investor.rows[0]) profile.investor = investor.rows[0];
   res.json(profile);
-});
+}));
 
-router.patch('/profile', requireAuth, async (req, res) => {
-  const userId = getUserId(req);
-  const profile = await getEntityById('profile', 'profile-current');
-  if (!profile) {
-    return res.status(404).json({ message: 'Profile not found' });
-  }
+router.get('/profile/projects', requireAuth, route(async (req, res) => {
+  const items = await listEntities('projects', { paginate: false, filter: (project) => project.ownerId === req.user.uid });
+  res.json(applyPagination(items, req.query.page, req.query.limit));
+}));
 
-  const allowed = ['name', 'bio', 'avatar', 'skills', 'socials'];
-  const updates = req.body || {};
-
-  allowed.forEach((key) => {
-    if (updates[key] !== undefined) {
-      profile[key] = updates[key];
-    }
-  });
-
-  await upsertEntity('profile', profile);
-
-  const user = await getEntityById('users', userId);
-  if (user) {
-    await upsertEntity('users', { ...user, ...updates, id: userId, userId });
-  }
-
-  return res.json({ data: profile, message: 'Profile updated' });
-});
-
-router.get('/profile/projects', async (req, res) => {
-  const userId = getUserIdOr401(req, res);
-  if (!userId) return;
-
-  const { page = 1, limit = 10 } = req.query;
-  const userProjects = await listEntities('projects', {
-    paginate: false,
-    filter: (proj) => !proj.ownerId || proj.ownerId === userId,
-  });
-  const p = Math.max(1, parseInt(page, 10));
-  const l = Math.min(100, Math.max(1, parseInt(limit, 10)));
-  res.json(userProjects.slice((p - 1) * l, (p - 1) * l + l));
-});
-
-router.get('/profile/posts', async (req, res) => {
-  const userId = getUserIdOr401(req, res);
-  if (!userId) return;
-
-  const { page = 1, limit = 10 } = req.query;
-  const userPosts = await listEntities('posts', {
-    paginate: false,
-    filter: (post) => !post.userId || post.userId === userId,
-  });
-  const p = Math.max(1, parseInt(page));
-  const l = Math.min(100, Math.max(1, parseInt(limit)));
-  res.json(userPosts.slice((p - 1) * l, (p - 1) * l + l));
-});
+router.get('/profile/posts', requireAuth, route(async (req, res) => {
+  const [legacy, feed] = await Promise.all([
+    listEntities('posts', { paginate: false, filter: (post) => post.userId === req.user.uid }),
+    listEntities('feed', { paginate: false, filter: (post) => post.userId === req.user.uid }),
+  ]);
+  const items = [...legacy, ...feed.map((post) => ({ id: post.id, content: post.caption, date: post.date, likes: post.likes, comments: post.comments }))]
+    .sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+  res.json(applyPagination(items, req.query.page, req.query.limit));
+}));
 
 module.exports = router;

@@ -31,7 +31,15 @@ app.use(arcjetMiddleware);
 app.use(apiRateLimit);
 app.use(authMiddleware);
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'makerspace-api', database: 'postgres' }));
+app.get('/api/health', (_req, res) => {
+  const { getAuthMode } = require('./middleware/auth');
+  res.json({
+    ok: true,
+    service: 'makerspace-api',
+    database: 'postgres',
+    auth: getAuthMode(),
+  });
+});
 
 app.use('/api', require('./routes/feed'));
 app.use('/api', require('./routes/profile'));
@@ -43,6 +51,7 @@ app.use('/api', require('./routes/notifications'));
 app.use('/api', require('./routes/recruit'));
 app.use('/api', require('./routes/investors'));
 app.use('/api', require('./routes/users'));
+app.use('/api', require('./routes/verification'));
 app.use('/api', require('./routes/history'));
 app.use('/api', billingRouter);
 app.use('/api', storageRoutes);

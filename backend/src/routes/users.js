@@ -1,42 +1,25 @@
 const { Router } = require('express');
-const {
-  getEntityById,
-  upsertEntity,
-} = require('../db/repository');
+const { query } = require('../db/pool');
 const { requireAuth } = require('../middleware/validate');
-const { getUserId } = require('../middleware/authUser');
+const { getOwnProfile, updateOwnProfile, publicProfile } = require('../services/identity');
 
 const router = Router();
+const route = (handler) => (req, res, next) => Promise.resolve(handler(req, res)).catch(next);
 
-router.get('/users/me', requireAuth, async (req, res) => {
-  const userId = getUserId(req);
-  const user = await getEntityById('users', userId);
-  if (!user) return res.status(404).json({ message: 'User not found' });
-  res.json(user);
-});
+router.get('/users/me', requireAuth, route(async (req, res) => {
+  res.json(await getOwnProfile(req.user));
+}));
 
-router.patch('/users/me', requireAuth, async (req, res) => {
-  const userId = getUserId(req);
-  let user = await getEntityById('users', userId);
+router.patch('/users/me', requireAuth, route(async (req, res) => {
+  const result = await updateOwnProfile(req.user, req.body);
+  if (result.error) return res.status(result.status || 400).json({ message: result.error });
+  res.json(result);
+}));
 
-  if (!user) {
-    user = { id: userId, userId, name: req.user.email || userId };
-  }
-
-  const allowed = ['name', 'bio', 'avatar', 'skills', 'socials'];
-  (req.body ? Object.keys(req.body) : []).forEach((key) => {
-    if (allowed.includes(key)) user[key] = req.body[key];
-  });
-
-  await upsertEntity('users', user);
-
-  return res.json({ data: user, message: 'User updated' });
-});
-
-router.get('/users/:id', async (req, res) => {
-  const user = await getEntityById('users', req.params.id);
-  if (!user) return res.status(404).json({ message: 'User not found' });
-  res.json(user);
-});
+router.get('/users/:id', route(async (req, res) => {
+  const result = await query('SELECT p.*, u.roles FROM profiles p JOIN users u ON u.id = p.id WHERE p.id = $1', [req.params.id]);
+  if (!result.rows[0]) return res.status(404).json({ message: 'User not found' });
+  res.json(publicProfile(result.rows[0]));
+}));
 
 module.exports = router;

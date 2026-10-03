@@ -19,7 +19,11 @@ function requireFields(...fields) {
 //middlewar rejects 401 requests
 function requireAuth(req, res, next) {
   if (!req.user) {
-    return res.status(401).json({ message: 'Authentication required' });
+    const hasBearer = /^Bearer\s+\S+/i.test(req.headers.authorization || '');
+    return res.status(401).json({
+      message: hasBearer ? 'Invalid or expired token' : 'Authentication required',
+      code: hasBearer ? 'INVALID_TOKEN' : 'AUTH_REQUIRED',
+    });
   }
   next();
 }

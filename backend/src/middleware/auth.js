@@ -3,6 +3,25 @@ const admin = require('firebase-admin');
 let firebaseInitialised = false;
 let firebaseUnavailable = false;
 
+// local dev only, no signature check
+function userFromJwtPayload(idToken) {
+  if (process.env.NODE_ENV === 'production') return null;
+  const chunks = String(idToken).split('.');
+  if (chunks.length < 2) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(chunks[1], 'base64url').toString('utf8'));
+    const uid = payload.user_id || payload.sub;
+    if (!uid) return null;
+    return {
+      uid,
+      email: payload.email ?? null,
+      name: payload.name ?? payload.display_name ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function initFirebase() {
   if (firebaseInitialised || firebaseUnavailable) return;
 
@@ -54,13 +73,12 @@ async function authMiddleware(req, res, next) {
     return next();
   }
 
-  // Firebase credentials are not configured — cannot verify.
+  const idToken = match[1];
+
   if (firebaseUnavailable) {
-    req.user = null;
+    req.user = userFromJwtPayload(idToken);
     return next();
   }
-
-  const idToken = match[1];
 
   try {
     const decoded = await admin.auth().verifyIdToken(idToken);
@@ -68,24 +86,51 @@ async function authMiddleware(req, res, next) {
       uid: decoded.uid,
       email: decoded.email ?? null,
       name: decoded.name ?? decoded.display_name ?? null,
+      emailVerified: decoded.email_verified === true,
+      admin: decoded.admin === true,
+      verifiedToken: true,
     };
     next();
   } catch (err) {
-    // Do not leak internal error details to the client.
-    return res.status(401).json({ message: 'Invalid or expired token' });
+    const code = err && err.code ? String(err.code) : '';
+    if (code === 'auth/id-token-expired') {
+      return res.status(401).json({
+        message: 'Your session expired. Sign in again.',
+        code: 'TOKEN_EXPIRED',
+      });
+    }
+    if (code === 'auth/id-token-revoked') {
+      return res.status(401).json({
+        message: 'Your session was revoked. Sign in again.',
+        code: 'TOKEN_REVOKED',
+      });
+    }
+    return res.status(401).json({ message: 'Invalid or expired token', code: 'INVALID_TOKEN' });
   }
+}
+
+function getAuthMode() {
+  initFirebase();
+  if (firebaseInitialised) return 'firebase-admin';
+  if (firebaseUnavailable) {
+    return process.env.NODE_ENV === 'production' ? 'unconfigured' : 'dev-jwt-decode';
+  }
+  return 'unknown';
 }
 
 async function verifyAuthToken(idToken) {
   if (!idToken || typeof idToken !== 'string') return null;
   initFirebase();
-  if (firebaseUnavailable) return null;
+  if (firebaseUnavailable) return userFromJwtPayload(idToken);
   try {
     const decoded = await admin.auth().verifyIdToken(idToken);
     return {
       uid: decoded.uid,
       email: decoded.email ?? null,
       name: decoded.name ?? decoded.display_name ?? null,
+      emailVerified: decoded.email_verified === true,
+      admin: decoded.admin === true,
+      verifiedToken: true,
     };
   } catch {
     return null;
@@ -95,3 +140,4 @@ async function verifyAuthToken(idToken) {
 module.exports = authMiddleware;
 module.exports.verifyAuthToken = verifyAuthToken;
 module.exports.initFirebase = initFirebase;
+module.exports.getAuthMode = getAuthMode;
