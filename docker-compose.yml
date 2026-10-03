@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: makerspace
       POSTGRES_PASSWORD: makerspace
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - makerspace_postgres_data:/var/lib/postgresql/data
     healthcheck:
