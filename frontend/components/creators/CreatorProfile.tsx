@@ -102,7 +102,7 @@ export default function CreatorProfilePage() {
             <CardContent className="space-y-4">
               <p className="text-center">{creator.bio}</p>
               
-              <div className="flex justify-center space-x-2">
+              <div className="flex flex-wrap justify-center gap-2">
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button variant="outline">
@@ -141,7 +141,7 @@ export default function CreatorProfilePage() {
               </div>
               
               <div>
-                <h3 className="font-medium text-sm text-gray-500 mb-2">Skills</h3>
+                <h3 className="font-medium text-sm text-muted-foreground mb-2">Skills</h3>
                 <div className="flex flex-wrap gap-2">
                   {creator.skills.map((skill) => (
                     <Badge key={skill} variant="secondary">{skill}</Badge>
@@ -151,16 +151,16 @@ export default function CreatorProfilePage() {
               
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <span className="font-medium text-sm text-gray-500 w-24">Location:</span>
+                  <span className="font-medium text-sm text-muted-foreground w-24">Location:</span>
                   <span>{creator.location}</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="font-medium text-sm text-gray-500 w-24">Website:</span>
-                  <a href={`https://${creator.website}`} className="text-blue-600 hover:underline">{creator.website}</a>
+                  <span className="font-medium text-sm text-muted-foreground w-24">Website:</span>
+                  <a href={`https://${creator.website}`} className="text-foreground underline underline-offset-4 hover:text-muted-foreground">{creator.website}</a>
                 </div>
                 <div className="flex items-center">
-                  <span className="font-medium text-sm text-gray-500 w-24">GitHub:</span>
-                  <a href={`https://github.com/${creator.github}`} className="text-blue-600 hover:underline">@{creator.github}</a>
+                  <span className="font-medium text-sm text-muted-foreground w-24">GitHub:</span>
+                  <a href={`https://github.com/${creator.github}`} className="text-foreground underline underline-offset-4 hover:text-muted-foreground">@{creator.github}</a>
                 </div>
               </div>
             </CardContent>

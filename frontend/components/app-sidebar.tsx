@@ -23,13 +23,10 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { platformNav, projectNav } from "@/lib/navigation"
+import { useQuery } from "@tanstack/react-query"
+import { getMe } from "@/lib/api/client"
 
 const data = {
-  user: {
-    name: "Founder",
-    email: "founder@nxtgen.community",
-    avatar: "/home.jpg",
-  },
   teams: [
     {
       name: "NxtGen Core",
@@ -65,6 +62,7 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: me } = useQuery({ queryKey: ['me'], queryFn: getMe })
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -75,7 +73,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={{ name: me?.name || "Your account", email: me?.email || "", avatar: me?.avatar || "" }} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeToggle } from "@/components/theme-provider";
 import { ReactNode } from "react";
 import Link from "next/link";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -20,23 +21,24 @@ export function DashboardShell({ title, description, children }: DashboardShellP
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="min-h-screen bg-[#faf9f7]">
-        <header className="sticky top-0 z-20 flex min-h-16 items-center border-b border-[#e8dcc7]/60 bg-white/80 px-4 backdrop-blur-xl sm:px-6">
+      <SidebarInset className="min-h-screen min-w-0 bg-background">
+        <header className="sticky top-0 z-20 flex min-h-16 items-center border-b border-border/60 bg-card/80 px-4 backdrop-blur-xl sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
-            <SidebarTrigger className="-ml-1 hover:bg-[#f8f5f0]" />
-            <Separator orientation="vertical" className="h-4 bg-[#e8dcc7]" />
-            <Link href="/explore" className="text-xs font-medium uppercase tracking-wider text-[#8a7f72] hover:text-[#bb9457] transition-colors font-[family-name:var(--font-geist-sans)]">
+            <SidebarTrigger className="-ml-1 hover:bg-muted" />
+            <Separator orientation="vertical" className="h-4 bg-border" />
+            <Link href="/explore" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors font-[family-name:var(--font-geist-sans)]">
               Workspace
             </Link>
-            <span className="text-sm text-[#d4c8b8]">/</span>
-            <span className="truncate text-sm font-semibold text-[#252422] font-[family-name:var(--font-geist-sans)]">{title}</span>
+            <span className="text-sm text-muted-foreground">/</span>
+            <span className="truncate text-sm font-semibold text-foreground font-[family-name:var(--font-geist-sans)]">{title}</span>
           </div>
+          <div className="ml-auto pl-3"><ThemeToggle /></div>
         </header>
         <main className="space-y-6 p-4 sm:p-6 lg:p-8">
           <div>
-            <h1 className="text-3xl font-semibold text-[#252422] sm:text-4xl font-[family-name:var(--font-antonio)] tracking-tight">{title}</h1>
+            <h1 className="text-3xl font-semibold text-foreground sm:text-4xl font-[family-name:var(--font-antonio)] tracking-tight">{title}</h1>
             {description ? (
-              <p className="mt-2 max-w-3xl text-sm text-[#8a7f72] font-[family-name:var(--font-geist-sans)]">
+              <p className="mt-2 max-w-3xl text-sm text-muted-foreground font-[family-name:var(--font-geist-sans)]">
                 {description}
               </p>
             ) : null}
@@ -57,10 +59,10 @@ export function CardSection({
 }) {
   const toneClass =
     tone === "brown"
-      ? "bg-gradient-to-br from-[#c9a86c] to-[#bb9457] text-[#252422] shadow-lg shadow-[#bb9457]/20"
+      ? "bg-accent text-accent-foreground border border-border"
       : tone === "black"
-        ? "bg-gradient-to-br from-[#2d2c2a] to-[#252422] text-[#F5EFE6] shadow-lg shadow-[#252422]/20"
-        : "bg-white text-[#252422] shadow-sm shadow-[#252422]/5 border border-[#e8dcc7]/60";
+        ? "bg-secondary text-secondary-foreground border border-border"
+        : "bg-card text-card-foreground border border-border shadow-sm";
 
   return <section className={`rounded-2xl p-5 sm:p-6 ${toneClass}`}>{children}</section>;
 }

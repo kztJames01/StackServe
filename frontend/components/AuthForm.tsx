@@ -13,11 +13,14 @@ import { Form } from './ui/form'
 import { authFormSchema } from '@/lib/utils'
 import CustomInput from './CustomInput'
 import { signIn, createUser } from '@/lib/action/user.actions'
+import { auth } from '@/lib/firebase'
 import { Card, CardContent } from './ui/card'
+import { ThemeToggle } from './theme-provider'
 
 const AuthForm = ({ type }: AuthFormProps) => {
   const router = useRouter()
   const [loading, setIsLoading] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
   const formSchema = authFormSchema(type)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -32,29 +35,30 @@ const AuthForm = ({ type }: AuthFormProps) => {
   })
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    setAuthError(null)
+    if (!auth) {
+      setAuthError('Firebase is not configured. Add NEXT_PUBLIC_FIREBASE_* vars to frontend/.env.local and restart the dev server.')
+      return
+    }
     setIsLoading(true)
     try {
       if (type === 'sign-up') {
-        const newUser = await createUser({
+        await createUser({
           firstName: data.firstName ?? '',
           lastName: data.lastName ?? '',
           email: data.email,
           password: data.password,
         })
-
-        if (newUser) {
-          router.push('/sign-in')
-        }
+        router.push('/sign-in')
       } else {
-        const response = await signIn({
+        await signIn({
           email: data.email,
           password: data.password,
         })
-
-        if (response) {
-          router.push('/explore')
-        }
+        router.push('/explore')
       }
+    } catch (err: unknown) {
+      setAuthError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
       setIsLoading(false)
     }
@@ -62,28 +66,35 @@ const AuthForm = ({ type }: AuthFormProps) => {
 
   return (
     <section className="flex-center min-h-screen w-full px-4 py-[5vh] sm:px-6 lg:px-8">
-      <Card className="w-full max-w-6xl overflow-hidden border border-[#d8c7ac] bg-white/88 shadow-[0_30px_80px_rgba(37,36,34,0.12)] backdrop-blur-sm">
+      <div className="fixed right-4 top-4 z-30 rounded-full border bg-card"><ThemeToggle /></div>
+      <Card className="w-full max-w-[460px] lg:max-w-6xl overflow-hidden border border-border bg-card/88 shadow-[0_30px_80px_rgba(37,36,34,0.12)] backdrop-blur-sm">
         <CardContent className="grid p-0 lg:grid-cols-[minmax(0,0.95fr)_minmax(320px,1.05fr)]">
-          <div className="auth-form glassmorphism relative w-full border-b border-[#e6dccd] bg-white/72 lg:border-b-0 lg:border-r lg:border-[#e6dccd]">
+          <div className="auth-form relative w-full border-b border-border bg-card/72 lg:border-b-0 lg:border-r lg:border-border">
             <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-[#bb9457] to-transparent" />
             <header className="flex flex-col gap-5 md:gap-8">
               <Link href="/" className="mb-2 flex cursor-pointer items-center gap-3">
-                <Image src="/logo/mobile-logo1.png" width={34} height={34} alt="NxtGen logo" className="max-xl:size-14" />
-                <h1 className="text-24 px-1 font-bold text-secondary">NxtGen</h1>
+                <Image src="/logo/mobile-logo1.png" width={34} height={34} alt="NxtGen logo" className="max-xl:size-14 dark:invert" />
+                <h1 className="text-24 px-1 font-bold text-foreground">NxtGen</h1>
               </Link>
-              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-secondary/70">
+              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-foreground/70">
                 {type === 'sign-in' ? <LockKeyhole size={14} /> : <UserRound size={14} />}
                 <span>{type === 'sign-in' ? 'Founder access' : 'Create founder profile'}</span>
               </div>
               <div className="flex flex-col gap-2 md:gap-3">
-                <h1 className="text-24 lg:text-36 font-semibold text-secondary">
+                <h1 className="text-24 lg:text-36 font-semibold text-foreground">
                   {type === 'sign-in' ? 'Hop into the MakerSpace' : 'Start Your Journey'}
                 </h1>
-                <p className="text-16 font-[family-name:var(--font-antonio)] uppercase tracking-[0.08em] text-secondary/72">
+                <p className="text-16 font-[family-name:var(--font-antonio)] uppercase tracking-[0.08em] text-foreground/72">
                   Please enter your details
                 </p>
               </div>
             </header>
+
+            {authError ? (
+              <p role="alert" className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                {authError}
+              </p>
+            ) : null}
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 font-[family-name:var(--font-geist-mono)]">
@@ -123,7 +134,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
             </Form>
 
             <footer className="mt-6 flex flex-wrap justify-center gap-1 text-center">
-              <p className="text-sm font-normal text-secondary/70">
+              <p className="text-sm font-normal text-foreground/70">
                 {type === 'sign-in' ? 'Don’t have an account?' : 'Already have an account?'}
               </p>
               <Link href={type === 'sign-in' ? '/sign-up' : '/sign-in'} className="form-link">
@@ -134,8 +145,8 @@ const AuthForm = ({ type }: AuthFormProps) => {
 
           <div className="relative hidden min-h-[320px] bg-muted lg:block">
             <div className="absolute inset-0 z-10 bg-gradient-to-br from-[#252422]/30 via-transparent to-[#bb9457]/35" />
-            <div className="absolute left-6 top-6 z-20 max-w-sm rounded-[1.5rem] border border-white/50 bg-white/18 p-4 text-white backdrop-blur-md lg:left-8 lg:top-8">
-              <p className="text-xs uppercase tracking-[0.18em] text-white/70">Build with conviction</p>
+            <div className="absolute left-6 top-6 z-20 max-w-sm rounded-[1.5rem] border border-border bg-secondary/95 p-4 text-secondary-foreground backdrop-blur-md lg:left-8 lg:top-8">
+              <p className="text-xs uppercase tracking-[0.18em] text-secondary-foreground/80">Build with conviction</p>
               <h2 className="mt-2 text-2xl font-semibold leading-tight">Ship, recruit, and pitch from one founder workspace.</h2>
             </div>
             <Image

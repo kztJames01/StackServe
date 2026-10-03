@@ -149,7 +149,7 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
   return (
     <div className="h-full flex">
       {/* Channels Sidebar */}
-      <div className="w-64 bg-gray-800 text-white flex flex-col">
+      <div className="w-64 bg-secondary text-secondary-foreground flex flex-col">
         <div className="p-4 border-b border-gray-700">
           <h2 className="text-lg font-medium">Channels</h2>
         </div>
@@ -176,7 +176,7 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
         <div className="p-4 border-t border-gray-700">
           <button
             onClick={() => setIsAddingChannel(true)}
-            className="w-full flex items-center justify-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded"
+            className="w-full flex items-center justify-center space-x-2 bg-secondary hover:bg-secondary/90 text-secondary-foreground px-4 py-2 rounded"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -187,21 +187,21 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
       </div>
       
       {/* Messages */}
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col bg-card">
         {selectedChannelData ? (
           <>
             {/* Channel Header */}
             <div className="p-4 border-b">
               <h2 className="text-xl font-semibold">#{selectedChannelData.name}</h2>
               {selectedChannelData.description && (
-                <p className="text-sm text-gray-500 mt-1">{selectedChannelData.description}</p>
+                <p className="text-sm text-muted-foreground mt-1">{selectedChannelData.description}</p>
               )}
             </div>
             
             {/* Messages List */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                   <p>No messages yet. Start the conversation!</p>
                 </div>
               ) : (
@@ -219,17 +219,17 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
                             className="h-10 w-10 rounded-full"
                           />
                         ) : (
-                          <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-800 font-medium">
-                            {initials || <UserIcon className="h-6 w-6 text-orange-500" />}
+                          <div className="h-10 w-10 rounded-full bg-accent flex items-center justify-center text-accent-foreground font-medium">
+                            {initials || <UserIcon className="h-6 w-6 text-accent-foreground" />}
                           </div>
                         )}
                       </div>
                       <div>
                         <div className="flex items-baseline">
-                          <span className="font-medium text-gray-900">{message.senderName}</span>
-                          <span className="ml-2 text-xs text-gray-500">{formatDateTime(message.timestamp).time}</span>
+                          <span className="font-medium text-foreground">{message.senderName}</span>
+                          <span className="ml-2 text-xs text-muted-foreground">{formatDateTime(message.timestamp).time}</span>
                         </div>
-                        <div className="mt-1 text-gray-700">{message.content}</div>
+                        <div className="mt-1 text-foreground">{message.content}</div>
                       </div>
                     </div>
                   );
@@ -246,11 +246,11 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={`Message #${selectedChannelData.name}`}
-                  className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                  className="flex-1 rounded-md border-border shadow-sm focus:border-ring focus:ring-ring"
                 />
                 <button
                   type="submit"
-                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md disabled:opacity-50"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md disabled:opacity-50"
                   disabled={!input.trim()}
                 >
                   Send
@@ -259,7 +259,7 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
             <p>Select a channel or create a new one</p>
           </div>
         )}
@@ -268,28 +268,28 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
       {/* Add Channel Modal */}
       {isAddingChannel && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-card rounded-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-semibold mb-4">Create New Channel</h2>
             <form onSubmit={handleAddChannel}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Channel Name</label>
+                  <label className="block text-sm font-medium text-foreground">Channel Name</label>
                   <input
                     type="text"
                     value={newChannel.name}
                     onChange={(e) => setNewChannel({ ...newChannel, name: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    className="mt-1 block w-full rounded-md border-border shadow-sm focus:border-ring focus:ring-ring"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Description (Optional)</label>
+                  <label className="block text-sm font-medium text-foreground">Description (Optional)</label>
                   <textarea
                     value={newChannel.description}
                     onChange={(e) => setNewChannel({ ...newChannel, description: e.target.value })}
                     rows={3}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    className="mt-1 block w-full rounded-md border-border shadow-sm focus:border-ring focus:ring-ring"
                   />
                 </div>
               </div>
@@ -298,13 +298,13 @@ const TeamMessageChannel: React.FC<TeamMessageChannelProps> = ({ teamId }) => {
                 <button
                   type="button"
                   onClick={() => setIsAddingChannel(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  className="px-4 py-2 border border-border rounded-md shadow-sm text-sm font-medium text-foreground bg-card hover:bg-muted"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700"
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90"
                 >
                   Create Channel
                 </button>

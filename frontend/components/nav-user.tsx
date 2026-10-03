@@ -1,6 +1,12 @@
 "use client"
 
 import Link from "next/link"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { signOut } from "firebase/auth"
+import { auth } from "@/lib/firebase"
+import { clearAuthToken } from "@/lib/auth-cookie"
+import { useQueryClient } from "@tanstack/react-query"
 import {
   BadgeCheck,
   Bell,
@@ -41,6 +47,22 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const [logoutError, setLogoutError] = useState("")
+  const [loggingOut, setLoggingOut] = useState(false)
+  async function logout() {
+    setLoggingOut(true)
+    setLogoutError("")
+    try {
+      if (auth) await signOut(auth)
+      await clearAuthToken()
+      queryClient.clear()
+      router.replace("/sign-in")
+    } catch {
+      setLogoutError("Sign out failed. Please try again.")
+    } finally { setLoggingOut(false) }
+  }
 
   return (
     <SidebarMenu>
@@ -53,7 +75,7 @@ export function NavUser({
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">FN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">{user.name.slice(0, 2)}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user.name}</span>
@@ -63,7 +85,7 @@ export function NavUser({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -72,7 +94,7 @@ export function NavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">FN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{user.name.slice(0, 2)}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user.name}</span>
@@ -111,12 +133,11 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/sign-in">
-                <LogOut />
-                Log out
-              </Link>
+            <DropdownMenuItem disabled={loggingOut} onSelect={(event) => { event.preventDefault(); logout(); }}>
+              <LogOut />
+              {loggingOut ? "Signing out…" : "Log out"}
             </DropdownMenuItem>
+            {logoutError && <p role="alert" className="px-2 py-1 text-xs text-destructive">{logoutError}</p>}
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

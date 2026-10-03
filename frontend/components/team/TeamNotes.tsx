@@ -209,13 +209,13 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
   return (
     <div className="h-full flex">
       {/* Notes Sidebar */}
-      <div className="w-64 bg-gray-50 border-r flex flex-col">
+      <div className="w-64 bg-muted border-r flex flex-col">
         <div className="p-4 border-b">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-medium">Notes</h2>
             <button
               onClick={handleCreateNote}
-              className="p-1 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200"
+              className="p-1 rounded-full bg-accent text-accent-foreground hover:bg-accent"
             >
               <PlusIcon className="w-5 h-5" />
             </button>
@@ -236,12 +236,12 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
                 <button
                   onClick={() => handleSelectNote(note.id)}
                   className={`w-full text-left p-3 ${
-                    selectedNote === note.id ? 'bg-orange-50' : 'hover:bg-gray-100'
+                    selectedNote === note.id ? 'bg-accent' : 'hover:bg-muted'
                   }`}
                 >
                   <h3 className="font-medium truncate">{note.title || 'Untitled'}</h3>
-                  <p className="text-sm text-gray-500 truncate mt-1">{note.content.substring(0, 50)}</p>
-                  <div className="flex items-center mt-2 text-xs text-gray-500">
+                  <p className="text-sm text-muted-foreground truncate mt-1">{note.content.substring(0, 50)}</p>
+                  <div className="flex items-center mt-2 text-xs text-muted-foreground">
                     <span>{formatDateTime(note.updatedAt).dateDay}</span>
                   </div>
                 </button>
@@ -256,7 +256,7 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
         {selectedNote || isCreating ? (
           <>
             {/* Note Header */}
-            <div className="bg-white border-b p-4 flex justify-between items-center">
+            <div className="bg-card border-b p-4 flex justify-between items-center">
               {isEditing ? (
                 <input
                   type="text"
@@ -273,7 +273,7 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
                 {isEditing ? (
                   <button
                     onClick={handleSaveNote}
-                    className="flex items-center space-x-1 bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-md"
+                    className="flex items-center space-x-1 bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-1 rounded-md"
                   >
                     <SaveIcon className="w-4 h-4" />
                     <span>Save</span>
@@ -282,13 +282,13 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
                   <>
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="text-gray-600 hover:text-gray-900 px-3 py-1 rounded-md hover:bg-gray-100"
+                      className="text-muted-foreground hover:text-foreground px-3 py-1 rounded-md hover:bg-muted"
                     >
                       Edit
                     </button>
                     <button
                       onClick={handleDeleteNote}
-                      className="text-red-600 hover:text-red-800 px-3 py-1 rounded-md hover:bg-red-50"
+                      className="text-destructive hover:text-destructive px-3 py-1 rounded-md hover:bg-destructive/15"
                     >
                       Delete
                     </button>
@@ -298,7 +298,7 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
             </div>
             
             {/* Note Metadata */}
-            <div className="bg-gray-50 px-4 py-2 text-sm text-gray-500 flex items-center justify-between">
+            <div className="bg-muted px-4 py-2 text-sm text-muted-foreground flex items-center justify-between">
               <div>
                 {currentNote && (
                   <>
@@ -316,15 +316,15 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
             </div>
             
             {/* Tags */}
-            <div className="bg-white px-4 py-2 border-b">
+            <div className="bg-card px-4 py-2 border-b">
               {isEditing ? (
                 <div className="flex flex-wrap items-center gap-2">
                   {editedNote.tags.map(tag => (
-                    <span key={tag} className="inline-flex items-center bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">
+                    <span key={tag} className="inline-flex items-center bg-accent text-accent-foreground text-xs px-2 py-1 rounded">
                       {tag}
                       <button
                         onClick={() => handleRemoveTag(tag)}
-                        className="ml-1 text-orange-600 hover:text-orange-800"
+                        className="ml-1 text-accent-foreground hover:text-accent-foreground"
                       >
                         ×
                       </button>
@@ -337,11 +337,11 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
                       placeholder="Add tag..."
-                      className="text-sm border-gray-300 rounded-l-md w-32"
+                      className="text-sm border-border rounded-l-md w-32"
                     />
                     <button
                       onClick={handleAddTag}
-                      className="bg-gray-100 border border-gray-300 border-l-0 rounded-r-md px-2"
+                      className="bg-muted border border-border border-l-0 rounded-r-md px-2"
                     >
                       Add
                     </button>
@@ -350,12 +350,12 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {currentNote?.tags?.map(tag => (
-                    <span key={tag} className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">
+                    <span key={tag} className="bg-accent text-accent-foreground text-xs px-2 py-1 rounded">
                       {tag}
                     </span>
                   ))}
                   {(!currentNote?.tags || currentNote.tags.length === 0) && (
-                    <span className="text-sm text-gray-400">No tags</span>
+                    <span className="text-sm text-muted-foreground">No tags</span>
                   )}
                 </div>
               )}
@@ -378,11 +378,11 @@ const TeamNotes: React.FC<TeamNotesProps> = ({ teamId }) => {
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
             <p>Select a note or create a new one</p>
             <button
               onClick={handleCreateNote}
-              className="mt-4 flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md"
+              className="mt-4 flex items-center space-x-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md"
             >
               <PlusIcon className="w-5 h-5" />
               <span>New Note</span>

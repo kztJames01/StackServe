@@ -99,17 +99,17 @@ const AIChatBox: React.FC<AIChatBoxProps> = ({ teamId }) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-gray-50">
+    <div className="h-full flex flex-col bg-muted">
       {/* Header */}
-      <div className="bg-white border-b p-4">
+      <div className="bg-card border-b p-4">
         <h1 className="text-xl font-semibold">AI Assistant</h1>
-        <p className="text-sm text-gray-500">Ask questions and get feedback for your team</p>
+        <p className="text-sm text-muted-foreground">Ask questions and get feedback for your team</p>
       </div>
       
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
             <p className="text-center">No messages yet. Start a conversation with the AI assistant!</p>
           </div>
         ) : (
@@ -121,15 +121,15 @@ const AIChatBox: React.FC<AIChatBoxProps> = ({ teamId }) => {
               <div
                 className={`max-w-3/4 rounded-lg p-3 ${
                   message.isAI
-                    ? 'bg-white border border-gray-200'
-                    : 'bg-orange-500 text-white'
+                    ? 'bg-card border border-border'
+                    : 'bg-primary text-primary-foreground'
                 }`}
               >
                 <div className="font-medium text-sm">
                   {message.isAI ? 'AI Assistant' : message.senderName || 'You'}
                 </div>
                 <div className="mt-1">{message.content}</div>
-                <div className={`text-xs mt-1 ${message.isAI ? 'text-gray-500' : 'text-orange-100'}`}>
+                <div className={`text-xs mt-1 ${message.isAI ? 'text-muted-foreground' : 'text-primary-foreground/80'}`}>
                   {formatDateTime(message.timestamp).time}
                 </div>
               </div>
@@ -140,23 +140,23 @@ const AIChatBox: React.FC<AIChatBoxProps> = ({ teamId }) => {
       </div>
       
       {/* Input */}
-      <div className="bg-white border-t p-4">
+      <div className="bg-card border-t p-4">
         <form onSubmit={handleSendMessage} className="flex space-x-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask the AI assistant..."
-            className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+            className="flex-1 rounded-md border-border shadow-sm focus:border-ring focus:ring-ring"
             disabled={isLoading}
           />
           <button
             type="submit"
-            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md disabled:opacity-50"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md disabled:opacity-50"
             disabled={isLoading || !input.trim()}
           >
             {isLoading ? (
-              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-5 w-5 text-primary-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>

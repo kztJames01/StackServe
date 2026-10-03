@@ -35,29 +35,29 @@ const TeamDashboard = () => {
   if (status === 'loading') return <div className="flex items-center justify-center h-screen">Loading...</div>;
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-muted">
       {/* Sidebar */}
-      <div className="w-16 bg-white shadow-md flex flex-col items-center py-6 space-y-8">
-        <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-          <UserIcon className="text-orange-500" />
+      <div className="w-16 bg-card shadow-md flex flex-col items-center py-6 space-y-8">
+        <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center">
+          <UserIcon className="text-accent-foreground" />
         </div>
         
         <nav className="flex flex-col space-y-6">
           <button 
             onClick={() => setActiveTab('profile')}
-            className={`p-3 rounded-lg ${activeTab === 'profile' ? 'bg-orange-100 text-orange-500' : 'text-gray-500'}`}
+            className={`p-3 rounded-lg ${activeTab === 'profile' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}`}
           >
             <UsersIcon className="" />
           </button>
           <button 
             onClick={() => setActiveTab('workspace')}
-            className={`p-3 rounded-lg ${activeTab === 'workspace' ? 'bg-orange-100 text-orange-500' : 'text-gray-500'}`}
+            className={`p-3 rounded-lg ${activeTab === 'workspace' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}`}
           >
             <MediaIcon className="" />
           </button>
           <button 
             onClick={() => setActiveTab('ai')}
-            className={`p-3 rounded-lg ${activeTab === 'ai' ? 'bg-orange-100 text-orange-500' : 'text-gray-500'}`}
+            className={`p-3 rounded-lg ${activeTab === 'ai' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 001.5 2.25m0 0v5.714a2.25 2.25 0 01-1.5 2.25m0 0a24.301 24.301 0 01-4.5 0m0 0v-5.714a2.25 2.25 0 001.5-2.25m-1.5 0v-5.714a2.25 2.25 0 011.5-2.25m0 0a24.301 24.301 0 014.5 0" />
@@ -65,7 +65,7 @@ const TeamDashboard = () => {
           </button>
           <button 
             onClick={() => setActiveTab('messages')}
-            className={`p-3 rounded-lg ${activeTab === 'messages' ? 'bg-orange-100 text-orange-500' : 'text-gray-500'}`}
+            className={`p-3 rounded-lg ${activeTab === 'messages' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -73,7 +73,7 @@ const TeamDashboard = () => {
           </button>
           <button 
             onClick={() => setActiveTab('notes')}
-            className={`p-3 rounded-lg ${activeTab === 'notes' ? 'bg-orange-100 text-orange-500' : 'text-gray-500'}`}
+            className={`p-3 rounded-lg ${activeTab === 'notes' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}`}
           >
             <SaveIcon className="" />
           </button>
@@ -92,7 +92,7 @@ const TeamDashboard = () => {
       {/* Team Members Sidebar */}
       <Sheet>
         <SheetTrigger asChild>
-          <button className="fixed bottom-6 right-6 bg-orange-500 text-white p-4 rounded-full shadow-lg">
+          <button aria-label="Open team members" className="fixed bottom-6 right-6 bg-primary text-primary-foreground p-4 rounded-full shadow-lg">
             <UsersIcon className="" />
           </button>
         </SheetTrigger>

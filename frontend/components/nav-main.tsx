@@ -52,9 +52,9 @@ export function NavMain({
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
                   <SidebarMenuButton tooltip={item.title} className="font-[family-name:var(--font-geist-sans)]">
-                    {item.icon && <item.icon className="text-[#8a7f72]" />}
+                    {item.icon && <item.icon className="text-muted-foreground" />}
                     <span className="font-medium">{item.title}</span>
-                    <ChevronRight className="ml-auto size-4 text-[#d4c8b8] transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    <ChevronRight className="ml-auto size-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
@@ -63,7 +63,7 @@ export function NavMain({
                       <SidebarMenuSubItem key={subItem.title}>
                         <SidebarMenuSubButton asChild isActive={pathname === subItem.url} className="font-[family-name:var(--font-geist-sans)]">
                           <Link href={subItem.url}>
-                            <span className="text-[#8a7f72]">{subItem.title}</span>
+                            <span className="text-muted-foreground">{subItem.title}</span>
                           </Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>

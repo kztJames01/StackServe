@@ -93,10 +93,10 @@ export default function FindCreatorsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <div className="container py-8 space-y-8 overflow-x-hidden">
       <div className="flex flex-col items-center text-center space-y-4 mb-8">
         <h1 className="text-4xl font-bold">Find Creators</h1>
-        <p className="text-lg text-gray-600 max-w-2xl">
+        <p className="text-lg text-muted-foreground max-w-2xl">
           Connect with talented creators based on shared interests, skills, and projects. 
           Our machine learning algorithm recommends the best matches for collaboration.
         </p>
@@ -104,7 +104,7 @@ export default function FindCreatorsPage() {
 
       <div className="relative max-w-md mx-auto mb-8">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <SearchIcon className="text-gray-400" />
+          <SearchIcon className="text-muted-foreground" />
         </div>
         <Input
           type="text"
@@ -118,6 +118,8 @@ export default function FindCreatorsPage() {
       <div className="space-y-8">
         <div>
           <h2 className="text-2xl font-semibold mb-4">Recommended for You</h2>
+          {/* arrows sit outside the track, so leave room for them */}
+          <div className="sm:px-12">
           <Carousel className="w-full">
             <CarouselContent>
               {recommendedCreators.map((creator) => (
@@ -126,9 +128,10 @@ export default function FindCreatorsPage() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
+            <CarouselPrevious className="hidden sm:flex" />
+            <CarouselNext className="hidden sm:flex" />
           </Carousel>
+          </div>
         </div>
 
         <div>
@@ -159,11 +162,11 @@ function CreatorCard({ creator }: { creator: Creator }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <h3 className="font-medium text-sm text-gray-500">Current Project</h3>
+          <h3 className="font-medium text-sm text-muted-foreground">Current Project</h3>
           <p className="font-medium">{creator.project}</p>
         </div>
         <div>
-          <h3 className="font-medium text-sm text-gray-500 mb-2">Skills</h3>
+          <h3 className="font-medium text-sm text-muted-foreground mb-2">Skills</h3>
           <div className="flex flex-wrap gap-2">
             {creator.skills.map((skill) => (
               <Badge key={skill} variant="secondary">{skill}</Badge>

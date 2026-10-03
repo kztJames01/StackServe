@@ -3,10 +3,12 @@
 import Image from "next/image";
 import FallingmodelsWithTextures from "@/components/Logo3D";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/theme-provider";
 
 export default function Home() {
   return (
     <>
+      <div className="fixed left-4 top-4 z-30 rounded-full border bg-card"><ThemeToggle /></div>
       <div>
         {/* Animation Container (Left 50%) */}
         <FallingmodelsWithTextures />
@@ -14,7 +16,7 @@ export default function Home() {
         {/* Content Container (Left 50%) */}
         <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center w-full lg:w-[50%] min-h-screen p-4 pb-16 gap-10 sm:p-12 sm:gap-16 lg:p-20 font-[family-name:var(--font-geist-sans)]">
           <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-            <div className="flex flex-col items-center justify-center text-center bg-white/10 backdrop-blur-sm p-5 sm:p-8 rounded-lg shadow-lg max-w-xl mx-auto">
+            <div className="flex flex-col items-center justify-center text-center bg-card/85 backdrop-blur-md border border-border p-6 sm:p-10 rounded-2xl shadow-lg max-w-xl mx-auto">
               <div className="flex items-center gap-4">
                 <Image
                   src="/logo/mobile-logo1.png"
@@ -33,13 +35,13 @@ export default function Home() {
               <div className="flex w-full flex-col items-stretch gap-4 sm:w-auto sm:flex-row">
                 <Link
                   href="/sign-up"
-                  className="text-center bg-[#252422] text-[#F5EFE6] px-8 py-3.5 rounded-xl font-semibold hover:bg-[#1a1917] hover:shadow-lg hover:shadow-[#252422]/20 hover:-translate-y-0.5 transition-all duration-300"
+                  className="text-center bg-secondary text-secondary-foreground px-8 py-3.5 rounded-xl font-semibold hover:bg-secondary/90 hover:shadow-lg hover:shadow-[#252422]/20 hover:-translate-y-0.5 transition-all duration-300"
                 >
                   Join the Community
                 </Link>
                 <Link
                   href="/explore"
-                  className="text-center bg-white/80 backdrop-blur-sm border border-[#252422]/20 text-[#252422] px-8 py-3.5 rounded-xl font-semibold hover:bg-white hover:border-[#252422]/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                  className="text-center bg-card/80 backdrop-blur-sm border border-[#252422]/20 text-foreground px-8 py-3.5 rounded-xl font-semibold hover:bg-card hover:border-[#252422]/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
                 >
                   Explore Projects
                 </Link>
@@ -102,7 +104,7 @@ export default function Home() {
         alt="home"
         width={500}
         height={500}
-        className="fixed top-0 right-0 w-[50%] h-full hidden lg:block"
+        className="fixed top-0 right-0 w-[50%] h-full object-cover hidden lg:block"
       />
     </>
   );
