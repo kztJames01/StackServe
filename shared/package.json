@@ -6,6 +6,7 @@
   "exports": {
     "./authSchema": "./authSchema.js",
     "./apiHelpers": "./apiHelpers.js",
-    "./theme": "./theme.js"
+    "./theme": "./theme.js",
+    "./firebaseAuthErrors": "./firebaseAuthErrors.js"
   }
 }

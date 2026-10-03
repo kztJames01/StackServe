@@ -14,6 +14,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { updateMe } from '../api';
 import { authFormSchema } from 'makerspace-shared/authSchema';
+import { getFirebaseAuthErrorMessage } from 'makerspace-shared/firebaseAuthErrors';
 import { colors } from 'makerspace-shared/theme';
 
 export default function SignUpScreen({ navigation }) {
@@ -54,7 +55,7 @@ export default function SignUpScreen({ navigation }) {
       }
       navigation.reset({ index: 0, routes: [{ name: 'Explore' }] });
     } catch (e) {
-      setError('Sign up failed. Maybe the email is already used.');
+      setError(getFirebaseAuthErrorMessage(e, 'Sign up failed. Maybe the email is already used.'));
     } finally {
       setLoading(false);
     }

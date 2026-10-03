@@ -13,6 +13,7 @@ import {
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { authFormSchema } from 'makerspace-shared/authSchema';
+import { getFirebaseAuthErrorMessage } from 'makerspace-shared/firebaseAuthErrors';
 import { colors } from 'makerspace-shared/theme';
 
 export default function SignInScreen({ navigation }) {
@@ -37,7 +38,7 @@ export default function SignInScreen({ navigation }) {
       await signInWithEmailAndPassword(auth, email, password);
       navigation.reset({ index: 0, routes: [{ name: 'Explore' }] });
     } catch (e) {
-      setError('Sign in failed. Check your email and password.');
+      setError(getFirebaseAuthErrorMessage(e, 'Sign in failed. Check your email and password.'));
     } finally {
       setLoading(false);
     }
