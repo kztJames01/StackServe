@@ -2,8 +2,8 @@ const crypto = require('crypto');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
-const ALLOWED_FOLDERS = new Set(['avatars', 'projects']);
-const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const ALLOWED_FOLDERS = new Set(['avatars', 'projects', 'licenses']);
+const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf', 'text/plain']);
 
 let client = null;
 
@@ -90,4 +90,25 @@ async function createUploadUrl({ folder, userId, filename, contentType }) {
   };
 }
 
-module.exports = { createUploadUrl };
+// server-side upload for generated artifacts (signed license PDFs)
+async function uploadArtifact({ folder, key, body, contentType }) {
+  const cfg = getStorageConfig();
+  const s3 = getStorageClient();
+  if (!cfg || !s3) return null;
+  if (!ALLOWED_FOLDERS.has(folder)) {
+    const err = new Error('Invalid upload folder');
+    err.status = 400;
+    throw err;
+  }
+
+  await s3.send(new PutObjectCommand({
+    Bucket: cfg.bucket,
+    Key: key,
+    Body: body,
+    ContentType: contentType,
+  }));
+
+  return { key, fileUrl: buildPublicUrl(key) };
+}
+
+module.exports = { createUploadUrl, uploadArtifact };

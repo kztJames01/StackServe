@@ -53,6 +53,9 @@ app.use('/api', require('./routes/investors'));
 app.use('/api', require('./routes/users'));
 app.use('/api', require('./routes/verification'));
 app.use('/api', require('./routes/history'));
+app.use('/api', require('./routes/availability'));
+app.use('/api', require('./routes/licenses').licensesRouter);
+app.use('/api', require('./routes/compliance'));
 app.use('/api', billingRouter);
 app.use('/api', storageRoutes);
 

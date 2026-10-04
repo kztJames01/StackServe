@@ -8,6 +8,7 @@ const {
 } = require('../db/repository');
 const { requireAuth } = require('../middleware/validate');
 const { getUserId } = require('../middleware/authUser');
+const { query } = require('../db/pool');
 
 const router = Router();
 
@@ -69,7 +70,19 @@ router.patch('/projects/:id', requireAuth, async (req, res) => {
 
   await upsertEntity('projects', project);
 
-  return res.json({ data: project, message: 'Project updated' });
+  // deliverables gate: soft warn when marking delivered with unsigned licenses
+  let warning = null;
+  if (req.body?.status === 'delivered') {
+    const result = await query('SELECT id, status FROM licenses WHERE shoot_id = $1', [String(project.id)]);
+    const unsigned = result.rows.filter((l) => l.status !== 'signed');
+    if (result.rows.length === 0) {
+      warning = 'Shoot marked delivered but no licenses exist for its assets';
+    } else if (unsigned.length > 0) {
+      warning = `Shoot marked delivered but ${unsigned.length} asset(s) lack a signed license`;
+    }
+  }
+
+  return res.json({ data: project, message: 'Project updated', warning });
 });
 
 router.delete('/projects/:id', requireAuth, async (req, res) => {
