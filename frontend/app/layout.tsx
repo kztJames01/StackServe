@@ -20,8 +20,8 @@ const antonio = Antonio({
 });
 
 export const metadata: Metadata = {
-  title: "MakerSpace",
-  description: "Community of Creators",
+  title: "StudioPass",
+  description: "Roster & compliance hub for freelance creative teams",
 };
 
 export default function RootLayout({

@@ -26,7 +26,7 @@ export function DashboardShell({ title, description, children }: DashboardShellP
           <div className="flex min-w-0 items-center gap-3">
             <SidebarTrigger className="-ml-1 hover:bg-muted" />
             <Separator orientation="vertical" className="h-4 bg-border" />
-            <Link href="/explore" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors font-[family-name:var(--font-geist-sans)]">
+            <Link href="/shoots" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors font-[family-name:var(--font-geist-sans)]">
               Workspace
             </Link>
             <span className="text-sm text-muted-foreground">/</span>

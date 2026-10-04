@@ -22,6 +22,10 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const protectedRoutes = [
+    '/shoots',
+    '/roster',
+    '/availability',
+    '/compliance',
     '/explore',
     '/profile',
     '/team',
@@ -31,7 +35,6 @@ export async function middleware(request: NextRequest) {
     '/billing',
     '/settings',
     '/recruit',
-    '/investors',
     '/history',
     '/projects',
   ];

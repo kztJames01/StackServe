@@ -12,7 +12,7 @@ export default function Page() {
   });
 
   return (
-    <DashboardShell title="Project History" description="Track milestones, pivots, and shipping velocity across your startup journey.">
+    <DashboardShell title="Past Shoots" description="Archive of past shoots, milestones, and signed licenses.">
       <CardSection tone="white">
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Loading history…</p>

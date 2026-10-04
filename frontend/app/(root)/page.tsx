@@ -26,24 +26,24 @@ export default function Home() {
                   className="size-12 sm:size-[70px]"
                 />
                 <h1 className="text-2xl sm:text-3xl font-[family-name:var(--font-antonio)]">
-                  NxtGen
+                  StudioPass
                 </h1>
               </div>
               <p className="text-base sm:text-lg text-primary my-6 sm:m-8">
-                A global creator hub for students, and innovators to share ideas, collaborate on projects, and turn dreams into reality.
+                The roster & compliance hub for freelance creative teams. Assemble shoots, track crew availability, and prove usage-rights on every delivered image.
               </p>
               <div className="flex w-full flex-col items-stretch gap-4 sm:w-auto sm:flex-row">
                 <Link
                   href="/sign-up"
                   className="text-center bg-secondary text-secondary-foreground px-8 py-3.5 rounded-xl font-semibold hover:bg-secondary/90 hover:shadow-lg hover:shadow-[#252422]/20 hover:-translate-y-0.5 transition-all duration-300"
                 >
-                  Join the Community
+                  Start Free Workspace
                 </Link>
                 <Link
-                  href="/explore"
+                  href="/sign-in"
                   className="text-center bg-card/80 backdrop-blur-sm border border-[#252422]/20 text-foreground px-8 py-3.5 rounded-xl font-semibold hover:bg-card hover:border-[#252422]/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
                 >
-                  Explore Projects
+                  Sign In
                 </Link>
               </div>
             </div>

@@ -7,7 +7,7 @@ export default function Profile() {
   return (
     <DashboardShell
       title="Profile"
-      description="Showcase your work, experience, and founder credibility."
+      description="Showcase your portfolio, day rate, and crew credentials."
     >
       <ProfilePage />
     </DashboardShell>

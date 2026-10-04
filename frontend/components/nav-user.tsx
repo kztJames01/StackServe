@@ -105,9 +105,9 @@ export function NavUser({
 
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
-                <Link href="/investors">
+                <Link href="/billing">
                   <Sparkles />
-                  Upgrade to Pro
+                  Upgrade to Agency
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>

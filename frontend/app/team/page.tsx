@@ -6,8 +6,8 @@ import { DashboardShell } from '@/components/layout/dashboard-shell'
 export default function TeamProfile() {
   return (
     <DashboardShell
-      title="Team Dashboard"
-      description="Coordinate teammates, sprint notes, and delivery progress."
+      title="Workspace Dashboard"
+      description="Coordinate crew, shoot notes, and delivery progress."
     >
       <Team />
     </DashboardShell>

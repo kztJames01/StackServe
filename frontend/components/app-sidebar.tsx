@@ -29,19 +29,19 @@ import { getMe } from "@/lib/api/client"
 const data = {
   teams: [
     {
-      name: "NxtGen Core",
+      name: "Studio North",
       logo: GalleryVerticalEnd,
-      plan: "Growth",
+      plan: "Agency",
     },
     {
-      name: "Startup Circle",
+      name: "Brightline Agency",
       logo: Rocket,
-      plan: "Community",
+      plan: "Studio",
     },
     {
-      name: "Investor Desk",
+      name: "Freelance Desk",
       logo: Command,
-      plan: "Network",
+      plan: "Free",
     },
   ],
   navMain: platformNav.map((item) => ({
@@ -49,7 +49,7 @@ const data = {
     icon:
       item.title === "Workspace"
         ? Briefcase
-        : item.title === "Growth"
+        : item.title === "Roster"
           ? Building2
           : item.title === "Community"
             ? MessageSquare

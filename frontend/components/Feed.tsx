@@ -26,7 +26,7 @@ export default function FeedPage({ audience = 'public' }: { audience?: 'public' 
   async function share(caption: string) {
     try {
       const url = `${window.location.origin}/explore`;
-      if (navigator.share) await navigator.share({ title: 'MakerSpace update', text: caption, url });
+      if (navigator.share) await navigator.share({ title: 'StudioPass update', text: caption, url });
       else { await navigator.clipboard.writeText(`${caption}\n${url}`); setFeedback('Update copied to clipboard.'); }
     } catch (error) {
       if (!(error instanceof DOMException && error.name === 'AbortError')) setFeedback('Sharing was unavailable. Please try again.');
@@ -70,7 +70,7 @@ export default function FeedPage({ audience = 'public' }: { audience?: 'public' 
       </div>
       <aside className="space-y-4">
         <CardSection><h2 className="text-lg font-semibold">Your maker identity</h2><p className="mt-2 text-sm leading-relaxed text-muted-foreground">Showcase your work, choose your roles, and build trust with verified credentials.</p><div className="mt-4 space-y-1">{([['/profile', 'View your profile'], ['/account', 'Manage identity & credentials'], ['/messages', 'Open messages']] as const).map(([href, label]) => <Link key={href} href={href} className="flex items-center justify-between gap-3 rounded-md px-2 py-3 text-sm hover:bg-accent"><span>{label}</span><ArrowRight className="size-4 shrink-0" /></Link>)}</div></CardSection>
-        <CardSection><h2 className="text-lg font-semibold">Build your network</h2><div className="mt-4 space-y-1">{([['/investors', 'Verified investors'], ['/recruit', 'Recruit teammates'], ['/team/tasks', 'Team tasks']] as const).map(([href, label]) => <Link key={href} href={href} className="flex items-center justify-between gap-3 rounded-md px-2 py-3 text-sm hover:bg-accent"><span>{label}</span><ArrowRight className="size-4 shrink-0" /></Link>)}</div></CardSection>
+        <CardSection><h2 className="text-lg font-semibold">Build your network</h2><div className="mt-4 space-y-1">{([['/roster', 'Freelancer roster'], ['/shoots', 'Shoots'], ['/team/tasks', 'Call sheet']] as const).map(([href, label]) => <Link key={href} href={href} className="flex items-center justify-between gap-3 rounded-md px-2 py-3 text-sm hover:bg-accent"><span>{label}</span><ArrowRight className="size-4 shrink-0" /></Link>)}</div></CardSection>
       </aside>
     </div>
   );

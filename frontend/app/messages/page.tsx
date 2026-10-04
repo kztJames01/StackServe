@@ -83,7 +83,7 @@ export default function Page() {
   }, [activeConvId]);
 
   return (
-    <DashboardShell title="Messages" description="Direct conversations with founders, teammates, and partners.">
+    <DashboardShell title="Crew Chat" description="Direct conversations with your shoot crew and collaborators.">
       <CardSection tone="white">
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Loading conversations…</p>

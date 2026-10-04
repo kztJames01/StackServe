@@ -7,26 +7,27 @@ export type NavItem = {
 export const platformNav: NavItem[] = [
   {
     title: "Workspace",
-    url: "/explore",
+    url: "/shoots",
     items: [
-      { title: "Explore Feed", url: "/explore" },
-      { title: "Project History", url: "/history" },
-      { title: "Team Tasks", url: "/team/tasks" }
+      { title: "Shoots", url: "/shoots" },
+      { title: "Availability", url: "/availability" },
+      { title: "Compliance", url: "/compliance" },
+      { title: "Past Shoots", url: "/history" }
     ]
   },
   {
-    title: "Growth",
-    url: "/recruit",
+    title: "Roster",
+    url: "/roster",
     items: [
-      { title: "Recruit Teammates", url: "/recruit" },
-      { title: "Investor Space", url: "/investors" }
+      { title: "Freelancer Roster", url: "/roster" },
+      { title: "Call Sheet", url: "/team/tasks" }
     ]
   },
   {
     title: "Community",
     url: "/messages",
     items: [
-      { title: "Messages", url: "/messages" },
+      { title: "Crew Chat", url: "/messages" },
       { title: "Notifications", url: "/notifications" },
       { title: "Profile", url: "/profile" }
     ]
@@ -43,7 +44,7 @@ export const platformNav: NavItem[] = [
 ];
 
 export const projectNav = [
-  { name: "AI Co-Founder Match", url: "/projects/ai-cofounder-match" },
-  { name: "Pitch Deck Coach", url: "/projects/pitch-deck-coach" },
-  { name: "Founder Journal", url: "/projects/founder-journal" }
+  { name: "Editorial Cover Shoot", url: "/projects/editorial-cover-shoot" },
+  { name: "Lookbook SS27", url: "/projects/lookbook-ss27" },
+  { name: "Product Campaign", url: "/projects/product-campaign" }
 ];

@@ -59,7 +59,7 @@ export function TeamSwitcher({
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-xs font-medium text-muted-foreground px-2 py-1.5">
-              Teams
+              Workspaces
             </DropdownMenuLabel>
             {teams.map((team, index) => (
               <DropdownMenuItem
@@ -79,7 +79,7 @@ export function TeamSwitcher({
               <div className="flex size-8 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
                 <Plus className="size-4" />
               </div>
-              <div className="font-medium text-foreground">Add team</div>
+              <div className="font-medium text-foreground">Add workspace</div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

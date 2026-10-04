@@ -26,7 +26,7 @@ const getPublicProfile = cache(async (handle: string): Promise<PublicProfile> =>
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { handle } = await params;
   const profile = await getPublicProfile(handle);
-  const title = `${profile.name} (@${profile.handle}) | MakerSpace`;
+  const title = `${profile.name} (@${profile.handle}) | StudioPass`;
   const description = profile.bio.slice(0, 160) || `${profile.name}'s maker profile, skills and credentials.`;
   return { title, description, alternates: { canonical: `/u/${profile.handle}` }, openGraph: { title, description, type: 'profile' }, twitter: { card: 'summary', title, description } };
 }
@@ -41,7 +41,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
     <div className="min-h-screen">
       <header className="border-b bg-card">
         <nav aria-label="Public profile navigation" className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <Link href="/" className="font-semibold">MakerSpace</Link>
+          <Link href="/" className="font-semibold">StudioPass</Link>
           <div className="flex items-center gap-2"><ThemeToggle /><Button asChild variant="outline"><Link href="/sign-in">Sign in</Link></Button></div>
         </nav>
       </header>

@@ -55,7 +55,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
           email: data.email,
           password: data.password,
         })
-        router.push('/explore')
+        router.push('/shoots')
       }
     } catch (err: unknown) {
       setAuthError(err instanceof Error ? err.message : 'Something went wrong')
@@ -73,16 +73,16 @@ const AuthForm = ({ type }: AuthFormProps) => {
             <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-[#bb9457] to-transparent" />
             <header className="flex flex-col gap-5 md:gap-8">
               <Link href="/" className="mb-2 flex cursor-pointer items-center gap-3">
-                <Image src="/logo/mobile-logo1.png" width={34} height={34} alt="NxtGen logo" className="max-xl:size-14 dark:invert" />
-                <h1 className="text-24 px-1 font-bold text-foreground">NxtGen</h1>
+                <Image src="/logo/mobile-logo1.png" width={34} height={34} alt="StudioPass logo" className="max-xl:size-14 dark:invert" />
+                <h1 className="text-24 px-1 font-bold text-foreground">StudioPass</h1>
               </Link>
               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-foreground/70">
                 {type === 'sign-in' ? <LockKeyhole size={14} /> : <UserRound size={14} />}
-                <span>{type === 'sign-in' ? 'Founder access' : 'Create founder profile'}</span>
+                <span>{type === 'sign-in' ? 'Agency access' : 'Create agency workspace'}</span>
               </div>
               <div className="flex flex-col gap-2 md:gap-3">
                 <h1 className="text-24 lg:text-36 font-semibold text-foreground">
-                  {type === 'sign-in' ? 'Hop into the MakerSpace' : 'Start Your Journey'}
+                  {type === 'sign-in' ? 'Hop into StudioPass' : 'Start Your Journey'}
                 </h1>
                 <p className="text-16 font-[family-name:var(--font-antonio)] uppercase tracking-[0.08em] text-foreground/72">
                   Please enter your details
@@ -147,7 +147,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
             <div className="absolute inset-0 z-10 bg-gradient-to-br from-[#252422]/30 via-transparent to-[#bb9457]/35" />
             <div className="absolute left-6 top-6 z-20 max-w-sm rounded-[1.5rem] border border-border bg-secondary/95 p-4 text-secondary-foreground backdrop-blur-md lg:left-8 lg:top-8">
               <p className="text-xs uppercase tracking-[0.18em] text-secondary-foreground/80">Build with conviction</p>
-              <h2 className="mt-2 text-2xl font-semibold leading-tight">Ship, recruit, and pitch from one founder workspace.</h2>
+              <h2 className="mt-2 text-2xl font-semibold leading-tight">Book crew, track availability, and sign licenses from one workspace.</h2>
             </div>
             <Image
               src="/home.jpg"

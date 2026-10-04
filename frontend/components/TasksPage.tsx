@@ -51,9 +51,9 @@ export default function TasksPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Task Board</h2>
+        <h2 className="text-xl font-semibold">Call Sheet</h2>
         <Button onClick={() => setIsAdding(true)} className="flex gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90">
-          <PlusIcon className="h-4 w-4" /> Add Task
+          <PlusIcon className="h-4 w-4" /> Add Item
         </Button>
       </div>
 
@@ -88,7 +88,7 @@ export default function TasksPage() {
       {isAdding && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <Card className="w-full max-w-md space-y-4 p-6">
-            <h2 className="text-xl font-bold">Create New Task</h2>
+            <h2 className="text-xl font-bold">New Call-Sheet Item</h2>
             <div className="space-y-2">
               <input className="w-full rounded border p-2" placeholder="Title" id="task-title" />
               <textarea className="w-full rounded border p-2" placeholder="Description" id="task-desc" />

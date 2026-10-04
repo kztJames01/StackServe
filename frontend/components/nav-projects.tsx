@@ -39,7 +39,7 @@ export function NavProjects({
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Projects</SidebarGroupLabel>
+      <SidebarGroupLabel>Shoots</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
@@ -64,17 +64,17 @@ export function NavProjects({
                 <DropdownMenuItem asChild className="rounded-lg cursor-pointer hover:bg-muted focus:bg-muted">
                   <Link href={item.url} className="flex items-center gap-2">
                     <Folder className="size-4 text-muted-foreground" />
-                    <span className="text-foreground">View Project</span>
+                    <span className="text-foreground">View Shoot</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="rounded-lg cursor-pointer hover:bg-muted focus:bg-muted">
                   <Forward className="size-4 text-muted-foreground" />
-                  <span className="text-foreground">Share Project</span>
+                  <span className="text-foreground">Share Shoot</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border" />
                 <DropdownMenuItem className="rounded-lg cursor-pointer hover:bg-muted focus:bg-muted">
                   <Trash2 className="size-4 text-muted-foreground" />
-                  <span className="text-foreground">Archive Project</span>
+                  <span className="text-foreground">Archive Shoot</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
