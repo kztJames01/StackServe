@@ -95,6 +95,7 @@ export type ProjectItem = {
   description: string;
   image: string;
   tags: string[];
+  status?: string;
 };
 
 export type PostItem = {
@@ -253,7 +254,7 @@ export async function createProject(data: Omit<ProjectItem, "id">) {
 }
 
 export async function updateProject(id: string | number, data: Partial<ProjectItem>) {
-  return request<{ data: ProjectItem; message: string }>(`/api/projects/${id}`, {
+  return request<{ data: ProjectItem; message: string; warning?: string | null }>(`/api/projects/${id}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
@@ -348,14 +349,140 @@ export async function createHistoryEntry(data: Omit<HistoryEntry, "id">) {
   });
 }
 
+export type AvailabilityRow = {
+  id: string;
+  freelancerId: string;
+  start: string;
+  end: string;
+  status: "available" | "booked" | "hold";
+  shootId?: string | null;
+};
+
+export async function getAvailability(freelancerId?: string) {
+  const query = freelancerId ? `?freelancerId=${encodeURIComponent(freelancerId)}` : "";
+  return request<AvailabilityRow[]>(`/api/availability${query}`);
+}
+
+export async function createAvailability(data: Omit<AvailabilityRow, "id">) {
+  return request<{ data: AvailabilityRow; message: string }>("/api/availability", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteAvailability(id: string) {
+  return request<{ message: string }>(`/api/availability/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export type License = {
+  id: string;
+  workspace_id: string;
+  shoot_id: string;
+  freelancer_id: string;
+  media_ref: string;
+  usage_type: string[];
+  territories: string[];
+  duration_months: number | null;
+  starts_at: string;
+  expires_at: string | null;
+  fee_cents: number | null;
+  status: "draft" | "sent" | "signed" | "expired" | "disputed";
+  signed_pdf_ref: string | null;
+  signed_name: string | null;
+  signed_at: string | null;
+  created_at: string;
+};
+
+export type ComplianceReport = {
+  red: { shootId: string; title: string; reason: string; licenseIds?: string[] }[];
+  amber: { licenseId: string; shootId: string; freelancerId: string; expiresAt: string; reason: string }[];
+  yellow: { shootId: string; title: string; freelancerId: string; reason: string }[];
+  green: boolean;
+  counts: { red: number; amber: number; yellow: number };
+};
+
+export async function getLicenses(shootId?: string) {
+  const qs = shootId ? `?shootId=${encodeURIComponent(shootId)}` : "";
+  return request<License[]>(`/api/licenses${qs}`);
+}
+
+export async function createLicense(data: {
+  shootId: string;
+  freelancerId: string;
+  mediaRef?: string;
+  usageType?: string[];
+  territories?: string[];
+  durationMonths?: number | null;
+  startsAt: string;
+  feeCents?: number | null;
+}) {
+  return request<{ data: License; message: string }>("/api/licenses", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateLicense(id: string, data: { status?: string; feeCents?: number | null }) {
+  return request<{ data: License; message: string }>(`/api/licenses/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function signLicense(id: string, typedName: string) {
+  return request<{ data: License; message: string }>(`/api/licenses/${id}/sign`, {
+    method: "POST",
+    body: JSON.stringify({ typedName }),
+  });
+}
+
+export async function deleteLicense(id: string) {
+  return request<{ message: string }>(`/api/licenses/${id}`, { method: "DELETE" });
+}
+
+// studio tier only, downloads the audit csv
+export async function downloadLicensesCsv(shootId?: string) {
+  const authHeaders = await getAuthHeaders();
+  const qs = shootId ? `?shootId=${encodeURIComponent(shootId)}` : "";
+  const response = await fetch(`${API_BASE}/api/licenses/export${qs}`, { headers: authHeaders });
+  if (!response.ok) {
+    const message = parseErrorMessage(await response.text(), response.status);
+    throw new ApiError(message, response.status);
+  }
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `licenses${shootId ? `-${shootId}` : ""}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function getCompliance() {
+  return request<ComplianceReport>("/api/compliance");
+}
+
 export async function getBillingStatus() {
   return request<BillingStatus>("/api/billing/status");
 }
 
-export async function createBillingCheckoutSession(priceId?: string) {
+export async function getSeats() {
+  return request<{ seats: number; freeSeatLimit: number }>("/api/billing/seats");
+}
+
+export async function updateSeats(seats: number) {
+  return request<{ seats: number; message: string }>("/api/billing/seats", {
+    method: "POST",
+    body: JSON.stringify({ seats }),
+  });
+}
+
+export async function createBillingCheckoutSession(priceId?: string, seats?: number) {
   return request<{ url: string }>("/api/billing/create-checkout-session", {
     method: "POST",
-    body: JSON.stringify(priceId ? { priceId } : {}),
+    body: JSON.stringify({ ...(priceId ? { priceId } : {}), ...(seats ? { seats } : {}) }),
   });
 }
 
