@@ -22,11 +22,11 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const protectedRoutes = [
+    '/dashboard',
     '/shoots',
     '/roster',
     '/availability',
     '/compliance',
-    '/explore',
     '/profile',
     '/team',
     '/messages',
@@ -34,9 +34,11 @@ export async function middleware(request: NextRequest) {
     '/account',
     '/billing',
     '/settings',
+    '/preferences',
     '/recruit',
     '/history',
     '/projects',
+    '/workspaces',
   ];
 
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));

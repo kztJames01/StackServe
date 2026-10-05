@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { ChevronsUpDown, Plus } from "lucide-react"
-
+import { useRouter } from "next/navigation"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,18 +18,73 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { Workspace } from "@/lib/api/client"
+
+const STORAGE_KEY = 'synthpass-active-workspace'
+
+export function useActiveWorkspace(workspaces: Workspace[]) {
+  const [activeId, setActiveId] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    if (!workspaces.length) return
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored && workspaces.some(w => w.id === stored)) {
+        setActiveId(stored)
+      } else {
+        setActiveId(workspaces[0].id)
+      }
+    } catch {
+      setActiveId(workspaces[0].id)
+    }
+  }, [workspaces])
+
+  React.useEffect(() => {
+    const sync = (event: Event) => setActiveId((event as CustomEvent<string>).detail)
+    window.addEventListener('synthpass-workspace-change', sync)
+    return () => window.removeEventListener('synthpass-workspace-change', sync)
+  }, [])
+
+  const setActive = (id: string) => {
+    setActiveId(id)
+    try { localStorage.setItem(STORAGE_KEY, id) } catch {}
+    window.dispatchEvent(new CustomEvent('synthpass-workspace-change', { detail: id }))
+  }
+
+  return { activeId, setActive }
+}
 
 export function TeamSwitcher({
-  teams,
+  workspaces,
+  onCreateWorkspace,
 }: {
-  teams: {
-    name: string
-    logo: React.ElementType
-    plan: string
-  }[]
+  workspaces: Workspace[]
+  onCreateWorkspace?: () => void
 }) {
   const { isMobile } = useSidebar()
-  const [activeTeam, setActiveTeam] = React.useState(teams[0])
+  const router = useRouter()
+  const { activeId, setActive } = useActiveWorkspace(workspaces)
+  const active = workspaces.find(w => w.id === activeId) || workspaces[0]
+
+  if (!active) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" onClick={onCreateWorkspace} className="gap-3">
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
+              <Plus className="size-4" />
+            </div>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-semibold">New workspace</span>
+              <span className="truncate text-xs text-muted-foreground">Get started</span>
+            </div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    )
+  }
+
+  const initials = active.name.slice(0, 2).toUpperCase()
 
   return (
     <SidebarMenu>
@@ -40,14 +95,12 @@ export function TeamSwitcher({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <activeTeam.logo className="size-4" />
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground font-semibold text-xs">
+                {initials}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
-                  {activeTeam.name}
-                </span>
-                <span className="truncate text-xs">{activeTeam.plan}</span>
+                <span className="truncate font-semibold">{active.name}</span>
+                <span className="truncate text-xs capitalize">{active.member_role.replace('_', ' ')}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -61,21 +114,27 @@ export function TeamSwitcher({
             <DropdownMenuLabel className="text-xs font-medium text-muted-foreground px-2 py-1.5">
               Workspaces
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
+            {workspaces.map((ws, index) => (
               <DropdownMenuItem
-                key={team.name}
-                onClick={() => setActiveTeam(team)}
+                key={ws.id}
+                onClick={() => {
+                  setActive(ws.id)
+                  router.push('/dashboard')
+                }}
                 className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer hover:bg-muted focus:bg-muted"
               >
-                <div className="flex size-8 items-center justify-center rounded-lg bg-muted text-foreground">
-                  <team.logo className="size-4 shrink-0" />
+                <div className="flex size-8 items-center justify-center rounded-lg bg-muted text-foreground font-semibold text-xs">
+                  {ws.name.slice(0, 2).toUpperCase()}
                 </div>
-                <span className="font-medium text-foreground">{team.name}</span>
+                <span className="font-medium text-foreground">{ws.name}</span>
                 <DropdownMenuShortcut className="text-foreground">⌘{index + 1}</DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator className="bg-border" />
-            <DropdownMenuItem className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer hover:bg-muted focus:bg-muted">
+            <DropdownMenuItem
+              className="gap-3 px-3 py-2.5 rounded-lg cursor-pointer hover:bg-muted focus:bg-muted"
+              onClick={onCreateWorkspace}
+            >
               <div className="flex size-8 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
                 <Plus className="size-4" />
               </div>

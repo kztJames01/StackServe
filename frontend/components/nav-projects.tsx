@@ -3,9 +3,7 @@
 import Link from "next/link"
 import {
   Folder,
-  Forward,
   MoreHorizontal,
-  Trash2,
   type LucideIcon,
 } from "lucide-react"
 
@@ -13,7 +11,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -39,7 +36,7 @@ export function NavProjects({
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Shoots</SidebarGroupLabel>
+      <SidebarGroupLabel>Projects</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
@@ -64,17 +61,8 @@ export function NavProjects({
                 <DropdownMenuItem asChild className="rounded-lg cursor-pointer hover:bg-muted focus:bg-muted">
                   <Link href={item.url} className="flex items-center gap-2">
                     <Folder className="size-4 text-muted-foreground" />
-                    <span className="text-foreground">View Shoot</span>
+                    <span className="text-foreground">View Project</span>
                   </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-lg cursor-pointer hover:bg-muted focus:bg-muted">
-                  <Forward className="size-4 text-muted-foreground" />
-                  <span className="text-foreground">Share Shoot</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-border" />
-                <DropdownMenuItem className="rounded-lg cursor-pointer hover:bg-muted focus:bg-muted">
-                  <Trash2 className="size-4 text-muted-foreground" />
-                  <span className="text-foreground">Archive Shoot</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -42,6 +42,7 @@ export function NavMain({
       <SidebarMenu>
         {items.map((item) => {
           const isOpen = item.items?.some((subItem) => pathname.startsWith(subItem.url))
+          const isActive = pathname === item.url
           return (
             <Collapsible
               key={item.title}
@@ -50,13 +51,25 @@ export function NavMain({
               className="group/collapsible"
             >
               <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title} className="font-[family-name:var(--font-geist-sans)]">
+                <div className="flex items-center">
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    isActive={isActive}
+                    className="font-[family-name:var(--font-geist-sans)]"
+                  >
+                    <Link href={item.url}>
                     {item.icon && <item.icon className="text-muted-foreground" />}
                     <span className="font-medium">{item.title}</span>
-                    <ChevronRight className="ml-auto size-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </Link>
                   </SidebarMenuButton>
-                </CollapsibleTrigger>
+                  <CollapsibleTrigger
+                    aria-label={`Toggle ${item.title} navigation`}
+                    className="mr-1 flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+                  >
+                    <ChevronRight className="size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  </CollapsibleTrigger>
+                </div>
                 <CollapsibleContent>
                   <SidebarMenuSub>
                     {item.items?.map((subItem) => (

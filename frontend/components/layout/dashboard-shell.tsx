@@ -15,9 +15,10 @@ type DashboardShellProps = {
   title: string;
   description?: string;
   children: ReactNode;
+  workspaceHome?: boolean;
 };
 
-export function DashboardShell({ title, description, children }: DashboardShellProps) {
+export function DashboardShell({ title, description, children, workspaceHome = false }: DashboardShellProps) {
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -26,11 +27,15 @@ export function DashboardShell({ title, description, children }: DashboardShellP
           <div className="flex min-w-0 items-center gap-3">
             <SidebarTrigger className="-ml-1 hover:bg-muted" />
             <Separator orientation="vertical" className="h-4 bg-border" />
-            <Link href="/shoots" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors font-[family-name:var(--font-geist-sans)]">
+            <Link href="/dashboard" className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors font-[family-name:var(--font-geist-sans)]">
               Workspace
             </Link>
-            <span className="text-sm text-muted-foreground">/</span>
-            <span className="truncate text-sm font-semibold text-foreground font-[family-name:var(--font-geist-sans)]">{title}</span>
+            {!workspaceHome && (
+              <>
+                <span className="text-sm text-muted-foreground">/</span>
+                <span className="truncate text-sm font-semibold text-foreground font-[family-name:var(--font-geist-sans)]">{title}</span>
+              </>
+            )}
           </div>
           <div className="ml-auto pl-3"><ThemeToggle /></div>
         </header>

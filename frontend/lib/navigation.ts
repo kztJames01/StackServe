@@ -7,11 +7,11 @@ export type NavItem = {
 export const platformNav: NavItem[] = [
   {
     title: "Workspace",
-    url: "/shoots",
+    url: "/dashboard",
     items: [
       { title: "Shoots", url: "/shoots" },
       { title: "Availability", url: "/availability" },
-      { title: "Compliance", url: "/compliance" },
+      { title: "Clearance", url: "/compliance" },
       { title: "Past Shoots", url: "/history" }
     ]
   },
@@ -19,8 +19,8 @@ export const platformNav: NavItem[] = [
     title: "Roster",
     url: "/roster",
     items: [
-      { title: "Freelancer Roster", url: "/roster" },
-      { title: "Call Sheet", url: "/team/tasks" }
+      { title: "Performer Roster", url: "/roster" },
+      { title: "Workspace Members", url: "/settings/workspace" }
     ]
   },
   {
@@ -31,20 +31,6 @@ export const platformNav: NavItem[] = [
       { title: "Notifications", url: "/notifications" },
       { title: "Profile", url: "/profile" }
     ]
-  },
-  {
-    title: "Settings",
-    url: "/settings",
-    items: [
-      { title: "Account", url: "/account" },
-      { title: "Billing", url: "/billing" },
-      { title: "Preferences", url: "/settings" }
-    ]
   }
 ];
 
-export const projectNav = [
-  { name: "Editorial Cover Shoot", url: "/projects/editorial-cover-shoot" },
-  { name: "Lookbook SS27", url: "/projects/lookbook-ss27" },
-  { name: "Product Campaign", url: "/projects/product-campaign" }
-];
