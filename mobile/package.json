@@ -9,7 +9,7 @@
     "expo": "~57.0.1",
     "expo-status-bar": "~57.0.0",
     "firebase": "^12.15.0",
-    "makerspace-shared": "file:../shared",
+    "@synthpass/core": "file:../shared",
     "react": "19.2.3",
     "react-native": "0.86.0",
     "react-native-safe-area-context": "~5.7.0",

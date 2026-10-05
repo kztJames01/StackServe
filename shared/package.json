@@ -1,5 +1,5 @@
 {
-  "name": "makerspace-shared",
+  "name": "@synthpass/core",
   "version": "1.0.0",
   "private": true,
   "description": "stuff shared between the web and mobile apps",

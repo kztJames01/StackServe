@@ -14,6 +14,13 @@ const MESSAGES = {
   'auth/invalid-api-key': 'Firebase API key is invalid. Check your env config.',
   'auth/app-not-authorized': 'This app is not authorized for Firebase. Check console settings.',
   'auth/configuration-not-found': 'Firebase project config is missing or wrong.',
+  'auth/popup-closed-by-user': 'Sign-in was cancelled.',
+  'auth/popup-blocked': 'Pop-up was blocked. Allow pop-ups for this site or try again.',
+  'auth/cancelled-popup-request': 'Sign-in was cancelled.',
+  'auth/account-exists-with-different-credential': 'That email already uses a different sign-in method. Try email/password or the other provider.',
+  'auth/credential-already-in-use': 'This account is already linked to another user.',
+  'auth/unauthorized-domain': 'This site is not authorized in Firebase. Add your domain in the Firebase console.',
+  'auth/operation-not-supported-in-this-environment': 'This sign-in method is not supported in this browser.',
 };
 
 function getFirebaseAuthErrorMessage(error, fallback = 'Something went wrong. Try again.') {
