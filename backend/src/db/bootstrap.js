@@ -1,6 +1,7 @@
 const { runMigrations } = require('./migrate');
 const seed = require('../seed');
 const { countEntities, insertMany } = require('./repository');
+const { query } = require('./pool');
 
 function buildUsers() {
   const users = new Map();
@@ -15,20 +16,6 @@ function buildUsers() {
     socials: seed.profile.socials,
   });
 
-  for (const feedItem of seed.feed) {
-    if (!feedItem.user?.id) continue;
-    users.set(feedItem.user.id, {
-      id: feedItem.user.id,
-      userId: feedItem.user.id,
-      name: feedItem.user.name,
-      bio: `${feedItem.user.name} is active in the MakerSpace network.`,
-      avatar: feedItem.user.avatar,
-      rating: feedItem.user.rating,
-      skills: [],
-      socials: {},
-    });
-  }
-
   return [...users.values()];
 }
 
@@ -41,19 +28,26 @@ async function seedKind(kind, items) {
 async function seedDatabase() {
   if (process.env.SEED_DB === 'false') return;
 
-  await seedKind('feed', seed.feed);
-  await seedKind('posts', seed.posts);
-  await seedKind('profile', [seed.profile]);
-  await seedKind('projects', seed.projects);
-  await seedKind('tasks', seed.tasks);
-  await seedKind('teams', seed.teams);
-  await seedKind('messages', seed.messages);
-  await seedKind('conversations', seed.conversations);
-  await seedKind('notifications', seed.notifications);
-  await seedKind('recruit', seed.recruitListings);
-  await seedKind('investors', seed.investors);
-  await seedKind('history', seed.history);
   await seedKind('users', buildUsers());
+  await seedKind('profile', [seed.profile]);
+  await query(`INSERT INTO agency_workspaces (id, name, description, owner_id)
+    VALUES ('workspace-demo', 'SynthPass Demo Agency', 'Local development workspace', 'current-user')
+    ON CONFLICT (id) DO NOTHING`);
+  await query(`INSERT INTO workspace_members (workspace_id, user_id, role)
+    VALUES ('workspace-demo', 'current-user', 'admin')
+    ON CONFLICT (workspace_id, user_id) DO NOTHING`);
+  await seedKind('projects', [{
+    id: 'shoot-demo',
+    slug: 'ai-commercial-demo',
+    workspaceId: 'workspace-demo',
+    ownerId: 'current-user',
+    title: 'AI Commercial Demo',
+    description: 'Sample commercial shoot for local SynthPass development.',
+    image: '/home.jpg',
+    tags: ['AI media', 'Commercial'],
+    collaborators: [],
+    status: 'active',
+  }]);
 }
 
 async function bootstrapDatabase() {

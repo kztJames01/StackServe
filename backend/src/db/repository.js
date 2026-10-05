@@ -3,13 +3,11 @@ const { query, pool } = require('./pool');
 const typedTables = {
   users: { table: 'users', fields: { firebase_uid: 'id', email: 'email', name: 'name', roles: 'roles' } },
   profile: { table: 'profiles', fields: { handle: 'handle', name: 'name', bio: 'bio', avatar: 'avatar', student_status: 'studentStatus', employer_status: 'employerStatus', university_domain: 'universityDomain', company_domain: 'companyDomain' } },
-  projects: { table: 'projects', fields: { owner_id: 'ownerId', slug: 'slug', title: 'title', description: 'description', status: 'status' } },
+  projects: { table: 'projects', fields: { owner_id: 'ownerId', workspace_id: 'workspaceId', slug: 'slug', title: 'title', description: 'description', status: 'status' } },
   project_members: { table: 'project_members', fields: { project_id: 'projectId', user_id: 'userId', role: 'role' } },
-  feed: { table: 'posts', fields: { owner_id: 'userId', caption: 'caption', description: 'description', audience: 'audience' }, source: true },
   posts: { table: 'posts', fields: { owner_id: 'userId', caption: 'content', description: 'description', audience: 'audience' }, source: true },
   recruit: { table: 'recruit_listings', fields: { owner_id: 'postedBy', project_id: 'projectId', title: 'title', description: 'description' } },
   jobs: { table: 'jobs', fields: { owner_id: 'ownerId', title: 'title', company: 'company', description: 'description', is_active: 'isActive' } },
-  investors: { table: 'investor_profiles', fields: { owner_id: 'userId', name: 'name', stage: 'stage', org_domain: 'orgDomain', check_size: 'checkSize', aum_range: 'aumRange', thesis: 'thesis', status: 'status', review_note: 'reviewNote', reviewed_by: 'reviewedBy', reviewed_at: 'reviewedAt' } },
   applications: { table: 'applications', fields: { user_id: 'userId', job_id: 'jobId', recruit_listing_id: 'recruitListingId', status: 'status' } },
   endorsements: { table: 'endorsements', fields: { author_id: 'authorId', recipient_id: 'recipientId', skill: 'skill' } },
 };

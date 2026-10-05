@@ -19,109 +19,7 @@ const profile = {
   },
 };
 
-// feed data
-
-const feed = [
-  {
-    id: 'feed-1',
-    user: { id: 'user-1', name: 'Sarah Kim', avatar: '/home.jpg', rating: '4.9' },
-    date: '2026-04-11T08:30:00.000Z',
-    caption: 'Launched our AI mentor platform for early-stage founders',
-    description: 'After 6 months of building, we just pushed v1 to production. It matches founders with AI-guided mentorship paths based on their stage and vertical. Looking for a growth engineer to join for equity.',
-    likes: 142,
-    comments: 38,
-    shares: 21,
-    tags: ['AI', 'Founders', 'Launch'],
-  },
-  {
-    id: 'feed-2',
-    user: { id: 'user-2', name: 'Marcus Chen', avatar: '/home.jpg', rating: '4.7' },
-    date: '2026-04-10T14:15:00.000Z',
-    caption: 'Why we pivoted from B2C to B2B SaaS (and tripled revenue)',
-    description: 'We spent 8 months chasing consumer downloads with no monetization. One enterprise pilot changed everything.',
-    likes: 98,
-    comments: 27,
-    shares: 44,
-    tags: ['SaaS', 'Pivot', 'B2B', 'Lessons'],
-  },
-  {
-    id: 'feed-3',
-    user: { id: 'user-3', name: 'Priya Nair', avatar: '/home.jpg', rating: '4.8' },
-    date: '2026-04-10T09:00:00.000Z',
-    caption: 'Open-sourced our design system built for fast-moving startups',
-    description: 'We extracted our internal component library into NxtUI. Zero config, accessible by default, works with Tailwind.',
-    likes: 215,
-    comments: 61,
-    shares: 87,
-    tags: ['Open Source', 'Design System', 'React'],
-  },
-  {
-    id: 'feed-4',
-    user: { id: 'current-user', name: 'Alex Rivera', avatar: '/home.jpg', rating: '4.6' },
-    date: '2026-04-09T18:45:00.000Z',
-    caption: 'Shipped the task engine for MakerSpace',
-    description: 'Real-time task assignment, priority queuing, and team-scoped boards are live. Built on Firestore with optimistic UI in Next.js.',
-    likes: 74,
-    comments: 19,
-    shares: 12,
-    tags: ['MakerSpace', 'Shipping', 'Firestore'],
-  },
-  {
-    id: 'feed-5',
-    user: { id: 'user-4', name: 'Jordan Wells', avatar: '/home.jpg', rating: '4.5' },
-    date: '2026-04-08T11:20:00.000Z',
-    caption: 'Seeking a technical co-founder for my fintech idea',
-    description: 'Strong background in finance and compliance. Looking for someone who can build React Native + Node.js. The problem is real, the TAM is massive, and I have early LOIs.',
-    likes: 53,
-    comments: 44,
-    shares: 9,
-    tags: ['CoFounder', 'Fintech', 'Hiring'],
-  },
-  {
-    id: 'feed-6',
-    user: { id: 'user-5', name: 'Leila Hassan', avatar: '/home.jpg', rating: '4.9' },
-    date: '2026-04-07T16:00:00.000Z',
-    caption: '$250k pre-seed raised — here is our deck structure',
-    description: 'We closed our pre-seed from 3 angels in 6 weeks. Sharing the exact 12-slide deck structure that worked. No fancy design, just clear narrative and traction proof.',
-    likes: 388,
-    comments: 92,
-    shares: 156,
-    tags: ['Fundraising', 'Pre-seed', 'Angels'],
-  },
-  {
-    id: 'feed-7',
-    user: { id: 'user-2', name: 'Marcus Chen', avatar: '/home.jpg', rating: '4.7' },
-    date: '2026-04-06T10:30:00.000Z',
-    caption: 'How we cut our AWS bill by 60% without sacrificing performance',
-    description: 'Moved from EC2 to Lambda + Fargate, adopted S3 Intelligent Tiering, and killed 14 zombie resources.',
-    likes: 167,
-    comments: 48,
-    shares: 73,
-    tags: ['AWS', 'DevOps', 'Cost Optimization'],
-  },
-  {
-    id: 'feed-8',
-    user: { id: 'user-6', name: 'Tom Nakamura', avatar: '/home.jpg', rating: '4.4' },
-    date: '2026-04-05T13:00:00.000Z',
-    caption: 'My weekend project became my main product',
-    description: 'I built a Notion-to-landing-page tool in 48 hours for fun. Posted it on Product Hunt, got 800 upvotes and 8 paying customers by Monday morning.',
-    likes: 291,
-    comments: 77,
-    shares: 102,
-    tags: ['IndieHacker', 'Product Hunt', 'Side Project'],
-  },
-  {
-    id: 'feed-9',
-    user: { id: 'user-3', name: 'Priya Nair', avatar: '/home.jpg', rating: '4.8' },
-    date: '2026-04-04T08:00:00.000Z',
-    caption: 'Advice I wish I had before building our first API',
-    description: 'Rate limiting, versioning, auth middleware, and documentation are not optional. Sharing the checklist we now use for every new endpoint.',
-    likes: 204,
-    comments: 55,
-    shares: 89,
-    tags: ['API', 'Backend', 'Best Practices'],
-  },
-];
+// feed data removed (Sprint 0 legacy prune)
 
 //posts
 
@@ -145,7 +43,7 @@ const posts = [
   {
     id: 'post-3',
     userId: 'current-user',
-    content: 'Just integrated AI-powered project matching into MakerSpace. The model scores compatibility based on skills, availability, and project stage. Early results: 84% match acceptance rate in testing.',
+    content: 'Added AI media asset tracking to SynthPass.',
     likes: 62,
     comments: 23,
     date: '2026-04-01T11:00:00.000Z',
@@ -171,7 +69,7 @@ const posts = [
   {
     id: 'post-6',
     userId: 'current-user',
-    content: 'Tech stack decision for MakerSpace backend: staying with Node.js + Express + Firestore. Considered Supabase but the migration cost did not justify it at our current scale.',
+    content: 'SynthPass backend now uses Express and PostgreSQL.',
     likes: 29,
     comments: 14,
     date: '2026-03-15T14:00:00.000Z',
@@ -184,7 +82,7 @@ const projects = [
   {
     id: 'proj-1',
     slug: 'makerspace-platform',
-    title: 'MakerSpace Platform',
+    title: 'SynthPass Platform',
     description: 'A community platform for early-stage founders and builders to collaborate, recruit, and showcase their work. Features real-time messaging, project boards, and AI-powered matching.',
     image: '/home.jpg',
     tags: ['Next.js', 'Node.js', 'Firestore', 'AI'],
@@ -345,8 +243,8 @@ const tasks = [
 const teams = [
   {
     id: 'team-1',
-    name: 'MakerSpace Core',
-    description: 'The founding team building the MakerSpace platform from zero to one.',
+    name: 'SynthPass Demo Agency',
+    description: 'The local SynthPass development workspace.',
     ownerId: 'current-user',
     members: [
       { userId: 'current-user', role: 'owner', joinedAt: '2026-01-10T00:00:00.000Z' },
@@ -584,7 +482,7 @@ const notifications = [
     id: 'notif-7',
     userId: 'current-user',
     type: 'invite',
-    message: 'Sarah Kim added you to the MakerSpace Core team.',
+    message: 'Sarah Kim added you to the SynthPass Demo Agency workspace.',
     read: true,
     createdAt: '2026-04-07T09:00:00.000Z',
     actionUrl: '/team',
@@ -616,11 +514,11 @@ const recruitListings = [
     id: 'recruit-1',
     title: 'Full-Stack Engineer',
     projectId: 'proj-1',
-    projectName: 'MakerSpace Platform',
+    projectName: 'SynthPass Platform',
     skills: ['React', 'Node.js', 'TypeScript', 'Firestore'],
     commitment: 'Part-time (15-20 hrs/week)',
     equity: '0.5-1.5%',
-    description: 'We are looking for a full-stack engineer to help scale MakerSpace. You will own features end-to-end from UI to API. Remote-first, async-friendly team.',
+    description: 'We are looking for a full-stack engineer to help build SynthPass.',
     postedBy: 'current-user',
     createdAt: '2026-04-05T00:00:00.000Z',
   },
@@ -662,50 +560,7 @@ const recruitListings = [
   },
 ];
 
-//investor mock
-
-const investors = [
-  {
-    id: 'inv-1',
-    name: 'Ava Thornton',
-    bio: 'Partner at Northgate Ventures. Former founder (2 exits). Focused on developer tools and community-led SaaS. Pro-founder, board seat optional.',
-    avatar: '/home.jpg',
-    focusAreas: ['Developer Tools', 'SaaS', 'Community Platforms'],
-    stage: 'seed',
-    portfolio: ['NxtGen', 'CodePilot', 'StackFlow'],
-    contactUrl: 'https://northgate.vc/ava',
-  },
-  {
-    id: 'inv-2',
-    name: 'Raj Patel',
-    bio: 'Angel investor and ex-Google PM. Writes $25k-$100k checks at pre-seed. Loves technical founders with strong distribution instincts.',
-    avatar: '/home.jpg',
-    focusAreas: ['AI/ML', 'Productivity', 'No-Code'],
-    stage: 'pre-seed',
-    portfolio: ['PitchAI', 'FormFlow', 'Briefd'],
-    contactUrl: 'https://angel.co/rajpatel',
-  },
-  {
-    id: 'inv-3',
-    name: 'Clara Mendez',
-    bio: 'General Partner at Meridian Fund. Previously VC at a16z. Invests in infrastructure, Web3, and open-source monetization plays.',
-    avatar: '/home.jpg',
-    focusAreas: ['Web3', 'Open Source', 'Infrastructure'],
-    stage: 'series-a',
-    portfolio: ['DevLedger', 'OpenStack Pro', 'ChainForge'],
-    contactUrl: 'https://meridianfund.io/clara',
-  },
-  {
-    id: 'inv-4',
-    name: 'Derek Li',
-    bio: 'Solo GP at Microwave Capital. Backed 40+ pre-seed rounds. Big believer in indie hackers going company. Fast decisions, no committee.',
-    avatar: '/home.jpg',
-    focusAreas: ['Consumer Apps', 'Micro-SaaS', 'EdTech'],
-    stage: 'pre-seed',
-    portfolio: ['LaunchWeek', 'SkillSnap', 'ReadMe Now'],
-    contactUrl: 'https://microwave.capital',
-  },
-];
+//investor mock removed (Sprint 0 legacy prune)
 
 //history
 
@@ -714,7 +569,7 @@ const history = [
     id: 'hist-1',
     userId: 'current-user',
     projectId: 'proj-1',
-    title: 'MakerSpace idea validated',
+    title: 'SynthPass concept validated',
     description: 'Ran 20 problem interviews with founders and builders. Clear consensus: discovering collaborators and managing projects in one place is a genuine pain point. Decided to build.',
     type: 'milestone',
     date: '2025-12-01T00:00:00.000Z',
@@ -768,7 +623,6 @@ const history = [
 
 
 module.exports = {
-  feed,
   posts,
   profile,
   projects,
@@ -778,6 +632,5 @@ module.exports = {
   conversations,
   notifications,
   recruitListings,
-  investors,
   history,
 };

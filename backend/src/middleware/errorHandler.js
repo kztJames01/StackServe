@@ -1,7 +1,7 @@
 const Sentry = require('@sentry/node');
 
 //error handling 4xx for client, 5xx fo server
-function errorHandler(err, req, res, next) {
+function errorHandler(err, req, res, _next) {
   console.error(`[error] ${req.method} ${req.url} —`, err);
 
   if (process.env.SENTRY_DSN) {
@@ -14,8 +14,7 @@ function errorHandler(err, req, res, next) {
   const status = typeof err.status === 'number' ? err.status
     : typeof err.statusCode === 'number' ? err.statusCode
     : 500;
-  if (status >= 400 && status < 500) {
-    // Client errors — it is safe to surface the error message.
+  if ((status >= 400 && status < 500) || status === 503) {
     return res.status(status).json({ message: err.message || 'Bad request' });
   }
   // Server errors — never leak internal details to the client.

@@ -1,10 +1,18 @@
 const crypto = require('crypto');
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, GetObjectCommand, HeadObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
-const ALLOWED_FOLDERS = new Set(['avatars', 'projects', 'licenses']);
-const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf', 'text/plain']);
+const ALLOWED_FOLDERS = new Set(['avatars', 'projects', 'licenses', 'media', 'contracts', 'payroll']);
+const ALLOWED_TYPES = new Set([
+  'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+  'application/pdf', 'text/plain',
+  // video types for media assets (Sprint 2)
+  'video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm', 'video/x-matroska',
+  // audio types for Chromaprint fingerprinting (Sprint 4)
+  'audio/wav', 'audio/x-wav', 'audio/mpeg', 'audio/mp4', 'audio/aac', 'audio/ogg',
+]);
 
+// max size for non-media uploads (images, docs)
 let client = null;
 
 function getStorageConfig() {
@@ -48,7 +56,7 @@ function buildPublicUrl(key) {
   return `${cfg.endpoint.replace(/\/$/, '')}/${cfg.bucket}/${key}`;
 }
 
-async function createUploadUrl({ folder, userId, filename, contentType }) {
+async function createUploadUrl({ folder, userId, filename, contentType, size, expiresIn = 300 }) {
   const cfg = getStorageConfig();
   const s3 = getStorageClient();
   if (!cfg || !s3) {
@@ -74,10 +82,11 @@ async function createUploadUrl({ folder, userId, filename, contentType }) {
     Bucket: cfg.bucket,
     Key: key,
     ContentType: contentType,
+    ...(size ? { ContentLength: Number(size) } : {}),
   });
 
   const uploadUrl = await getSignedUrl(s3, command, {
-    expiresIn: 300,
+    expiresIn,
     signableHeaders: new Set(['content-type']),
   });
 
@@ -111,4 +120,78 @@ async function uploadArtifact({ folder, key, body, contentType }) {
   return { key, fileUrl: buildPublicUrl(key) };
 }
 
-module.exports = { createUploadUrl, uploadArtifact };
+async function hashBody(body) {
+  const hash = crypto.createHash('sha256');
+  for await (const chunk of body) hash.update(chunk);
+  return hash.digest('hex');
+}
+
+async function verifyObjectSha256(key, expectedHash, expectedSize) {
+  const cfg = getStorageConfig();
+  const s3 = getStorageClient();
+  if (!cfg || !s3) {
+    const err = new Error('Storage is not configured');
+    err.status = 503;
+    throw err;
+  }
+  const head = await s3.send(new HeadObjectCommand({ Bucket: cfg.bucket, Key: key }));
+  if (Number(head.ContentLength) !== Number(expectedSize)) {
+    return { matches: false, actualHash: null, size: Number(head.ContentLength) };
+  }
+  const object = await s3.send(new GetObjectCommand({ Bucket: cfg.bucket, Key: key }));
+  const actualHash = await hashBody(object.Body);
+  return {
+    matches: actualHash === String(expectedHash).toLowerCase(),
+    actualHash,
+    size: Number(head.ContentLength),
+  };
+}
+
+// download a B2 object into a local temp file path
+// caller is responsible for deleting the file when done
+async function downloadToTempFile(key) {
+  const cfg = getStorageConfig();
+  const s3 = getStorageClient();
+  if (!cfg || !s3) {
+    const err = new Error('Storage is not configured');
+    err.status = 503;
+    throw err;
+  }
+  const os = require('os');
+  const path = require('path');
+  const ext = (key.match(/\.([a-z0-9]+)$/i) || ['', 'bin'])[1];
+  const tmpPath = path.join(os.tmpdir(), `sp-dl-${crypto.randomUUID()}.${ext}`);
+  const object = await s3.send(new GetObjectCommand({ Bucket: cfg.bucket, Key: key }));
+  const { pipeline } = require('stream/promises');
+  const { createWriteStream } = require('fs');
+  await pipeline(object.Body, createWriteStream(tmpPath));
+  return tmpPath;
+}
+
+// upload a local file to B2 (worker variant — uses full key path directly, no folder restriction)
+// for injected manifests and signed assets under 'media/' prefix
+async function uploadWorkerArtifact({ key, filePath, contentType }) {
+  const cfg = getStorageConfig();
+  const s3 = getStorageClient();
+  if (!cfg || !s3) return null;
+  const { createReadStream } = require('fs');
+  const { stat } = require('fs/promises');
+  const { size } = await stat(filePath);
+  await s3.send(new PutObjectCommand({
+    Bucket: cfg.bucket,
+    Key: key,
+    Body: createReadStream(filePath),
+    ContentType: contentType,
+    ContentLength: size,
+  }));
+  return { key, fileUrl: buildPublicUrl(key) };
+}
+
+module.exports = {
+  createUploadUrl,
+  uploadArtifact,
+  verifyObjectSha256,
+  hashBody,
+  downloadToTempFile,
+  uploadWorkerArtifact,
+};

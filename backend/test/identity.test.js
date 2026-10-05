@@ -33,7 +33,7 @@ before(async () => {
   pool.options.options = `-c search_path=${schema}`;
   await query(fs.readFileSync(path.resolve(__dirname, '../src/db/migrations/001_initial_schema.sql'), 'utf8'));
   const seed = require('../src/seed');
-  for (const [kind, items] of Object.entries({ profile: [seed.profile], feed: seed.feed, posts: seed.posts, projects: seed.projects, recruit: seed.recruitListings, investors: seed.investors,
+  for (const [kind, items] of Object.entries({ profile: [seed.profile], posts: seed.posts, projects: seed.projects, recruit: seed.recruitListings,
     jobs: [{ id: 'legacy-job', ownerId: 'legacy-employer', title: 'Engineer', company: 'Maker Co' }],
     project_members: [{ id: 'legacy-member', projectId: String(seed.projects[0].id), userId: 'legacy-member-user', role: 'maintainer', permissions: ['review'] }],
     applications: [{ id: 'legacy-application', userId: 'legacy-applicant', jobId: 'legacy-job', status: 'accepted', answers: { retained: true } }],
@@ -48,7 +48,7 @@ before(async () => {
   const app = express();
   app.use(express.json());
   app.use((req, _res, next) => { req.user = users[req.headers['x-test-user']] || null; next(); });
-  for (const route of ['profile', 'users', 'verification', 'investors', 'feed']) app.use('/api', require(`../src/routes/${route}`));
+  for (const route of ['profile', 'users', 'verification']) app.use('/api', require(`../src/routes/${route}`));
   app.use((error, _req, res, _next) => res.status(500).json({ message: error.message }));
   server = await new Promise((resolve) => { const instance = app.listen(0, '127.0.0.1', () => resolve(instance)); });
   base = `http://127.0.0.1:${server.address().port}`;
@@ -62,14 +62,14 @@ after(async () => {
 });
 
 test('migrations preserve legacy data and are idempotent', async () => {
+  const migrationFiles = fs.readdirSync(path.resolve(__dirname, '../src/db/migrations')).filter((f) => f.endsWith('.sql')).length;
   const beforeCount = await query('SELECT COUNT(*)::int AS count FROM app_entities');
   await runMigrations();
-  assert.equal((await query('SELECT COUNT(*)::int AS count FROM schema_migrations')).rows[0].count, 11);
+  assert.equal((await query('SELECT COUNT(*)::int AS count FROM schema_migrations')).rows[0].count, migrationFiles);
   assert.equal((await query('SELECT COUNT(*)::int AS count FROM app_entities')).rows[0].count, beforeCount.rows[0].count);
   assert.ok((await listEntities('projects', { paginate: false })).length > 0);
   assert.equal((await getEntityById('profile', 'current-user')).userId, 'current-user');
-  assert.ok((await query("SELECT COUNT(*)::int AS count FROM pg_indexes WHERE schemaname = $1 AND indexdef LIKE '%USING gin%'", [schema])).rows[0].count >= 11);
-  assert.equal((await api('/investors')).body.length, 0);
+  assert.ok((await query("SELECT COUNT(*)::int AS count FROM pg_indexes WHERE schemaname = $1 AND indexdef LIKE '%USING gin%'", [schema])).rows[0].count >= 9);
   assert.equal((await getEntityById('applications', 'legacy-application')).status, 'accepted');
   assert.deepEqual((await getEntityById('applications', 'legacy-application')).answers, { retained: true });
   assert.equal((await getEntityById('endorsements', 'legacy-endorsement')).context, 'Project review');
@@ -85,6 +85,8 @@ test('fresh databases bootstrap all tables and per-user identity', async () => {
   try {
     await promisify(execFile)(process.execPath, ['-e', `
       const assert = require('node:assert/strict');
+      const fs = require('node:fs');
+      const path = require('node:path');
       const { pool, query } = require('./backend/src/db/pool');
       const { runMigrations } = require('./backend/src/db/migrate');
       const { bootstrapDatabase } = require('./backend/src/db/bootstrap');
@@ -92,12 +94,12 @@ test('fresh databases bootstrap all tables and per-user identity', async () => {
       (async () => {
         await runMigrations();
         await bootstrapDatabase();
-        assert.equal((await query('SELECT COUNT(*)::int AS count FROM schema_migrations')).rows[0].count, 11);
+        const migrationFiles = fs.readdirSync(path.resolve('./backend/src/db/migrations')).filter((f) => f.endsWith('.sql')).length;
+        assert.equal((await query('SELECT COUNT(*)::int AS count FROM schema_migrations')).rows[0].count, migrationFiles);
         const profile = await getOwnProfile({ uid: 'fresh-user', email: null, name: 'Fresh Maker' });
         assert.equal(profile.id, 'fresh-user');
         assert.deepEqual(profile.roles, ['maker']);
         assert.ok((await query('SELECT COUNT(*)::int AS count FROM projects')).rows[0].count > 0);
-        assert.equal((await query("SELECT COUNT(*)::int AS count FROM investor_profiles WHERE status = 'verified'")).rows[0].count, 0);
       })().then(() => pool.end()).catch(async (error) => { console.error(error); await pool.end(); process.exitCode = 1; });
     `], { cwd: path.resolve(__dirname, '../..'), env: { ...process.env, DATABASE_URL: pool.options.connectionString, SEED_DB: 'true', PGOPTIONS: `-c search_path=${freshSchema}` } });
   } finally {
@@ -108,9 +110,9 @@ test('fresh databases bootstrap all tables and per-user identity', async () => {
 test('profiles are isolated by UID and roles can overlap', async () => {
   await getOwnProfile(users.alice);
   await getOwnProfile(users.bob);
-  const result = await updateOwnProfile(users.alice, { name: 'Alice Maker', bio: 'Building accessible tools', handle: 'alice-maker', roles: ['maker', 'educator', 'investor'] });
+  const result = await updateOwnProfile(users.alice, { name: 'Alice Maker', bio: 'Building accessible tools', handle: 'alice-maker', roles: ['maker', 'educator'] });
   assert.equal(result.data.name, 'Alice Maker');
-  assert.deepEqual(result.data.roles, ['maker', 'educator', 'investor']);
+  assert.deepEqual(result.data.roles, ['maker', 'educator']);
   assert.equal((await getOwnProfile(users.bob)).name, 'Bob');
   assert.equal((await api('/profile')).status, 401);
   assert.equal((await api('/profiles/alice-maker')).body.email, undefined);
@@ -121,44 +123,12 @@ test('profiles are isolated by UID and roles can overlap', async () => {
   assert.ok((await updateOwnProfile(users.alice, { socials: { github: 'javascript:alert(1)' } })).error);
 });
 
-test('student verification requires signed, verified university email and gates discovery', async () => {
+test('student verification requires signed, verified university email', async () => {
   assert.equal((await api('/verification/student', 'forged', {})).status, 503);
   assert.equal((await api('/verification/student', 'bob', {})).status, 400);
-  assert.equal((await api('/feed?audience=students', 'alice')).status, 403);
   assert.equal((await api('/verification/student', 'alice', {})).status, 200);
-  const created = await api('/posts', 'alice', { content: 'Student-only project update', audience: 'students' });
-  assert.equal(created.status, 201);
-  assert.equal((await api('/feed?audience=students', 'bob')).status, 403);
-  assert.ok(!(await api('/feed')).body.some((post) => post.id === created.body.data.id));
-  assert.ok((await api('/feed?audience=students', 'alice')).body.some((post) => post.id === created.body.data.id));
-  assert.equal((await api(`/posts/${created.body.data.id}/like`, 'bob', {})).status, 403);
-  assert.equal((await api(`/posts/${created.body.data.id}`, 'bob', undefined, 'DELETE')).status, 403);
   const changedEmail = { ...users.alice, email: 'alice@other.example' };
   assert.equal((await getOwnProfile(changedEmail)).studentStatus, 'unverified');
-});
-
-test('investors cannot feature themselves or review submissions', async () => {
-  await updateOwnProfile(users.bob, { roles: ['maker', 'investor'], handle: 'bob-investor' });
-  const credentials = { orgDomain: 'fund.example', checkSize: '$25k–$100k', stage: 'Seed', aumRange: '$1m–$5m', thesis: 'Developer tooling and accessible software for independent makers.', portfolio: ['Example Company'] };
-  assert.equal((await api('/verification/investor', 'bob', { ...credentials, status: 'verified' })).status, 400);
-  assert.equal((await api('/verification/investor', 'bob', credentials)).status, 202);
-  assert.equal((await api('/investors')).body.length, 0);
-  assert.equal((await api('/verification/investors/review', 'bob')).status, 403);
-  assert.equal((await api('/verification/investors/review', 'forged')).status, 403);
-  const queue = await api('/verification/investors/review', 'staff');
-  assert.equal(queue.status, 200);
-  const submission = queue.body.find((item) => item.id === 'bob');
-  assert.ok(submission.submittedAt);
-  assert.equal((await api('/verification/investors/bob/review', 'staff', { decision: 'verified', note: 'Organization email and submitted credentials reviewed.', submittedAt: 'stale' }, 'PATCH')).status, 409);
-  assert.equal((await api('/verification/investors/bob/review', 'staff', { decision: 'verified', note: 'Organization email and submitted credentials reviewed.', submittedAt: submission.submittedAt }, 'PATCH')).status, 200);
-  const featured = (await api('/investors')).body;
-  assert.equal(featured.length, 1);
-  assert.equal(featured[0].status, 'verified');
-  assert.equal(featured[0].aumRange, credentials.aumRange);
-  assert.equal(featured[0].reviewNote, undefined);
-  assert.ok((await api('/profiles/bob-investor')).body.investor);
-  assert.equal((await api('/verification/investor', 'bob', credentials)).status, 202);
-  assert.equal((await api('/investors')).body.length, 0);
 });
 
 test('external providers fail closed until configured', async () => {

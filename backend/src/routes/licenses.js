@@ -2,9 +2,10 @@ const { Router } = require('express');
 const { query } = require('../db/pool');
 const { upsertEntity, getEntityById } = require('../db/repository');
 const { requireAuth } = require('../middleware/validate');
-const { getUserId, getUserIdOr401 } = require('../middleware/authUser');
+const { getUserId } = require('../middleware/authUser');
 const { uploadArtifact } = require('../services/storage');
 const { requirePlan } = require('../middleware/tiers');
+const { getMemberRole } = require('../services/workspace');
 
 const router = Router();
 
@@ -24,12 +25,9 @@ async function getLicense(id) {
 }
 
 // caller must own the shoot (or be a collaborator on it)
-async function getShootForCaller(shootId, userId) {
+async function getShootForWorkspace(shootId, workspaceId) {
   const project = await getEntityById('projects', shootId);
-  if (!project) return null;
-  const canUse = project.ownerId === userId
-    || (Array.isArray(project.collaborators) && project.collaborators.includes(userId));
-  return canUse ? project : null;
+  return project?.workspaceId === workspaceId ? project : null;
 }
 
 function toCsv(rows) {
@@ -47,7 +45,7 @@ function toCsv(rows) {
 function buildLicensePdf(license, signedName) {
   const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
   const lines = [
-    'StudioPass Usage Rights License',
+    'SynthPass Performer Usage Record',
     `License: ${license.id}`,
     `Shoot: ${license.shoot_id}`,
     `Freelancer: ${license.freelancer_id}`,
@@ -84,11 +82,12 @@ function buildLicensePdf(license, signedName) {
 
 // only ever returns the caller's own workspace licenses
 router.get('/licenses', async (req, res) => {
-  const userId = getUserIdOr401(req, res);
-  if (!userId) return;
-
-  const { shootId } = req.query;
-  const params = [userId];
+  const userId = getUserId(req);
+  if (!req.user || !userId) return res.status(401).json({ message: 'Authentication required' });
+  const { shootId, workspaceId } = req.query;
+  if (!workspaceId) return res.status(400).json({ message: 'workspaceId is required' });
+  if (!await getMemberRole(workspaceId, userId)) return res.status(403).json({ message: 'Not a workspace member' });
+  const params = [workspaceId];
   let sql = 'SELECT * FROM licenses WHERE workspace_id = $1';
   if (shootId) {
     params.push(String(shootId));
@@ -103,20 +102,20 @@ router.get('/licenses', async (req, res) => {
 router.post('/licenses', requireAuth, async (req, res) => {
   const userId = getUserId(req);
   const {
-    shootId, freelancerId, mediaRef, usageType, territories,
+    workspaceId, shootId, freelancerId, mediaRef, usageType, territories,
     durationMonths, startsAt, feeCents,
   } = req.body || {};
 
-  if (!shootId || !freelancerId || !startsAt) {
-    return res.status(400).json({ message: 'shootId, freelancerId and startsAt are required' });
+  if (!workspaceId || !shootId || !freelancerId || !startsAt) {
+    return res.status(400).json({ message: 'workspaceId, shootId, freelancerId and startsAt are required' });
   }
 
-  // shoot must be the caller's, workspace comes from the shoot owner not the client
-  const shoot = await getEntityById('projects', String(shootId));
+  const memberRole = await getMemberRole(workspaceId, userId);
+  if (!['admin', 'producer', 'clearance_counsel'].includes(memberRole)) {
+    return res.status(403).json({ message: 'Workspace clearance role required' });
+  }
+  const shoot = await getShootForWorkspace(String(shootId), workspaceId);
   if (!shoot) return res.status(404).json({ message: 'Shoot not found' });
-  const canUse = shoot.ownerId === userId
-    || (Array.isArray(shoot.collaborators) && shoot.collaborators.includes(userId));
-  if (!canUse) return res.status(403).json({ message: 'Forbidden' });
 
   const id = `lic-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
   const months = durationMonths ? parseInt(durationMonths) : null;
@@ -129,7 +128,7 @@ router.post('/licenses', requireAuth, async (req, res) => {
     `INSERT INTO licenses (id, workspace_id, shoot_id, freelancer_id, media_ref, usage_type, territories, duration_months, starts_at, expires_at, fee_cents, status)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'draft') RETURNING *`,
     [
-      id, shoot.ownerId, String(shootId), String(freelancerId),
+      id, workspaceId, String(shootId), String(freelancerId),
       mediaRef || 'untagged', usageType?.length ? usageType : ['web'],
       territories?.length ? territories : ['worldwide'], months, startsAt, expiresAt,
       feeCents != null ? parseInt(feeCents) : null,
@@ -142,7 +141,7 @@ router.patch('/licenses/:id', requireAuth, async (req, res) => {
   const userId = getUserId(req);
   const license = await getLicense(req.params.id);
   // 404 instead of 403 so ids cant be enumerated
-  if (!license || license.workspace_id !== userId) {
+  if (!license || !['admin', 'producer', 'clearance_counsel'].includes(await getMemberRole(license.workspace_id, userId))) {
     return res.status(404).json({ message: 'License not found' });
   }
 
@@ -191,7 +190,7 @@ router.post('/licenses/:id/sign', requireAuth, async (req, res) => {
 
   const license = await getLicense(req.params.id);
   if (!license) return res.status(404).json({ message: 'License not found' });
-  const isOwner = license.workspace_id === userId;
+  const isOwner = ['admin', 'producer', 'clearance_counsel'].includes(await getMemberRole(license.workspace_id, userId));
   const isFreelancer = license.freelancer_id === userId;
   if (!isOwner && !isFreelancer) {
     return res.status(404).json({ message: 'License not found' });
@@ -240,12 +239,14 @@ router.post('/licenses/:id/sign', requireAuth, async (req, res) => {
 // audit export, studio tier only, caller's own workspace
 router.get('/licenses/export', requireAuth, requirePlan('studio'), async (req, res) => {
   const userId = getUserId(req);
-  const { shootId } = req.query;
+  const { shootId, workspaceId } = req.query;
+  if (!workspaceId) return res.status(400).json({ message: 'workspaceId is required' });
+  if (!await getMemberRole(workspaceId, userId)) return res.status(403).json({ message: 'Not a workspace member' });
 
-  const params = [userId];
+  const params = [workspaceId];
   let sql = 'SELECT * FROM licenses WHERE workspace_id = $1';
   if (shootId) {
-    const shoot = await getShootForCaller(String(shootId), userId);
+    const shoot = await getShootForWorkspace(String(shootId), workspaceId);
     if (!shoot) return res.status(404).json({ message: 'Shoot not found' });
     params.push(String(shootId));
     sql += ` AND shoot_id = $${params.length}`;
@@ -261,7 +262,7 @@ router.get('/licenses/export', requireAuth, requirePlan('studio'), async (req, r
 router.delete('/licenses/:id', requireAuth, async (req, res) => {
   const userId = getUserId(req);
   const license = await getLicense(req.params.id);
-  if (!license || license.workspace_id !== userId) {
+  if (!license || !['admin', 'producer', 'clearance_counsel'].includes(await getMemberRole(license.workspace_id, userId))) {
     return res.status(404).json({ message: 'License not found' });
   }
   await query('DELETE FROM licenses WHERE id = $1', [req.params.id]);

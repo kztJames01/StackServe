@@ -12,10 +12,12 @@ function userFromJwtPayload(idToken) {
     const payload = JSON.parse(Buffer.from(chunks[1], 'base64url').toString('utf8'));
     const uid = payload.user_id || payload.sub;
     if (!uid) return null;
+    const provider = payload.firebase?.sign_in_provider || null;
     return {
       uid,
       email: payload.email ?? null,
       name: payload.name ?? payload.display_name ?? null,
+      signInProvider: provider,
     };
   } catch {
     return null;
@@ -89,6 +91,7 @@ async function authMiddleware(req, res, next) {
       emailVerified: decoded.email_verified === true,
       admin: decoded.admin === true,
       verifiedToken: true,
+      signInProvider: decoded.firebase?.sign_in_provider ?? null,
     };
     next();
   } catch (err) {
@@ -131,6 +134,7 @@ async function verifyAuthToken(idToken) {
       emailVerified: decoded.email_verified === true,
       admin: decoded.admin === true,
       verifiedToken: true,
+      signInProvider: decoded.firebase?.sign_in_provider ?? null,
     };
   } catch {
     return null;

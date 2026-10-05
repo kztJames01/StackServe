@@ -20,10 +20,20 @@ async function ensureIdentity(user) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    const displayName = (user.name && String(user.name).trim()) || 'Maker';
     await client.query(`INSERT INTO users (id, firebase_uid, email, name) VALUES ($1, $1, $2, $3)
-      ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email`, [user.uid, user.email, user.name || 'Maker']);
+      ON CONFLICT (id) DO UPDATE SET
+        email = COALESCE(EXCLUDED.email, users.email),
+        name = CASE
+          WHEN users.name IS NULL OR users.name = '' OR users.name = 'Maker' THEN COALESCE(NULLIF(EXCLUDED.name, 'Maker'), users.name)
+          ELSE users.name
+        END`, [user.uid, user.email, displayName]);
     await client.query(`INSERT INTO profiles (id, name, data) VALUES ($1, $2, $3::jsonb)
-      ON CONFLICT (id) DO NOTHING`, [user.uid, user.name || 'Maker', JSON.stringify({ skills: [], socials: { github: '', linkedin: '', twitter: '' } })]);
+      ON CONFLICT (id) DO UPDATE SET
+        name = CASE
+          WHEN profiles.name IS NULL OR profiles.name = '' OR profiles.name = 'Maker' THEN EXCLUDED.name
+          ELSE profiles.name
+        END`, [user.uid, displayName, JSON.stringify({ skills: [], socials: { github: '', linkedin: '', twitter: '' } })]);
     if (user.verifiedToken) {
       const domain = (user.email || '').split('@')[1]?.toLowerCase() || '';
       await client.query("UPDATE profiles SET student_status = 'unverified', university_domain = NULL WHERE id = $1 AND student_status = 'verified' AND (university_domain <> $2 OR $3 = FALSE)", [user.uid, domain, user.emailVerified === true]);
