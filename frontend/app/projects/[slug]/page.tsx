@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell, CardSection } from '@/components/layout/dashboard-shell';
 import {
@@ -15,21 +17,19 @@ import {
   deleteLicense,
   downloadLicensesCsv,
   License,
+  getWorkspaceRoster,
+  WorkspaceMember,
+  getShootMedia,
+  MediaAsset,
+  uploadMediaAsset,
+  getWorkspaces,
 } from '@/lib/api/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import ApiErrorState from '@/components/ApiErrorState';
-
-// same mock crew as roster/shoots pages
-const CREW = [
-  { id: '1', name: 'Alex Johnson', role: 'Photographer' },
-  { id: '2', name: 'Samantha Lee', role: 'Stylist' },
-  { id: '3', name: 'Marcus Chen', role: 'MUA' },
-  { id: '4', name: 'Priya Patel', role: 'Set Designer' },
-  { id: '5', name: 'Jordan Taylor', role: 'Photographer' },
-  { id: '6', name: 'Emma Wilson', role: 'Stylist' },
-];
+import DigitalRiderPanel from '@/components/contracts/DigitalRider'
+import { useCurrentWorkspaceId } from '@/components/app-sidebar';
 
 const USAGE_OPTIONS = ['print', 'web', 'social', 'ooh', 'packaging'];
 
@@ -43,6 +43,11 @@ function statusBadge(status: License['status']) {
 export default function ProjectDetailPage() {
   const queryClient = useQueryClient();
   const params = useParams<{ slug: string }>();
+  const workspaceId = useCurrentWorkspaceId();
+  const { data: workspaces = [] } = useQuery({ queryKey: ['workspaces'], queryFn: getWorkspaces });
+  const workspaceRole = workspaces.find((workspace) => workspace.id === workspaceId)?.member_role;
+  const canProduce = workspaceRole === 'admin' || workspaceRole === 'producer';
+  const canClear = canProduce || workspaceRole === 'clearance_counsel';
   const [uploading, setUploading] = useState(false);
   const [deliveryWarning, setDeliveryWarning] = useState<string | null>(null);
   const title = useMemo(
@@ -50,20 +55,20 @@ export default function ProjectDetailPage() {
     [params.slug],
   );
 
-  const {
-    data: project,
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = useQuery({
+  const { data: project, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['project', params.slug],
-    queryFn: () => getProject(params.slug),
-    enabled: Boolean(params.slug),
+    queryFn: () => getProject(workspaceId!, params.slug),
+    enabled: Boolean(params.slug && workspaceId),
+  });
+
+  const { data: roster = [] } = useQuery({
+    queryKey: ['roster', workspaceId],
+    queryFn: () => getWorkspaceRoster(workspaceId!),
+    enabled: !!workspaceId,
   });
 
   const updateMutation = useMutation({
-    mutationFn: (payload: { image: string }) => updateProject(project?.id || '', payload),
+    mutationFn: (payload: { image: string }) => updateProject(workspaceId!, project?.id || '', payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', params.slug] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -89,16 +94,19 @@ export default function ProjectDetailPage() {
         </CardSection>
       ) : isError ? (
         <ApiErrorState
-          message={error instanceof Error ? error.message : 'Failed to load project'}
+          message={error instanceof Error ? error.message : 'Failed to load shoot'}
           onRetry={() => refetch()}
         />
       ) : null}
       <div className="grid gap-4 md:grid-cols-2">
         <CardSection tone="white">
           <h2 className="text-lg font-semibold">Overview</h2>
-          <img
+          <Image
             src={project?.image || '/home.jpg'}
-            alt={project?.title || 'Project image'}
+            alt={project?.title || 'Shoot cover'}
+            width={960}
+            height={480}
+            unoptimized
             className="mt-3 h-48 w-full rounded-lg border object-cover"
           />
           <p className="mt-2 text-sm text-muted-foreground">{project?.description || 'Add the client, location, and shot list here.'}</p>
@@ -125,13 +133,28 @@ export default function ProjectDetailPage() {
           </div>
         </CardSection>
         <CardSection tone="brown">
-          <h2 className="text-lg font-semibold">Crew Calls</h2>
-          <p className="mt-2 text-sm">Publish crew roles with day rates and kit requirements.</p>
+          <h2 className="text-lg font-semibold">Performer Roster</h2>
+          <p className="mt-2 text-sm">{roster.length} performer{roster.length === 1 ? '' : 's'} and producer{roster.length === 1 ? '' : 's'} available in this workspace.</p>
+          <Button asChild variant="outline" size="sm" className="mt-4"><Link href="/roster">Open Roster</Link></Button>
         </CardSection>
       </div>
-      {project?.id ? (
-        <LicenseSection
+      {project?.id && workspaceId ? (
+        <MediaSection shootId={String(project.id)} workspaceId={workspaceId} canUpload={canProduce} />
+      ) : null}
+      {project?.id && workspaceId ? (
+        <DigitalRiderPanel
+          workspaceId={workspaceId}
           shootId={String(project.id)}
+          roster={roster}
+          canManage={canClear}
+        />
+      ) : null}
+      {project?.id && workspaceId ? (
+        <LicenseSection
+          workspaceId={workspaceId}
+          canManage={canClear}
+          shootId={String(project.id)}
+          roster={roster}
           deliveryWarning={deliveryWarning}
           setDeliveryWarning={setDeliveryWarning}
         />
@@ -140,18 +163,125 @@ export default function ProjectDetailPage() {
   );
 }
 
+function MediaSection({ shootId, workspaceId, canUpload }: { shootId: string; workspaceId: string; canUpload: boolean }) {
+  const queryClient = useQueryClient();
+  const [progress, setProgress] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [aiModel, setAiModel] = useState('');
+
+  const { data: assets = [], isLoading, refetch } = useQuery({
+    queryKey: ['media', workspaceId, shootId],
+    queryFn: () => getShootMedia(workspaceId, shootId),
+  });
+
+  async function handleMediaUpload(file: File) {
+    setUploadError(null);
+    try {
+      await uploadMediaAsset(file, { workspace_id: workspaceId, shoot_id: shootId, ai_model_name: aiModel || undefined }, setProgress);
+      queryClient.invalidateQueries({ queryKey: ['media', workspaceId, shootId] });
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setProgress(null);
+    }
+  }
+
+  function fmtSize(bytes: number) {
+    if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(1)} GB`;
+    if (bytes >= 1e6) return `${(bytes / 1e6).toFixed(1)} MB`;
+    return `${(bytes / 1e3).toFixed(0)} KB`;
+  }
+
+  return (
+    <CardSection tone="white">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h2 className="text-lg font-semibold">AI Media Assets</h2>
+        <Badge variant="outline">{assets.length} asset{assets.length !== 1 ? 's' : ''}</Badge>
+      </div>
+      <p className="mt-1 text-sm text-muted-foreground">Upload AI-generated video and image files. SHA-256 is calculated in browser before upload.</p>
+
+      <div className="mt-4 space-y-2">
+        <div className="grid gap-2 sm:grid-cols-2">
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">AI model (optional)</label>
+            <Input className="mt-1" placeholder="e.g. Sora 1.5" value={aiModel} onChange={(e) => setAiModel(e.target.value)} />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Upload file</label>
+            <input
+              type="file"
+              accept="video/*,image/*"
+              className="mt-1 block text-sm"
+              disabled={!!progress || !canUpload}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleMediaUpload(file);
+              }}
+            />
+          </div>
+        </div>
+        {progress && <p role="status" className="text-sm text-muted-foreground">{progress}</p>}
+        {!canUpload && <p className="text-sm text-muted-foreground">An Admin or Producer can upload AI media.</p>}
+        {uploadError && <p role="alert" className="text-sm text-destructive">{uploadError}</p>}
+      </div>
+
+      <div className="mt-4">
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">Loading assets…</p>
+        ) : assets.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No media assets yet. Upload AI-generated content above.</p>
+        ) : (
+          <ul className="space-y-2">
+            {assets.map((asset) => (
+              <AssetRow key={asset.id} asset={asset} fmtSize={fmtSize} />
+            ))}
+          </ul>
+        )}
+        {assets.length > 0 && (
+          <Button variant="outline" size="sm" className="mt-2" onClick={() => refetch()}>Refresh</Button>
+        )}
+      </div>
+    </CardSection>
+  );
+}
+
+function AssetRow({ asset, fmtSize }: { asset: MediaAsset; fmtSize: (n: number) => string }) {
+  const stateColor = asset.upload_state === 'uploaded' || asset.upload_state === 'verified'
+    ? 'default' : asset.upload_state === 'failed' ? 'destructive' : 'outline';
+  return (
+    <li className="rounded-lg border border-border p-3 space-y-1">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <p className="text-sm font-medium truncate max-w-xs">{asset.filename}</p>
+        <div className="flex items-center gap-2">
+          <Badge variant={stateColor as 'default' | 'destructive' | 'outline'}>{asset.upload_state}</Badge>
+          {asset.ai_generated && <Badge variant="secondary">AI</Badge>}
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground">{asset.mime_type} · {fmtSize(asset.file_size_bytes)}</p>
+      <p className="text-xs font-mono text-muted-foreground break-all">sha256: {asset.sha256_hash}</p>
+      {asset.ai_model_name && <p className="text-xs text-muted-foreground">Model: {asset.ai_model_name}</p>}
+    </li>
+  );
+}
+
 function LicenseSection({
+  workspaceId,
+  canManage,
   shootId,
+  roster,
   deliveryWarning,
   setDeliveryWarning,
 }: {
+  workspaceId: string;
+  canManage: boolean;
   shootId: string;
+  roster: WorkspaceMember[];
   deliveryWarning: string | null;
   setDeliveryWarning: (w: string | null) => void;
 }) {
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
-  const [freelancerId, setFreelancerId] = useState('1');
+  const [freelancerId, setFreelancerId] = useState('');
   const [mediaRef, setMediaRef] = useState('');
   const [usage, setUsage] = useState<string[]>(['web']);
   const [territories, setTerritories] = useState('worldwide');
@@ -164,7 +294,7 @@ function LicenseSection({
 
   const { data: licenses, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['licenses', shootId],
-    queryFn: () => getLicenses(shootId),
+    queryFn: () => getLicenses(workspaceId, shootId),
   });
 
   const refresh = () => {
@@ -176,8 +306,9 @@ function LicenseSection({
   const createMutation = useMutation({
     mutationFn: () =>
       createLicense({
+        workspaceId,
         shootId,
-        freelancerId,
+        freelancerId: freelancerId || 'unassigned',
         mediaRef: mediaRef || undefined,
         usageType: usage,
         territories: territories.split(',').map((t) => t.trim()).filter(Boolean),
@@ -214,9 +345,8 @@ function LicenseSection({
     onSuccess: refresh,
   });
 
-  // soft gate: warn if assets arent licensed when marking delivered
   const deliverMutation = useMutation({
-    mutationFn: () => updateProject(shootId, { status: 'delivered' }),
+    mutationFn: () => updateProject(workspaceId, shootId, { status: 'delivered' }),
     onSuccess: (res) => {
       setDeliveryWarning(res.warning || null);
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -227,14 +357,17 @@ function LicenseSection({
     setUsage((prev) => (prev.includes(u) ? prev.filter((x) => x !== u) : [...prev, u]));
   };
 
-  const crewName = (id: string) => CREW.find((c) => c.id === id)?.name || id;
+  const crewName = (id: string) => {
+    const m = roster.find((r) => r.user_id === id);
+    return m ? m.name : id;
+  };
 
   return (
     <CardSection tone="white">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <h2 className="text-lg font-semibold">Usage-rights Licenses</h2>
+        <h2 className="text-lg font-semibold">Performer Clearance Records</h2>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => deliverMutation.mutate()} disabled={deliverMutation.isPending}>
+          <Button variant="outline" size="sm" onClick={() => deliverMutation.mutate()} disabled={!canManage || deliverMutation.isPending}>
             {deliverMutation.isPending ? 'Marking…' : 'Mark Delivered'}
           </Button>
           <Button
@@ -243,16 +376,16 @@ function LicenseSection({
             onClick={async () => {
               setExportError(null);
               try {
-                await downloadLicensesCsv(shootId);
+                await downloadLicensesCsv(workspaceId, shootId);
               } catch (err) {
                 setExportError(err instanceof Error ? err.message : 'Export failed');
               }
             }}
           >
-            Export CSV
+            Export Clearance CSV
           </Button>
-          <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90" onClick={() => setIsAdding(!isAdding)}>
-            New License
+          <Button disabled={!canManage} size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90" onClick={() => setIsAdding(!isAdding)}>
+            New Clearance
           </Button>
         </div>
       </div>
@@ -270,20 +403,21 @@ function LicenseSection({
         <div className="mt-4 space-y-3 rounded-xl border border-border p-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-xs font-medium text-muted-foreground">Freelancer</label>
+              <label className="text-xs font-medium text-muted-foreground">Performer / Agent</label>
               <select
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={freelancerId}
                 onChange={(e) => setFreelancerId(e.target.value)}
               >
-                {CREW.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name} · {c.role}</option>
+                <option value="">— select crew —</option>
+                {roster.map((m) => (
+                  <option key={m.user_id} value={m.user_id}>{m.name} · {m.role}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground">Media ref (asset id or B2 key)</label>
-              <Input className="mt-1" placeholder="e.g. hero-shot-01" value={mediaRef} onChange={(e) => setMediaRef(e.target.value)} />
+              <label className="text-xs font-medium text-muted-foreground">AI media asset</label>
+              <Input className="mt-1" placeholder="Asset ID or B2 storage key" value={mediaRef} onChange={(e) => setMediaRef(e.target.value)} />
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">Starts</label>
@@ -320,7 +454,7 @@ function LicenseSection({
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" onClick={() => setIsAdding(false)}>Cancel</Button>
             <Button size="sm" disabled={!startsAt || createMutation.isPending} onClick={() => createMutation.mutate()}>
-              {createMutation.isPending ? 'Saving…' : 'Create Draft'}
+              {createMutation.isPending ? 'Saving…' : 'Create Clearance Draft'}
             </Button>
           </div>
         </div>
@@ -328,14 +462,14 @@ function LicenseSection({
 
       <div className="mt-4">
         {isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading licenses…</p>
+          <p className="text-sm text-muted-foreground">Loading clearance records…</p>
         ) : isError ? (
           <ApiErrorState
-            message={error instanceof Error ? error.message : 'Failed to load licenses'}
+            message={error instanceof Error ? error.message : 'Failed to load clearance records'}
             onRetry={() => refetch()}
           />
         ) : !licenses || licenses.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No licenses yet. Create a draft for each crew member before delivering assets.</p>
+          <p className="text-sm text-muted-foreground">No clearance records yet. Create a draft for each performer before delivering AI media.</p>
         ) : (
           <ul className="space-y-2">
             {licenses.map((lic) => (

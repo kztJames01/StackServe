@@ -3,21 +3,12 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { DashboardShell, CardSection } from '@/components/layout/dashboard-shell'
-import { getAvailability, AvailabilityRow } from '@/lib/api/client'
+import { getAvailability, AvailabilityRow, getWorkspaceRoster } from '@/lib/api/client'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import ApiErrorState from '@/components/ApiErrorState'
-
-// same mock crew as roster, ids match availability rows
-const CREW: Record<string, { name: string; role: string }> = {
-  '1': { name: 'Alex Johnson', role: 'Photographer' },
-  '2': { name: 'Samantha Lee', role: 'Stylist' },
-  '3': { name: 'Marcus Chen', role: 'MUA' },
-  '4': { name: 'Priya Patel', role: 'Set Designer' },
-  '5': { name: 'Jordan Taylor', role: 'Photographer' },
-  '6': { name: 'Emma Wilson', role: 'Stylist' },
-}
+import { useCurrentWorkspaceId } from '@/components/app-sidebar'
 
 function startOfWeek(d: Date) {
   const date = new Date(d)
@@ -32,7 +23,13 @@ function dayKey(d: Date) {
 }
 
 export default function AvailabilityPage() {
+  const workspaceId = useCurrentWorkspaceId()
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()))
+  const { data: roster = [] } = useQuery({
+    queryKey: ['roster', workspaceId],
+    queryFn: () => getWorkspaceRoster(workspaceId!),
+    enabled: !!workspaceId,
+  })
 
   const { data: rows, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['availability'],
@@ -114,7 +111,7 @@ export default function AvailabilityPage() {
             message={error instanceof Error ? error.message : 'Failed to load availability'}
             onRetry={() => refetch()}
           />
-        ) : Object.keys(byFreelancer).length === 0 ? (
+        ) : roster.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No availability yet. Book a shoot and pick crew — their dates get held here automatically.
           </p>
@@ -133,11 +130,14 @@ export default function AvailabilityPage() {
                 </tr>
               </thead>
               <tbody>
-                {Object.keys(byFreelancer).map((freelancerId) => (
+                {roster.map((member) => (
+                  (() => {
+                    const freelancerId = member.user_id
+                    return (
                   <tr key={freelancerId} className="border-t border-border">
                     <td className="p-2">
-                      <p className="font-medium">{CREW[freelancerId]?.name || freelancerId}</p>
-                      <p className="text-xs text-muted-foreground">{CREW[freelancerId]?.role || 'Crew'}</p>
+                      <p className="font-medium">{member.name || member.email}</p>
+                      <p className="text-xs text-muted-foreground">{member.role.replace('_', ' ')}</p>
                     </td>
                     {days.map((d) => {
                       const status = statusFor(freelancerId, d)
@@ -153,6 +153,8 @@ export default function AvailabilityPage() {
                       )
                     })}
                   </tr>
+                    )
+                  })()
                 ))}
               </tbody>
             </table>

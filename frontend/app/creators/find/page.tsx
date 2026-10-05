@@ -1,12 +1,5 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-import FindCreatorsPage from "@/components/creators/Find"
-import { SidebarProvider } from "@/components/ui/sidebar"
-
-export default function FindCreators(){
-    return (
-        <SidebarProvider>
-            <FindCreatorsPage />
-        </SidebarProvider>
-    )
+export default function LegacyCreatorSearch() {
+  redirect('/roster')
 }

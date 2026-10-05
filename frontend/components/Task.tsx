@@ -1,14 +1,12 @@
 'use client'
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { AppSidebar } from "@/components/app-sidebar";
 import { useState } from "react";
-import { SaveIcon, CopyIcon } from "@/components/Icon";
+import { CopyIcon } from "@/components/Icon";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";import { DndContext } from "@dnd-kit/core";
-import { SidebarInset, SidebarProvider } from "./ui/sidebar";
 
 // Notion-style Task Block
 const TaskBlock = ({ id, content, type = 'text' }: { id: string; content: string; type?: string }) => {

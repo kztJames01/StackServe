@@ -1,17 +1,7 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-import Team from '@/components/Team'
-import { DashboardShell } from '@/components/layout/dashboard-shell'
-
-export default function TeamProfile() {
-  return (
-    <DashboardShell
-      title="Workspace Dashboard"
-      description="Coordinate crew, shoot notes, and delivery progress."
-    >
-      <Team />
-    </DashboardShell>
-  )
+export default function LegacyTeamPage() {
+  redirect('/settings/workspace')
 }
 
 
