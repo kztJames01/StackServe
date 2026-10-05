@@ -1,6 +1,7 @@
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import * as Sentry from "@sentry/nextjs";
+import { sha256 } from "@noble/hashes/sha2.js";
 // shared with the mobile app
 import { DEFAULT_API_BASE, parseErrorMessage } from "../../../shared/apiHelpers";
 
@@ -61,17 +62,6 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
-export type FeedPost = {
-  id: string;
-  user: { name: string; avatar: string; rating: string };
-  date: string;
-  caption: string;
-  description: string;
-  likes: number;
-  comments: number;
-  shares: number;
-};
-
 export type AccountRole = 'maker' | 'employer' | 'investor' | 'educator';
 
 export type ProfileData = {
@@ -90,20 +80,14 @@ export type ProfileData = {
 };
 
 export type ProjectItem = {
-  id: number;
+  id: string;
+  slug: string;
+  workspaceId?: string;
   title: string;
   description: string;
   image: string;
   tags: string[];
   status?: string;
-};
-
-export type PostItem = {
-  id: number;
-  content: string;
-  likes: number;
-  comments: number;
-  date: string;
 };
 
 export type Task = {
@@ -115,13 +99,6 @@ export type Task = {
   assigneeId: string;
   teamId: string;
   dueDate: string;
-};
-
-export type Team = {
-  id: string;
-  name: string;
-  description: string;
-  members: { id: string; name: string; avatar: string; role: string }[];
 };
 
 export type Conversation = {
@@ -149,31 +126,6 @@ export type Notification = {
   createdAt: string;
 };
 
-export type RecruitListing = {
-  id: string;
-  title: string;
-  description: string;
-  skills: string[];
-  commitment: string;
-  equity: string;
-  createdAt: string;
-};
-
-export type Investor = {
-  status: 'verified';
-  orgDomain: string;
-  checkSize: string;
-  aumRange: string;
-  thesis: string;
-  portfolio: string[];
-  id: string;
-  name: string;
-  bio: string;
-  focusAreas: string[];
-  stage: string;
-  avatar: string;
-};
-
 export type HistoryEntry = {
   id: string;
   title: string;
@@ -199,25 +151,6 @@ export type StorageUploadData = {
   headers?: Record<string, string>;
 };
 
-export async function getFeedPosts(audience: 'public' | 'students' = 'public') {
-  return request<FeedPost[]>(`/api/feed?audience=${audience}`);
-}
-
-export async function createPost(content: string, audience: 'public' | 'students' = 'public') {
-  return request<{ data: FeedPost; message: string }>("/api/posts", {
-    method: "POST",
-    body: JSON.stringify({ content, audience }),
-  });
-}
-
-export async function likePost(postId: string) {
-  return request<{ likes: number }>(`/api/posts/${postId}/like`, { method: "POST" });
-}
-
-export async function deletePost(postId: string) {
-  await request(`/api/posts/${postId}`, { method: "DELETE" });
-}
-
 export async function getProfile() {
   return request<ProfileData>("/api/profile");
 }
@@ -233,50 +166,31 @@ export async function getProfileProjects() {
   return request<ProjectItem[]>("/api/profile/projects");
 }
 
-export async function getProfilePosts() {
-  return request<PostItem[]>("/api/profile/posts");
-}
-
-export async function getProjects(tag?: string) {
+export async function getProjects(workspaceId: string, tag?: string) {
   const qs = tag ? `?tag=${encodeURIComponent(tag)}` : "";
-  return request<ProjectItem[]>(`/api/projects${qs}`);
+  return request<ProjectItem[]>(`/api/v1/workspaces/${encodeURIComponent(workspaceId)}/shoots${qs}`);
 }
 
-export async function getProject(slug: string) {
-  return request<ProjectItem>(`/api/projects/${slug}`);
+export async function getProject(workspaceId: string, slug: string) {
+  return request<ProjectItem>(`/api/v1/workspaces/${encodeURIComponent(workspaceId)}/shoots/${encodeURIComponent(slug)}`);
 }
 
-export async function createProject(data: Omit<ProjectItem, "id">) {
-  return request<{ data: ProjectItem; message: string }>("/api/projects", {
+export async function createProject(workspaceId: string, data: Omit<ProjectItem, "id" | "slug" | "workspaceId">) {
+  return request<{ data: ProjectItem; message: string }>(`/api/v1/workspaces/${encodeURIComponent(workspaceId)}/shoots`, {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
-export async function updateProject(id: string | number, data: Partial<ProjectItem>) {
-  return request<{ data: ProjectItem; message: string; warning?: string | null }>(`/api/projects/${id}`, {
+export async function updateProject(workspaceId: string, id: string, data: Partial<ProjectItem>) {
+  return request<{ data: ProjectItem; message: string; warning?: string | null }>(`/api/v1/workspaces/${encodeURIComponent(workspaceId)}/shoots/${encodeURIComponent(id)}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
 }
 
-export async function deleteProject(id: string | number) {
-  await request(`/api/projects/${id}`, { method: "DELETE" });
-}
-
-export async function getTeams() {
-  return request<Team[]>("/api/teams");
-}
-
-export async function getTeam(id: string) {
-  return request<Team>(`/api/teams/${id}`);
-}
-
-export async function createTeam(data: { name: string; description: string }) {
-  return request<{ data: Team; message: string }>("/api/teams", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export async function deleteProject(workspaceId: string, id: string) {
+  await request(`/api/v1/workspaces/${encodeURIComponent(workspaceId)}/shoots/${encodeURIComponent(id)}`, { method: "DELETE" });
 }
 
 export async function getConversations() {
@@ -310,23 +224,6 @@ export async function markAllNotificationsRead() {
   await request("/api/notifications/read-all", { method: "PATCH" });
 }
 
-export async function getRecruitListings(tag?: string) {
-  const qs = tag ? `?tag=${encodeURIComponent(tag)}` : "";
-  return request<RecruitListing[]>(`/api/recruit${qs}`);
-}
-
-export async function createRecruitListing(data: Omit<RecruitListing, "id" | "createdAt">) {
-  return request<{ data: RecruitListing; message: string }>("/api/recruit", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
-
-export async function getInvestors(stage?: string) {
-  const qs = stage ? `?stage=${encodeURIComponent(stage)}` : "";
-  return request<Investor[]>(`/api/investors${qs}`);
-}
-
 export async function getMe() {
   return request<ProfileData>("/api/users/me");
 }
@@ -336,6 +233,24 @@ export async function updateMe(data: Partial<ProfileData>) {
     method: "PATCH",
     body: JSON.stringify(data),
   });
+}
+
+export type AuthConfig = {
+  google: boolean;
+  apple: boolean;
+  authMode: string;
+};
+
+export async function getAuthConfig() {
+  return request<AuthConfig>("/api/auth/config");
+}
+
+export async function syncAuthSession() {
+  return request<{
+    ok: boolean;
+    signInProvider: string | null;
+    profile: { id: string; email?: string; name: string; handle: string | null };
+  }>("/api/auth/sync", { method: "POST" });
 }
 
 export async function getHistory() {
@@ -403,12 +318,13 @@ export type ComplianceReport = {
   counts: { red: number; amber: number; yellow: number };
 };
 
-export async function getLicenses(shootId?: string) {
-  const qs = shootId ? `?shootId=${encodeURIComponent(shootId)}` : "";
-  return request<License[]>(`/api/licenses${qs}`);
+export async function getLicenses(workspaceId: string, shootId?: string) {
+  const qs = new URLSearchParams({ workspaceId, ...(shootId ? { shootId } : {}) }).toString();
+  return request<License[]>(`/api/licenses?${qs}`);
 }
 
 export async function createLicense(data: {
+  workspaceId: string;
   shootId: string;
   freelancerId: string;
   mediaRef?: string;
@@ -443,9 +359,9 @@ export async function deleteLicense(id: string) {
 }
 
 // studio tier only, downloads the audit csv
-export async function downloadLicensesCsv(shootId?: string) {
+export async function downloadLicensesCsv(workspaceId: string, shootId?: string) {
   const authHeaders = await getAuthHeaders();
-  const qs = shootId ? `?shootId=${encodeURIComponent(shootId)}` : "";
+  const qs = `?${new URLSearchParams({ workspaceId, ...(shootId ? { shootId } : {}) }).toString()}`;
   const response = await fetch(`${API_BASE}/api/licenses/export${qs}`, { headers: authHeaders });
   if (!response.ok) {
     const message = parseErrorMessage(await response.text(), response.status);
@@ -460,8 +376,8 @@ export async function downloadLicensesCsv(shootId?: string) {
   URL.revokeObjectURL(url);
 }
 
-export async function getCompliance() {
-  return request<ComplianceReport>("/api/compliance");
+export async function getCompliance(workspaceId: string) {
+  return request<ComplianceReport>(`/api/compliance?workspaceId=${encodeURIComponent(workspaceId)}`);
 }
 
 export async function getBillingStatus() {
@@ -526,3 +442,345 @@ export async function uploadFileToStorage(folder: "avatars" | "projects", file: 
 }
 
 export { request };
+
+export type WorkspaceRole = 'admin' | 'producer' | 'clearance_counsel' | 'performer';
+
+export type Workspace = {
+  id: string;
+  name: string;
+  description: string;
+  owner_id: string;
+  member_role: WorkspaceRole;
+  created_at: string;
+};
+
+export type WorkspaceMember = {
+  user_id: string;
+  role: WorkspaceRole;
+  joined_at: string;
+  email: string;
+  name: string;
+  handle: string | null;
+  avatar: string | null;
+};
+
+export type RateCard = {
+  id: string;
+  job_category: string;
+  union_code: string;
+  scale_type: string;
+  day_rate_cents: number;
+  half_day_rate_cents: number | null;
+  session_rate_cents: number | null;
+  notes: string;
+};
+
+export async function getWorkspaces() {
+  return request<Workspace[]>('/api/v1/workspaces');
+}
+
+export async function createWorkspace(data: { name: string; description?: string }) {
+  return request<{ data: Workspace; message: string }>('/api/v1/workspaces', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getWorkspaceMembers(workspaceId: string) {
+  return request<WorkspaceMember[]>(`/api/v1/workspaces/${workspaceId}/members`);
+}
+
+export async function getWorkspaceRoster(workspaceId: string) {
+  return request<WorkspaceMember[]>(`/api/v1/workspaces/${workspaceId}/roster`);
+}
+
+export async function updateMemberRole(workspaceId: string, userId: string, role: WorkspaceRole) {
+  return request<{ data: WorkspaceMember; message: string }>(
+    `/api/v1/workspaces/${workspaceId}/members/${userId}/role`,
+    { method: 'PATCH', body: JSON.stringify({ role }) }
+  );
+}
+
+export async function removeMember(workspaceId: string, userId: string) {
+  return request<{ message: string }>(
+    `/api/v1/workspaces/${workspaceId}/members/${userId}`,
+    { method: 'DELETE' }
+  );
+}
+
+export async function inviteToWorkspace(workspaceId: string, email: string, role: WorkspaceRole) {
+  return request<{ data: { token: string; email: string; role: string }; message: string }>(
+    `/api/v1/workspaces/${workspaceId}/invite`,
+    { method: 'POST', body: JSON.stringify({ email, role }) }
+  );
+}
+
+export async function acceptWorkspaceInvite(token: string) {
+  return request<{ message: string }>(`/api/v1/workspaces/invites/${token}/accept`, {
+    method: 'POST',
+  });
+}
+
+export async function getRateCards() {
+  return request<RateCard[]>('/api/v1/rate-cards');
+}
+
+export type MediaAsset = {
+  id: string;
+  workspace_id: string;
+  shoot_id: string | null;
+  uploader_id: string;
+  filename: string;
+  mime_type: string;
+  file_size_bytes: number;
+  sha256_hash: string;
+  b2_storage_key: string | null;
+  b2_public_url: string | null;
+  upload_state: 'pending' | 'uploaded' | 'verified' | 'failed';
+  ai_generated: boolean;
+  ai_model_name: string | null;
+  created_at: string;
+};
+
+export type UploadRequest = {
+  asset_id: string;
+  upload_url: string;
+  key: string;
+  method: string;
+  headers: Record<string, string>;
+};
+
+// calculate SHA-256 of a File using the Web Crypto API (chunked)
+export async function sha256File(file: File, onProgress?: (percent: number) => void): Promise<string> {
+  const CHUNK = 8 * 1024 * 1024; // 8MB chunks
+  const hasher = sha256.create();
+  let offset = 0;
+  while (offset < file.size) {
+    const chunk = new Uint8Array(await file.slice(offset, offset + CHUNK).arrayBuffer());
+    hasher.update(chunk);
+    offset += CHUNK;
+    onProgress?.(Math.min(100, Math.round((offset / file.size) * 100)));
+  }
+  return Array.from(hasher.digest()).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+export async function requestMediaUpload(data: {
+  workspace_id: string;
+  shoot_id?: string;
+  filename: string;
+  mime_type: string;
+  file_size_bytes: number;
+  sha256_hash: string;
+  ai_model_name?: string;
+}) {
+  return request<UploadRequest>('/api/v1/media/request-upload', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function completeMediaUpload(assetId: string) {
+  return request<{ data: MediaAsset; message: string }>(`/api/v1/media/${assetId}/complete`, {
+    method: 'POST',
+  });
+}
+
+export async function getShootMedia(workspaceId: string, shootId?: string) {
+  const qs = shootId ? `?shoot_id=${encodeURIComponent(shootId)}` : '';
+  return request<MediaAsset[]>(`/api/v1/workspaces/${workspaceId}/media${qs}`);
+}
+
+// full upload pipeline: hash → request presign → PUT to B2 → complete
+export async function uploadMediaAsset(
+  file: File,
+  opts: { workspace_id: string; shoot_id?: string; ai_model_name?: string },
+  onProgress?: (stage: string) => void
+): Promise<MediaAsset> {
+  onProgress?.('Calculating SHA-256…');
+  const sha256_hash = await sha256File(file, (percent) => onProgress?.(`Calculating SHA-256… ${percent}%`));
+
+  onProgress?.('Requesting upload URL…');
+  const { asset_id, upload_url, headers } = await requestMediaUpload({
+    ...opts,
+    filename: file.name,
+    mime_type: file.type,
+    file_size_bytes: file.size,
+    sha256_hash,
+  });
+
+  onProgress?.('Uploading to storage… 0%');
+  await new Promise<void>((resolve, reject) => {
+    const upload = new XMLHttpRequest();
+    upload.open('PUT', upload_url);
+    for (const [key, value] of Object.entries({ 'Content-Type': file.type, ...headers })) upload.setRequestHeader(key, value);
+    upload.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress?.(`Uploading to storage… ${Math.round((event.loaded / event.total) * 100)}%`);
+    };
+    upload.onerror = () => reject(new ApiError('Upload to storage failed', 0));
+    upload.onload = () => upload.status >= 200 && upload.status < 300
+      ? resolve()
+      : reject(new ApiError('Upload to storage failed', upload.status));
+    upload.send(file);
+  });
+
+  onProgress?.('Verifying SHA-256 in storage…');
+  const completed = await completeMediaUpload(asset_id);
+  return completed.data;
+}
+
+export type DigitalRider = {
+  id: string;
+  shoot_id: string;
+  performer_name: string;
+  performer_email: string;
+  agent_email: string | null;
+  union_status: string;
+  replica_type: string;
+  permitted_media: string[];
+  geographic_territory: string[];
+  intended_use_description: string;
+  exclusionary_clauses: string[];
+  advance_notice_given_at: string | null;
+  starts_at: string;
+  expires_at: string;
+  base_scale_rate_cents: number;
+  replica_multiplier: number | string;
+  total_session_fee_cents: number;
+  pension_health_cents: number;
+  compensation_status: string;
+  status: string;
+  typed_name: string | null;
+  signed_at: string | null;
+  signed_pdf_ref?: string | null;
+  notice_token?: string | null;
+};
+
+export async function getShootRiders(workspaceId: string, shootId: string) {
+  return request<DigitalRider[]>(`/api/v1/workspaces/${encodeURIComponent(workspaceId)}/contracts?shoot_id=${encodeURIComponent(shootId)}`);
+}
+
+export async function getWorkspaceRiders(workspaceId: string) {
+  return request<DigitalRider[]>(`/api/v1/workspaces/${encodeURIComponent(workspaceId)}/contracts`);
+}
+
+export async function draftRider(data: {
+  workspace_id: string;
+  shoot_id: string;
+  performer_id?: string;
+  performer_name: string;
+  performer_email: string;
+  agent_email?: string;
+  union_status: string;
+  replica_type: string;
+  permitted_media: string[];
+  geographic_territory: string[];
+  intended_use_description: string;
+  exclusionary_clauses: string[];
+  starts_at: string;
+  duration_months: number;
+  base_scale_rate_cents: number;
+}) {
+  return request<{ data: DigitalRider; message: string }>('/api/v1/contracts/draft', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function sendRiderNotice(id: string, workspaceId: string) {
+  return request<{ data: DigitalRider; message: string }>(`/api/v1/contracts/${id}/send-notice`, {
+    method: 'POST',
+    body: JSON.stringify({ workspace_id: workspaceId }),
+  });
+}
+
+export async function getRiderReview(token: string) {
+  return request<DigitalRider>(`/api/v1/contracts/review/${encodeURIComponent(token)}`);
+}
+
+export async function signRiderReview(token: string, typedName: string) {
+  return request<{ data: DigitalRider; message: string }>(`/api/v1/contracts/review/${encodeURIComponent(token)}/sign`, {
+    method: 'POST',
+    body: JSON.stringify({ typed_name: typedName }),
+  });
+}
+
+export type PaypalInvoice = {
+  id: string;
+  workspace_id: string;
+  shoot_id: string | null;
+  paypal_invoice_id: string | null;
+  recipient_email: string | null;
+  status: string;
+  total_cents: number;
+  created_at: string;
+};
+
+export type PaypalDispute = {
+  id: string;
+  workspace_id: string;
+  paypal_dispute_id: string;
+  reason: string | null;
+  status: string | null;
+  amount_cents: number | null;
+  last_note: string | null;
+};
+
+export async function createPaypalSubscription(workspaceId: string) {
+  return request<{ url: string; subscription_id: string; status: string }>('/api/v1/paypal/subscribe', {
+    method: 'POST',
+    body: JSON.stringify({ workspace_id: workspaceId }),
+  });
+}
+
+export async function getPaypalInvoices(workspaceId: string) {
+  return request<PaypalInvoice[]>(`/api/v1/paypal/invoices?workspaceId=${encodeURIComponent(workspaceId)}`);
+}
+
+export async function createShootInvoice(workspaceId: string, shootId: string, recipientEmail?: string) {
+  return request<{ data: PaypalInvoice; message: string }>(`/api/v1/workspaces/${workspaceId}/invoices`, {
+    method: 'POST',
+    body: JSON.stringify({ shoot_id: shootId, recipient_email: recipientEmail }),
+  });
+}
+
+export async function getPaypalDisputes(workspaceId: string) {
+  return request<PaypalDispute[]>(`/api/v1/paypal/disputes?workspaceId=${encodeURIComponent(workspaceId)}`);
+}
+
+export async function sendPaypalDisputeNote(id: string, note: string) {
+  return request<{ message: string }>(`/api/v1/paypal/disputes/${id}/note`, {
+    method: 'POST',
+    body: JSON.stringify({ note }),
+  });
+}
+
+export async function exportPayrollBatch(workspaceId: string, shootId: string, format: 'WRAPBOOK_CSV' | 'GREENSLATE_JSON') {
+  return request<{ data: { id: string }; filename: string; contentType: string; body: string; message: string }>(
+    '/api/v1/payroll/export-batch',
+    {
+      method: 'POST',
+      body: JSON.stringify({ workspace_id: workspaceId, shoot_id: shootId, format }),
+    },
+  );
+}
+
+export async function downloadClearanceCertificate(workspaceId: string) {
+  const authHeaders = await getAuthHeaders();
+  const response = await fetch(
+    `${API_BASE}/api/v1/workspaces/${encodeURIComponent(workspaceId)}/clearance-certificate`,
+    { headers: authHeaders, cache: 'no-store' },
+  );
+  if (!response.ok) {
+    throw new ApiError('Failed to download clearance certificate', response.status);
+  }
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'clearance-certificate.pdf';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+
+
