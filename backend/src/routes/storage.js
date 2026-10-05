@@ -14,7 +14,7 @@ router.post('/storage/upload-url', requireAuth, async (req, res, next) => {
       return res.status(400).json({ message: 'folder, filename, and contentType are required' });
     }
     if (size && Number(size) > 10 * 1024 * 1024) {
-      return res.status(400).json({ message: 'File is too large (max 10MB)' });
+      return res.status(400).json({ message: 'File is too large (max 10MB). Use the media upload endpoint for video files.' });
     }
 
     const payload = await createUploadUrl({
