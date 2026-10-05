@@ -1,0 +1,25 @@
+# syntax=docker/dockerfile:1
+# Worker image — Debian-based for native C2PA binaries, FFmpeg, and Chromaprint
+FROM node:20-bookworm-slim AS base
+WORKDIR /app
+
+# install system tools needed by the provenance pipeline
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    libchromaprint-tools \
+ && rm -rf /var/lib/apt/lists/*
+
+FROM base AS deps
+COPY package*.json ./
+RUN npm ci
+
+FROM base AS runner
+ENV NODE_ENV=production
+# signing mode: 'test' for dev, 'remote' for production KMS
+ENV C2PA_SIGNING_MODE=test
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY backend ./backend
+
+CMD ["node", "backend/src/workers/provenanceWorker.js"]
