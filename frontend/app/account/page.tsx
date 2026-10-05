@@ -13,7 +13,6 @@ import {
 } from '@/lib/api/client';
 import ApiErrorState from '@/components/ApiErrorState';
 import Link from 'next/link';
-import { AccountRole } from '@/lib/api/client';
 import { VerificationSettings } from '@/components/verification-settings';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -23,7 +22,6 @@ export default function Page() {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [handle, setHandle] = useState('');
-  const [roles, setRoles] = useState<AccountRole[]>(['maker']);
   const [uploadError, setUploadError] = useState('');
   const [avatar, setAvatar] = useState('');
   const [saved, setSaved] = useState(false);
@@ -44,13 +42,12 @@ export default function Page() {
       setName(me.name ?? '');
       setBio(me.bio ?? '');
       setHandle(me.handle ?? '');
-      setRoles(me.roles ?? ['maker']);
       setAvatar(me.avatar ?? '');
     }
   }, [me]);
 
   const mutation = useMutation({
-    mutationFn: () => updateMe({ name, bio, avatar, roles, ...(handle ? { handle } : {}) }),
+    mutationFn: () => updateMe({ name, bio, avatar, ...(handle ? { handle } : {}) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['me'] });
       queryClient.invalidateQueries({ queryKey: ['userProfile'] });
@@ -124,19 +121,11 @@ export default function Page() {
               <p id="handle-help" className="text-xs text-muted-foreground">3–30 letters, numbers, underscores or hyphens. Your profile is public after you choose a handle.</p>
               {me?.handle && <Link className="inline-block text-sm underline underline-offset-4" href={`/u/${me.handle}`}>View public profile: /u/{me.handle}</Link>}
             </div>
-            <fieldset className="space-y-3">
-              <legend className="text-sm font-medium">Account roles</legend>
-              <p className="text-sm text-muted-foreground">Choose all that apply. Roles describe your work; they do not grant verification or staff privileges.</p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {(['maker', 'employer', 'investor', 'educator'] as const).map((role) => (
-                  <label key={role} className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 has-[:checked]:border-primary has-[:checked]:bg-accent">
-                    <input type="checkbox" checked={roles.includes(role)} onChange={(event) => setRoles(event.target.checked ? [...roles, role] : roles.filter((value) => value !== role))} className="size-4 accent-primary" />
-                    <span className="text-sm capitalize">{role}</span>
-                  </label>
-                ))}
-              </div>
-              {roles.length === 0 && <p role="alert" className="text-sm text-destructive">Select at least one role.</p>}
-            </fieldset>
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Workspace access</p>
+              <p className="text-sm text-muted-foreground">Agency roles are assigned per workspace by an Admin. Manage them from Workspace settings.</p>
+              <Button asChild variant="outline" size="sm"><Link href="/settings/workspace">Open workspace settings</Link></Button>
+            </div>
             <div className="space-y-1">
               <label className="text-xs font-medium" htmlFor="avatar">Avatar</label>
               <div className="flex items-center gap-3">
@@ -170,7 +159,7 @@ export default function Page() {
             </div>
             <Button
               type="submit"
-              disabled={mutation.isPending || uploading || roles.length === 0}
+              disabled={mutation.isPending || uploading}
               className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm disabled:opacity-50"
             >
               {mutation.isPending ? 'Saving…' : saved ? 'Saved' : 'Save changes'}
@@ -183,7 +172,7 @@ export default function Page() {
           </form>
         )}
       </CardSection>
-      {me && <VerificationSettings roles={me.roles} />}
+      {me && <VerificationSettings />}
       <CardSection tone="white">
         <h3 className="text-base font-semibold">Billing</h3>
         <p className="mt-2 text-sm">

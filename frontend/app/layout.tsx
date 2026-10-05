@@ -20,8 +20,8 @@ const antonio = Antonio({
 });
 
 export const metadata: Metadata = {
-  title: "StudioPass",
-  description: "Roster & compliance hub for freelance creative teams",
+  title: "SynthPass",
+  description: "Roster & compliance hub for SAG-AFTRA commercial productions",
 };
 
 export default function RootLayout({
@@ -32,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('makerspace-theme');var d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.style.colorScheme=d?'dark':'light'}catch{}` }} />
+        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('synthpass-theme');var d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.style.colorScheme=d?'dark':'light'}catch{}` }} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${antonio.variable} bg-background font-[family-name:var(--font-geist-mono)] antialiased`}

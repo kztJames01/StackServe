@@ -26,18 +26,18 @@ export default function Home() {
                   className="size-12 sm:size-[70px]"
                 />
                 <h1 className="text-2xl sm:text-3xl font-[family-name:var(--font-antonio)]">
-                  StudioPass
+                  SynthPass
                 </h1>
               </div>
               <p className="text-base sm:text-lg text-primary my-6 sm:m-8">
-                The roster & compliance hub for freelance creative teams. Assemble shoots, track crew availability, and prove usage-rights on every delivered image.
+                The production compliance workspace for AI media. Manage agency workspaces, cast performers, and track every synthetic asset from shoot to delivery.
               </p>
               <div className="flex w-full flex-col items-stretch gap-4 sm:w-auto sm:flex-row">
                 <Link
                   href="/sign-up"
                   className="text-center bg-secondary text-secondary-foreground px-8 py-3.5 rounded-xl font-semibold hover:bg-secondary/90 hover:shadow-lg hover:shadow-[#252422]/20 hover:-translate-y-0.5 transition-all duration-300"
                 >
-                  Start Free Workspace
+                  Create Agency Workspace
                 </Link>
                 <Link
                   href="/sign-in"
@@ -49,11 +49,9 @@ export default function Home() {
             </div>
           </main>
           <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-            <a
+            <Link
               className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/help"
             >
               <Image
                 aria-hidden
@@ -62,13 +60,11 @@ export default function Home() {
                 width={16}
                 height={16}
               />
-              About us
-            </a>
-            <a
+              Help center
+            </Link>
+            <Link
               className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/help/terms"
             >
               <Image
                 aria-hidden
@@ -77,13 +73,11 @@ export default function Home() {
                 width={16}
                 height={16}
               />
-              Source Code
-            </a>
-            <a
+              Terms
+            </Link>
+            <Link
               className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-              href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/help/privacy-policy"
             >
               <Image
                 aria-hidden
@@ -92,8 +86,8 @@ export default function Home() {
                 width={16}
                 height={16}
               />
-              Explore and Connect →
-            </a>
+              Privacy
+            </Link>
           </footer>
         </div>
       </div>

@@ -9,9 +9,7 @@ import { ThemeToggle } from '@/components/theme-provider';
 import type { ProfileData } from '@/lib/api/client';
 import { DEFAULT_API_BASE } from '../../../../shared/apiHelpers';
 
-type PublicProfile = ProfileData & {
-  investor?: { stage: string; org_domain: string; check_size: string; aum_range: string; thesis: string; portfolio: string[] };
-};
+type PublicProfile = ProfileData;
 type PageProps = { params: Promise<{ handle: string }> };
 
 const getPublicProfile = cache(async (handle: string): Promise<PublicProfile> => {
@@ -26,8 +24,8 @@ const getPublicProfile = cache(async (handle: string): Promise<PublicProfile> =>
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { handle } = await params;
   const profile = await getPublicProfile(handle);
-  const title = `${profile.name} (@${profile.handle}) | StudioPass`;
-  const description = profile.bio.slice(0, 160) || `${profile.name}'s maker profile, skills and credentials.`;
+  const title = `${profile.name} (@${profile.handle}) | SynthPass`;
+  const description = profile.bio.slice(0, 160) || `${profile.name}'s performer profile and production skills.`;
   return { title, description, alternates: { canonical: `/u/${profile.handle}` }, openGraph: { title, description, type: 'profile' }, twitter: { card: 'summary', title, description } };
 }
 
@@ -41,7 +39,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
     <div className="min-h-screen">
       <header className="border-b bg-card">
         <nav aria-label="Public profile navigation" className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <Link href="/" className="font-semibold">StudioPass</Link>
+          <Link href="/" className="font-semibold">SynthPass</Link>
           <div className="flex items-center gap-2"><ThemeToggle /><Button asChild variant="outline"><Link href="/sign-in">Sign in</Link></Button></div>
         </nav>
       </header>
@@ -52,15 +50,13 @@ export default async function PublicProfilePage({ params }: PageProps) {
             <div className="min-w-0 space-y-2"><p className="break-words text-sm text-muted-foreground">@{profile.handle}</p><h1 className="break-words text-3xl font-semibold sm:text-4xl">{profile.name}</h1><div className="flex flex-wrap gap-2">{profile.roles.map((role) => <span key={role} className="rounded-full bg-muted px-3 py-1 text-xs capitalize">{role}</span>)}</div></div>
           </div>
           <div className="flex flex-wrap gap-3 text-sm">
-            {profile.studentStatus === 'verified' && <span className="inline-flex items-center gap-2"><GraduationCap className="size-4" />Student Maker · Verified university email</span>}
+            {profile.studentStatus === 'verified' && <span className="inline-flex items-center gap-2"><GraduationCap className="size-4" />Verified university email</span>}
             {profile.employerStatus === 'verified' && <span className="inline-flex items-center gap-2"><BadgeCheck className="size-4" />Verified employer</span>}
-            {profile.investor && <span className="inline-flex items-center gap-2"><BadgeCheck className="size-4" />Verified investor · Staff reviewed</span>}
           </div>
           {profile.bio && <p className="max-w-3xl whitespace-pre-wrap break-words text-base leading-relaxed">{profile.bio}</p>}
           {profile.skills.length > 0 && <div><h2 className="mb-3 text-lg font-semibold">Skills</h2><div className="flex flex-wrap gap-2">{profile.skills.map((skill) => <span key={skill} className="rounded-md bg-accent px-3 py-1.5 text-sm text-accent-foreground">{skill}</span>)}</div></div>}
           {socials.length > 0 && <nav aria-label="External profiles" className="flex flex-wrap gap-3">{socials.map(([name, url]) => <Button key={name} asChild variant="outline"><a href={url} target="_blank" rel="noopener noreferrer">{name}</a></Button>)}</nav>}
         </section>
-        {profile.investor && <section className="space-y-5 rounded-xl border bg-card p-6 text-card-foreground sm:p-8"><h2 className="text-2xl font-semibold">Investment profile</h2><dl className="grid gap-5 sm:grid-cols-2"><div><dt className="text-sm text-muted-foreground">Organization</dt><dd className="mt-1 break-words">{profile.investor.org_domain}</dd></div><div><dt className="text-sm text-muted-foreground">Stage</dt><dd className="mt-1">{profile.investor.stage}</dd></div><div><dt className="text-sm text-muted-foreground">Check size (self-declared)</dt><dd className="mt-1">{profile.investor.check_size}</dd></div><div><dt className="text-sm text-muted-foreground">AUM range (self-declared)</dt><dd className="mt-1">{profile.investor.aum_range}</dd></div></dl><div><h3 className="font-semibold">Thesis</h3><p className="mt-2 whitespace-pre-wrap break-words leading-relaxed">{profile.investor.thesis}</p></div><div><h3 className="font-semibold">Portfolio companies (self-declared)</h3><p className="mt-2">{profile.investor.portfolio?.join(', ') || 'No companies declared'}</p></div></section>}
       </main>
     </div>
   );

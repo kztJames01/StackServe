@@ -9,10 +9,17 @@ import { clearAuthToken } from "@/lib/auth-cookie"
 import { useQueryClient } from "@tanstack/react-query"
 import {
   BadgeCheck,
-  Bell,
+  Bug,
   ChevronsUpDown,
-  CreditCard,
+  CircleHelp,
+  FileText,
+  LifeBuoy,
+  Lock,
   LogOut,
+  ScrollText,
+  Settings,
+  Shield,
+  SlidersHorizontal,
   Sparkles,
 } from "lucide-react"
 
@@ -28,6 +35,9 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -107,12 +117,9 @@ export function NavUser({
               <DropdownMenuItem asChild>
                 <Link href="/billing">
                   <Sparkles />
-                  Upgrade to Agency
+                  Upgrade to Pro
                 </Link>
               </DropdownMenuItem>
-            </DropdownMenuGroup>
-
-            <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link href="/account">
                   <BadgeCheck />
@@ -120,19 +127,64 @@ export function NavUser({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/billing">
-                  <CreditCard />
-                  Billing
+                <Link href="/preferences">
+                  <SlidersHorizontal />
+                  Preferences
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/notifications">
-                  <Bell />
-                  Notifications
+                <Link href="/settings">
+                  <Settings />
+                  Settings
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <CircleHelp />
+                Help
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="min-w-56">
+                <DropdownMenuItem asChild>
+                  <Link href="/help">
+                    <LifeBuoy />
+                    Help Center
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/help/privacy">
+                    <Shield />
+                    Privacy Center
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/help/releases">
+                    <ScrollText />
+                    Release Notes
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/help/terms">
+                    <FileText />
+                    Terms of Service
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/help/privacy-policy">
+                    <Lock />
+                    Privacy Policy
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/help/report">
+                    <Bug />
+                    Report a Bug
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
             <DropdownMenuItem disabled={loggingOut} onSelect={(event) => { event.preventDefault(); logout(); }}>
               <LogOut />
               {loggingOut ? "Signing out…" : "Log out"}

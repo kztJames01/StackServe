@@ -24,7 +24,7 @@ export default function Page() {
   });
 
   return (
-    <DashboardShell title="Notifications" description="Project invites, comments, and opportunity alerts.">
+    <DashboardShell title="Notifications" description="Workspace invitations, shoot updates, and clearance alerts.">
       <CardSection tone="brown">
         <div className="flex items-center justify-between mb-4">
           <p className="text-sm font-medium">{notifications.filter((n) => !n.read).length} unread</p>

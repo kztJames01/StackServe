@@ -52,7 +52,7 @@ declare interface UrlQueryParams {
 }
 
 declare interface IconProps{
-    className?: String
+    className?: string
 }
 
 declare interface SidebarContextProps{
@@ -60,10 +60,6 @@ declare interface SidebarContextProps{
     state: 'open' | 'closed';
     openMobile: () => void;
     setOpenMobile: (open: boolean) => void;
-}
-
-declare interface CreatePostDrawerProps {
-    onClose: () => void;
 }
 
 declare interface Note {

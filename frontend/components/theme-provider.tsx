@@ -14,7 +14,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("makerspace-theme");
+      const stored = localStorage.getItem("synthpass-theme");
       if (stored === "light" || stored === "dark" || stored === "system") setThemeState(stored);
     } catch {}
     setReady(true);
@@ -35,7 +35,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setTheme = (value: Theme) => {
     setThemeState(value);
-    try { localStorage.setItem("makerspace-theme", value); } catch {}
+    try { localStorage.setItem("synthpass-theme", value); } catch {}
   };
 
   return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
