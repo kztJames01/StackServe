@@ -12,9 +12,9 @@ import {
 } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
-import { authFormSchema } from 'makerspace-shared/authSchema';
-import { getFirebaseAuthErrorMessage } from 'makerspace-shared/firebaseAuthErrors';
-import { colors } from 'makerspace-shared/theme';
+import { authFormSchema } from '@synthpass/core/authSchema';
+import { getFirebaseAuthErrorMessage } from '@synthpass/core/firebaseAuthErrors';
+import { colors } from '@synthpass/core/theme';
 
 export default function SignInScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -50,7 +50,7 @@ export default function SignInScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <Text style={styles.heading}>Hop into the MakerSpace</Text>
+        <Text style={styles.heading}>Sign in to SynthPass</Text>
         <Text style={styles.sub}>Please enter your details</Text>
 
         <Text style={styles.label}>EMAIL</Text>

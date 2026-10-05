@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { onAuthStateChanged } from 'firebase/auth';
 import { ActivityIndicator, View } from 'react-native';
 import { auth } from './firebase';
-import { colors } from 'makerspace-shared/theme';
+import { colors } from '@synthpass/core/theme';
 import LandingScreen from './screens/LandingScreen';
 import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';

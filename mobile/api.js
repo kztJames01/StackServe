@@ -1,5 +1,5 @@
 import { auth } from './firebase';
-import { DEFAULT_API_BASE, parseErrorMessage, API_PATHS } from 'makerspace-shared/apiHelpers';
+import { DEFAULT_API_BASE, parseErrorMessage, API_PATHS } from '@synthpass/core/apiHelpers';
 
 // on a real phone set EXPO_PUBLIC_API_BASE_URL to your computer's LAN ip
 const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL || DEFAULT_API_BASE;

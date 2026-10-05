@@ -11,7 +11,7 @@ import {
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { getFeed } from '../api';
-import { colors } from 'makerspace-shared/theme';
+import { colors } from '@synthpass/core/theme';
 
 export default function ExploreScreen({ navigation }) {
   const [posts, setPosts] = useState([]);

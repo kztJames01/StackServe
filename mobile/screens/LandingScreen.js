@@ -1,6 +1,6 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { colors } from 'makerspace-shared/theme';
+import { colors } from '@synthpass/core/theme';
 
 export default function LandingScreen({ navigation }) {
   return (

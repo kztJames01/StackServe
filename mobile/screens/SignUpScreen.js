@@ -13,9 +13,9 @@ import {
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { updateMe } from '../api';
-import { authFormSchema } from 'makerspace-shared/authSchema';
-import { getFirebaseAuthErrorMessage } from 'makerspace-shared/firebaseAuthErrors';
-import { colors } from 'makerspace-shared/theme';
+import { authFormSchema } from '@synthpass/core/authSchema';
+import { getFirebaseAuthErrorMessage } from '@synthpass/core/firebaseAuthErrors';
+import { colors } from '@synthpass/core/theme';
 
 export default function SignUpScreen({ navigation }) {
   const [form, setForm] = useState({
