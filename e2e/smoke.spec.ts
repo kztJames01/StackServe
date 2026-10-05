@@ -2,18 +2,18 @@ import { test, expect } from '@playwright/test';
 
 test('landing page loads', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'StudioPass' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Start Free Workspace' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'SynthPass' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Create Agency Workspace' })).toBeVisible();
 });
 
 test('sign-in page loads', async ({ page }) => {
   await page.goto('/sign-in');
-  await expect(page.getByRole('heading', { name: 'Hop into StudioPass' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Sign in to SynthPass' })).toBeVisible();
   await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible();
 });
 
 test('protected route redirects to sign-in', async ({ page }) => {
-  await page.goto('/explore');
+  await page.goto('/shoots');
   await expect(page).toHaveURL(/sign-in/);
 });
 
@@ -28,7 +28,7 @@ test('appearance supports keyboard selection, persistence, and system changes', 
   await expect(page.getByRole('menuitemradio', { name: 'Dark', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.locator('html')).toHaveClass(/dark/);
-  await expect.poll(() => page.evaluate(() => localStorage.getItem('makerspace-theme'))).toBe('dark');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('synthpass-theme'))).toBe('dark');
   await page.reload();
   await expect(page.locator('html')).toHaveClass(/dark/);
   await toggle.click();
@@ -40,7 +40,7 @@ test('appearance supports keyboard selection, persistence, and system changes', 
 
 for (const theme of ['light', 'dark'] as const) {
   test(`${theme} theme semantic colors have readable contrast and responsive auth layouts`, async ({ page }) => {
-    await page.addInitScript((value) => localStorage.setItem('makerspace-theme', value), theme);
+    await page.addInitScript((value) => localStorage.setItem('synthpass-theme', value), theme);
     await page.goto('/sign-in');
     await expect.poll(() => page.evaluate(() => document.documentElement.style.colorScheme)).toBe(theme);
     const contrasts = await page.evaluate(() => {
@@ -71,50 +71,37 @@ for (const theme of ['light', 'dark'] as const) {
     }
     await page.getByLabel('Email', { exact: true }).focus();
     await expect(page.getByLabel('Email', { exact: true })).toBeFocused();
-    await page.screenshot({ path: `/tmp/makerspace-${theme}-desktop.png`, fullPage: true });
+    await page.screenshot({ path: `/tmp/synthpass-${theme}-desktop.png`, fullPage: true });
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.screenshot({ path: `/tmp/makerspace-${theme}-mobile.png`, fullPage: true });
+    await page.screenshot({ path: `/tmp/synthpass-${theme}-mobile.png`, fullPage: true });
   });
 
-  test(`${theme} account roles and verification forms work with mocked API responses`, async ({ page, context }) => {
+  test(`${theme} workspace roles, invites, and rate cards are usable`, async ({ page, context }) => {
     await context.addCookies([{ name: 'auth_token', value: 'ui-test-only', url: 'http://localhost:3000' }]);
-    await page.addInitScript((value) => localStorage.setItem('makerspace-theme', value), theme);
-    let profile = { name: 'Test Maker', bio: 'Building accessible tools', avatar: '', handle: 'test-maker', roles: ['maker'], skills: [], socials: {}, studentStatus: 'unverified', employerStatus: 'unverified' };
+    await page.addInitScript(({ theme, workspace }) => {
+      localStorage.setItem('synthpass-theme', theme);
+      localStorage.setItem('synthpass-active-workspace', workspace);
+    }, { theme, workspace: 'ws-test' });
     await page.route('**/api/**', async (route) => {
       const pathname = new URL(route.request().url()).pathname;
-      if (pathname === '/api/users/me') {
-        if (route.request().method() === 'PATCH') {
-          profile = { ...profile, ...route.request().postDataJSON() };
-          return route.fulfill({ json: { data: profile, message: 'Profile updated' } });
-        }
-        return route.fulfill({ json: profile });
-      }
-      if (pathname === '/api/verification') return route.fulfill({ json: { studentStatus: 'unverified', employerStatus: 'unverified', investor: null, isAdmin: false, providers: { sheerId: false, employer: false } } });
-      if (pathname === '/api/verification/investor') return route.fulfill({ status: 202, json: { message: 'Submitted for staff review' } });
-      if (pathname === '/api/verification/student') return route.fulfill({ status: 400, json: { message: 'Verify your university .edu email first.' } });
-      return route.fulfill({ json: { plan: 'free', subscriptionStatus: 'inactive' } });
+      if (pathname === '/api/users/me') return route.fulfill({ json: { name: 'Agency Admin', email: 'admin@agency.test', avatar: '' } });
+      if (pathname === '/api/v1/workspaces') return route.fulfill({ json: [{ id: 'ws-test', name: 'North Agency', description: 'Commercial production', owner_id: 'admin', member_role: 'admin', created_at: new Date().toISOString() }] });
+      if (pathname.endsWith('/members')) return route.fulfill({ json: [{ user_id: 'admin', role: 'admin', joined_at: new Date().toISOString(), email: 'admin@agency.test', name: 'Agency Admin', handle: null, avatar: null }] });
+      if (pathname === '/api/v1/rate-cards') return route.fulfill({ json: [{ id: 'sag-principal-scale', job_category: 'Principal', union_code: 'SAG-AFTRA', scale_type: 'scale', day_rate_cents: 104700, half_day_rate_cents: null, session_rate_cents: null, notes: '' }] });
+      if (pathname.endsWith('/invite')) return route.fulfill({ status: 201, json: { data: { token: 'invite-token', email: 'performer@example.com', role: 'performer' }, message: 'Invite created' } });
+      if (pathname.endsWith('/shoots')) return route.fulfill({ json: [] });
+      return route.fulfill({ json: {} });
     });
-    await page.goto('/account');
-    await expect(page.getByLabel('Display name')).toHaveValue('Test Maker');
-    await page.getByRole('checkbox', { name: 'investor', exact: true }).check();
-    await page.getByRole('checkbox', { name: 'educator', exact: true }).check();
-    await page.getByRole('button', { name: 'Save changes', exact: true }).click();
-    await expect(page.getByRole('status')).toContainText('Your profile changes have been saved.');
-    expect(profile.roles).toEqual(['maker', 'investor', 'educator']);
-    await expect(page.getByText('Provider access has not been configured', { exact: false })).toBeVisible();
-    await page.getByRole('button', { name: 'Check university email' }).click();
-    await expect(page.getByRole('alert').filter({ hasText: 'Verify your university .edu email first.' })).toBeVisible();
-    await page.getByLabel('Organization domain').fill('fund.example');
-    await page.getByLabel('Check size range').fill('$25k–$100k');
-    await page.getByLabel('Investment stage').fill('Seed');
-    await page.getByLabel('AUM range (self-declared)').fill('$1m–$5m');
-    await page.getByLabel('Investment thesis').fill('Accessible developer tooling for independent makers.');
-    await page.getByRole('button', { name: 'Submit for review' }).click();
-    await expect(page.getByText('Submitted for staff review. You will not be featured until approved.', { exact: true })).toBeVisible();
+    await page.goto('/settings/workspace');
+    await expect(page.getByRole('heading', { name: 'Workspace Settings' })).toBeVisible();
+    await expect(page.getByText('Principal')).toBeVisible();
+    await page.getByPlaceholder('member@agency.com').fill('performer@example.com');
+    await page.getByRole('button', { name: 'Create Invite' }).click();
+    await expect(page.getByLabel('Invite link')).toHaveValue(/invite-token/);
     for (const width of [320, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     }
-    await page.screenshot({ path: `/tmp/makerspace-${theme}-account.png`, fullPage: true });
+    await page.screenshot({ path: `/tmp/synthpass-${theme}-workspace.png`, fullPage: true });
   });
 }

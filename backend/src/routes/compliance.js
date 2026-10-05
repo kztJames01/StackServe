@@ -1,114 +1,62 @@
 const { Router } = require('express');
-const { query } = require('../db/pool');
-const { listEntities, upsertEntity } = require('../db/repository');
 const { requireAuth } = require('../middleware/validate');
 const { getUserId } = require('../middleware/authUser');
+const { getMemberRole } = require('../services/workspace');
+const { query } = require('../db/pool');
+const { evaluateCompliance, emitCompliance } = require('../services/compliance');
+const { buildClearanceCertificate } = require('../services/clearanceCertificate');
+const payroll = require('../services/payroll');
 
 const router = Router();
+const route = (fn) => (req, res, next) => Promise.resolve(fn(req, res)).catch(next);
 
-async function notify(userId, id, type, message, actionUrl) {
-  // deterministic id so we dont spam duplicates on every dashboard load
-  await upsertEntity('notifications', {
-    id,
-    userId,
-    type,
-    message,
-    read: false,
-    actionUrl: actionUrl || '/compliance',
-    createdAt: new Date().toISOString(),
-  });
-}
-
-// runs the rules engine on load, no cron needed for mvp
-router.get('/compliance', requireAuth, async (req, res) => {
+router.get('/compliance', requireAuth, route(async (req, res) => {
   const userId = getUserId(req);
+  const workspaceId = String(req.query.workspaceId || '');
+  if (!workspaceId) return res.status(400).json({ message: 'workspaceId is required' });
+  if (!await getMemberRole(workspaceId, userId)) return res.status(403).json({ message: 'Not a workspace member' });
 
-  // tenant boundary = the caller's own rows only
-  const [shoots, availability, licenses] = await Promise.all([
-    listEntities('projects', { paginate: false, filter: (p) => p.ownerId === userId }),
-    listEntities('availability', { paginate: false, filter: (row) => row.userId === userId }),
-    query('SELECT * FROM licenses WHERE workspace_id = $1', [userId]).then((r) => r.rows),
-  ]);
+  const report = await evaluateCompliance(workspaceId, userId);
+  emitCompliance(req.app, workspaceId, report);
+  res.json(report);
+}));
 
-  const red = [];
-  const amber = [];
-  const yellow = [];
+router.get('/v1/workspaces/:id/clearance-certificate', requireAuth, route(async (req, res) => {
+  const userId = getUserId(req);
+  if (!await getMemberRole(req.params.id, userId)) return res.status(403).json({ message: 'Not a workspace member' });
+  const report = await evaluateCompliance(req.params.id, userId);
+  const ws = await query('SELECT name FROM agency_workspaces WHERE id = $1', [req.params.id]);
+  const pdf = buildClearanceCertificate({ workspaceName: ws.rows[0]?.name, report });
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', 'attachment; filename="clearance-certificate.pdf"');
+  res.send(pdf);
+}));
 
-  const licensesByShoot = {};
-  for (const lic of licenses) {
-    if (!licensesByShoot[lic.shoot_id]) licensesByShoot[lic.shoot_id] = [];
-    licensesByShoot[lic.shoot_id].push(lic);
+router.post('/v1/payroll/export-batch', requireAuth, route(async (req, res) => {
+  const userId = getUserId(req);
+  const { workspace_id: workspaceId, shoot_id: shootId, format } = req.body || {};
+  if (!workspaceId || !shootId || !format) {
+    return res.status(400).json({ message: 'workspace_id, shoot_id, and format are required' });
+  }
+  const role = await getMemberRole(workspaceId, userId);
+  if (!role) return res.status(403).json({ message: 'Not a workspace member' });
+  if (!['admin', 'producer', 'clearance_counsel'].includes(role)) {
+    return res.status(403).json({ message: 'Producer or clearance role required' });
   }
 
-  // red: delivered shoot with assets missing a signed license
-  for (const shoot of shoots) {
-    if (shoot.status !== 'delivered') continue;
-    const shootLicenses = licensesByShoot[String(shoot.id)] || [];
-    const unsigned = shootLicenses.filter((l) => l.status !== 'signed');
-    if (shootLicenses.length === 0) {
-      red.push({ shootId: String(shoot.id), title: shoot.title, reason: 'Delivered with no licenses at all' });
-    } else if (unsigned.length > 0) {
-      red.push({
-        shootId: String(shoot.id),
-        title: shoot.title,
-        reason: `${unsigned.length} asset(s) without a signed license`,
-        licenseIds: unsigned.map((l) => l.id),
-      });
-    }
-  }
-
-  // amber: signed license expiring within 30 days
-  const soon = new Date();
-  soon.setDate(soon.getDate() + 30);
-  for (const lic of licenses) {
-    if (lic.status !== 'signed' || !lic.expires_at) continue;
-    const expiry = new Date(lic.expires_at);
-    if (expiry <= soon) {
-      amber.push({
-        licenseId: lic.id,
-        shootId: lic.shoot_id,
-        freelancerId: lic.freelancer_id,
-        expiresAt: lic.expires_at,
-        reason: `Signed license expires ${String(lic.expires_at).slice(0, 10)}`,
-      });
-    }
-  }
-
-  // yellow: crew on a call sheet (availability hold/booked) with no license row for that shoot
-  const seen = new Set();
-  for (const row of availability) {
-    if (!row.shootId || !['hold', 'booked'].includes(row.status)) continue;
-    const key = `${row.shootId}:${row.freelancerId}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    const hasLicense = (licensesByShoot[String(row.shootId)] || []).some(
-      (l) => l.freelancer_id === String(row.freelancerId),
-    );
-    if (!hasLicense) {
-      const shoot = shoots.find((s) => String(s.id) === String(row.shootId));
-      yellow.push({
-        shootId: String(row.shootId),
-        title: shoot?.title || row.shootId,
-        freelancerId: String(row.freelancerId),
-        reason: 'Crew on call sheet with no license row',
-      });
-    }
-  }
-
-  // fire notifications for the stuff that needs attention
-  await Promise.all([
-    ...red.map((item) => notify(userId, `notif-red-${item.shootId}`, 'compliance', `RED: ${item.title} — ${item.reason}`)),
-    ...amber.map((item) => notify(userId, `notif-amber-${item.licenseId}`, 'compliance', `License ${item.licenseId} expiring soon (${String(item.expiresAt).slice(0, 10)})`)),
-    ...yellow.map((item) => notify(userId, `notif-yellow-${item.shootId}-${item.freelancerId}`, 'compliance', `Crew member ${item.freelancerId} on "${item.title}" has no license`)),
-  ]);
-
-  res.json({
-    red,
-    amber,
-    yellow,
-    green: red.length === 0 && amber.length === 0 && yellow.length === 0,
-    counts: { red: red.length, amber: amber.length, yellow: yellow.length },
+  const result = await payroll.exportBatch({
+    workspaceId,
+    shootId,
+    format,
+    createdBy: userId,
   });
-});
+  res.json({
+    data: result.batch,
+    filename: result.filename,
+    contentType: result.contentType,
+    body: result.body,
+    message: 'Payroll batch exported',
+  });
+}));
 
 module.exports = router;

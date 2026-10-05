@@ -1,6 +1,7 @@
 const { Server } = require('socket.io');
 const { verifyAuthToken } = require('../middleware/auth');
 const { createMessage, getConversationOr403 } = require('../messagesService');
+const { getMemberRole } = require('../services/workspace');
 
 function getSocketUser(socket) {
   const raw = socket.data?.user;
@@ -40,6 +41,25 @@ function initSocket(httpServer) {
     }
 
     socket.join(`user:${user.id}`);
+
+    socket.on('join-workspace', async (payload, ack) => {
+      try {
+        const workspaceId = payload?.workspaceId;
+        if (!workspaceId) {
+          if (ack) ack({ ok: false, message: 'workspaceId is required' });
+          return;
+        }
+        const role = await getMemberRole(workspaceId, user.id);
+        if (!role) {
+          if (ack) ack({ ok: false, message: 'Not a workspace member' });
+          return;
+        }
+        socket.join(`workspace:${workspaceId}`);
+        if (ack) ack({ ok: true });
+      } catch (err) {
+        if (ack) ack({ ok: false, message: err.message || 'Failed to join workspace' });
+      }
+    });
 
     socket.on('join-conversation', async (payload, ack) => {
       try {

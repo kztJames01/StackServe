@@ -6,5 +6,5 @@ test('api health check', async ({ request }) => {
 
   const body = await res.json();
   expect(body.ok).toBe(true);
-  expect(body.service).toBe('makerspace-api');
+  expect(body.service).toBe('synthpass-api');
 });

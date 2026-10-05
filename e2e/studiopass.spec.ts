@@ -14,14 +14,37 @@ test('book shoot then sign a license', async ({ page, context }) => {
     const pathname = url.pathname;
     const method = route.request().method();
 
-    if (pathname === '/api/projects' && method === 'GET') return route.fulfill({ json: projects });
-    if (pathname === '/api/projects' && method === 'POST') {
+    if (pathname === '/api/v1/workspaces' && method === 'GET') {
+      return route.fulfill({ json: [{
+        id: 'workspace-test',
+        name: 'Test Agency',
+        description: '',
+        owner_id: 'current-user',
+        member_role: 'admin',
+        created_at: new Date().toISOString(),
+      }] });
+    }
+    if (pathname === '/api/v1/workspaces/workspace-test/roster' && method === 'GET') {
+      return route.fulfill({ json: [{
+        user_id: '1',
+        role: 'performer',
+        joined_at: new Date().toISOString(),
+        email: 'alex@example.com',
+        name: 'Alex Johnson',
+        handle: 'alex',
+        avatar: null,
+      }] });
+    }
+    if (pathname === '/api/v1/workspaces/workspace-test/shoots' && method === 'GET') return route.fulfill({ json: projects });
+    if (pathname === '/api/v1/workspaces/workspace-test/shoots' && method === 'POST') {
       const body = route.request().postDataJSON();
       const project = { id: 999, slug: 'test-shoot-999', status: 'active', ...body };
       projects.push(project);
       return route.fulfill({ status: 201, json: { data: project, message: 'Project created' } });
     }
-    if (pathname === '/api/projects/999' && method === 'GET') return route.fulfill({ json: projects[0] });
+    if (pathname === '/api/v1/workspaces/workspace-test/shoots/999' && method === 'GET') {
+      return route.fulfill({ json: projects[0] });
+    }
     if (pathname === '/api/availability' && method === 'POST') {
       const body = route.request().postDataJSON();
       holds.push(body);
@@ -36,7 +59,7 @@ test('book shoot then sign a license', async ({ page, context }) => {
       const body = route.request().postDataJSON();
       const license = {
         id: 'lic-1',
-        workspace_id: 'current-user',
+        workspace_id: 'workspace-test',
         shoot_id: body.shootId,
         freelancer_id: body.freelancerId,
         media_ref: body.mediaRef || 'untagged',
@@ -92,15 +115,15 @@ test('book shoot then sign a license', async ({ page, context }) => {
   await expect.poll(() => holds.length).toBe(1);
   expect(holds[0]).toMatchObject({ freelancerId: '1', status: 'hold', shootId: '999' });
 
-  // open the shoot and create a license draft
+  // open the shoot and create a clearance draft
   // the app clears the fake auth cookie once firebase resolves to signed-out,
   // so re-add it before navigating (goto, not link click, same reason)
   await context.addCookies([{ name: 'auth_token', value: 'ui-test-only', url: 'http://localhost:3000' }]);
   await page.goto('/projects/999');
-  await page.getByRole('button', { name: 'New License' }).click();
-  await page.getByPlaceholder('e.g. hero-shot-01').fill('hero-01');
+  await page.getByRole('button', { name: 'New Clearance' }).click();
+  await page.getByPlaceholder('Asset ID or B2 storage key').fill('hero-01');
   await page.locator('input[type=date]').first().fill('2026-10-10');
-  await page.getByRole('button', { name: 'Create Draft' }).click();
+  await page.getByRole('button', { name: 'Create Clearance Draft' }).click();
   await expect(page.getByText('hero-01')).toBeVisible();
 
   // backend only signs licenses that were sent first

@@ -13,6 +13,7 @@ const { initRateLimiters, apiRateLimit } = require('./middleware/rateLimit');
 const arcjetMiddleware = require('./middleware/arcjet');
 const { initSocket } = require('./realtime/socket');
 const { billingRouter, billingWebhookHandler } = require('./routes/billing');
+const { paypalRouter, paypalWebhookHandler } = require('./routes/paypal');
 const storageRoutes = require('./routes/storage');
 
 const app = express();
@@ -25,6 +26,7 @@ app.use(cors({
 }));
 
 app.post('/api/billing/webhook', express.raw({ type: 'application/json' }), billingWebhookHandler);
+app.post('/api/paypal/webhook', express.raw({ type: 'application/json' }), paypalWebhookHandler);
 app.use(express.json());
 
 app.use(arcjetMiddleware);
@@ -35,21 +37,18 @@ app.get('/api/health', (_req, res) => {
   const { getAuthMode } = require('./middleware/auth');
   res.json({
     ok: true,
-    service: 'makerspace-api',
+    service: 'synthpass-api',
     database: 'postgres',
     auth: getAuthMode(),
   });
 });
 
-app.use('/api', require('./routes/feed'));
 app.use('/api', require('./routes/profile'));
 app.use('/api', require('./routes/projects'));
 app.use('/api', require('./routes/tasks'));
-app.use('/api', require('./routes/teams'));
 app.use('/api', require('./routes/messages'));
 app.use('/api', require('./routes/notifications'));
-app.use('/api', require('./routes/recruit'));
-app.use('/api', require('./routes/investors'));
+app.use('/api', require('./routes/auth'));
 app.use('/api', require('./routes/users'));
 app.use('/api', require('./routes/verification'));
 app.use('/api', require('./routes/history'));
@@ -57,7 +56,12 @@ app.use('/api', require('./routes/availability'));
 app.use('/api', require('./routes/licenses').licensesRouter);
 app.use('/api', require('./routes/compliance'));
 app.use('/api', billingRouter);
+app.use('/api', paypalRouter);
 app.use('/api', storageRoutes);
+app.use('/api', require('./routes/workspaces'));
+app.use('/api', require('./routes/media'));
+app.use('/api', require('./routes/contracts'));
+app.use('/api', require('./routes/provenance'));
 
 app.use(errorHandler);
 
@@ -70,11 +74,11 @@ async function startServer() {
   app.set('io', io);
 
   httpServer.listen(port, host, () => {
-    console.log(`makerspace-api running on http://${host}:${port}`);
+    console.log(`synthpass-api running on http://${host}:${port}`);
   });
 }
 
 startServer().catch((error) => {
-  console.error('Failed to start makerspace-api', error);
+  console.error('Failed to start synthpass-api', error);
   process.exit(1);
 });
