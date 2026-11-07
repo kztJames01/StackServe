@@ -16,12 +16,12 @@
     "request": {
       "type": "object", "additionalProperties": false,
       "required": ["schema_version", "request_id", "operation", "query", "filters", "limit", "corpus_version"],
-      "properties": {"schema_version": {"const": 1}, "request_id": {"type": "string", "minLength": 1, "maxLength": 64}, "operation": {"const": "search"}, "query": {"type": "string", "maxLength": 4096}, "filters": {"$ref": "#/$defs/filters"}, "limit": {"type": "integer", "minimum": 1, "maximum": 8}, "corpus_version": {"const": "sprint1-placeholder"}}
+      "properties": {"schema_version": {"const": 1}, "request_id": {"type": "string", "minLength": 1, "maxLength": 64}, "operation": {"const": "search"}, "query": {"type": "string", "maxLength": 4096}, "filters": {"$ref": "#/$defs/filters"}, "limit": {"type": "integer", "minimum": 1, "maximum": 8}, "corpus_version": {"const": "none"}}
     },
     "response": {
       "type": "object", "additionalProperties": false,
       "required": ["schema_version", "request_id", "corpus_version", "status", "retrieval_mode", "chunks", "error"],
-      "properties": {"schema_version": {"const": 1}, "request_id": {"type": "string", "minLength": 1, "maxLength": 64}, "corpus_version": {"const": "sprint1-placeholder"}, "status": {"enum": ["ok", "unavailable", "error"]}, "retrieval_mode": {"enum": ["lexical", "hybrid", "none"]}, "chunks": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/chunk"}}, "error": {"type": ["string", "null"]}}
+      "properties": {"schema_version": {"const": 1}, "request_id": {"type": "string", "minLength": 1, "maxLength": 64}, "corpus_version": {"const": "none"}, "status": {"enum": ["ok", "unavailable", "error"]}, "retrieval_mode": {"enum": ["lexical", "hybrid", "none"]}, "chunks": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/chunk"}}, "error": {"type": ["string", "null"]}}
     }
   }
 }

@@ -19,7 +19,7 @@ class Request(StrictModel):
     query: str = Field(max_length=4096)
     filters: Filters
     limit: int = Field(ge=1, le=8)
-    corpus_version: Literal["sprint1-placeholder"]
+    corpus_version: Literal["none"]
 
 
 class Chunk(StrictModel):
@@ -33,7 +33,7 @@ class Chunk(StrictModel):
 class Response(StrictModel):
     schema_version: Literal[1]
     request_id: str = Field(min_length=1, max_length=64)
-    corpus_version: Literal["sprint1-placeholder"]
+    corpus_version: Literal["none"]
     status: Literal["ok", "unavailable", "error"]
     retrieval_mode: Literal["lexical", "hybrid", "none"]
     chunks: list[Chunk] = Field(max_length=8)
