@@ -10,8 +10,8 @@ env:
   RUSTFLAGS: -Dwarnings
 
 jobs:
-  test:
-    name: test (${{ matrix.os }})
+  rust:
+    name: rust (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -30,10 +30,25 @@ jobs:
       - name: test
         run: cargo test --all-features --workspace
 
+  python:
+    name: python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: sync
+        run: uv sync --locked
+        working-directory: python/stackfit_rag
+      - name: ruff
+        run: uv run ruff check . && uv run ruff format --check .
+        working-directory: python/stackfit_rag
+      - name: pytest
+        run: uv run pytest
+        working-directory: python/stackfit_rag
+
   deny:
     name: cargo-deny
     runs-on: ubuntu-latest
-    # Optional supply-chain gate; allow failure until deny.toml is tuned.
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
