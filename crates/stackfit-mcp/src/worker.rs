@@ -125,7 +125,7 @@ mod tests {
         use std::os::unix::fs::PermissionsExt;
 
         let script = std::env::temp_dir().join(format!("stackfit-{suffix}-{}", std::process::id()));
-        std::fs::write(&script, "#!/bin/sh\nexec sleep 5\n").unwrap();
+        std::fs::write(&script, "#!/bin/sh\nexec sleep 30\n").unwrap();
         std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o700)).unwrap();
         script
     }
