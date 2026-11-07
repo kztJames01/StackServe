@@ -4,7 +4,7 @@ mod worker;
 
 use std::{path::PathBuf, sync::Arc};
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use rmcp::{
     ServerHandler, ServiceExt,
@@ -15,7 +15,11 @@ use rmcp::{
 };
 use schemars::JsonSchema;
 use serde::Deserialize;
-use stackfit_core::protocol::{CORPUS_VERSION, Filters, SCHEMA_VERSION, WorkerRequest};
+use serde_json::Value;
+use stackfit_core::{
+    profile,
+    protocol::{CORPUS_VERSION, Filters, SCHEMA_VERSION, WorkerRequest},
+};
 use worker::Worker;
 
 #[derive(Parser)]
@@ -29,7 +33,13 @@ struct Args {
 #[derive(Subcommand)]
 enum Command {
     Serve,
+    Profile { file: PathBuf },
     Search { query: String },
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+struct ProfileParams {
+    brief: Value,
 }
 
 #[derive(Debug, Deserialize, JsonSchema)]
@@ -44,6 +54,22 @@ struct Server {
 
 #[tool_router]
 impl Server {
+    #[tool(
+        description = "Profile a brief and selected project files; returns labeled facts and open questions"
+    )]
+    fn profile_project(&self, Parameters(params): Parameters<ProfileParams>) -> String {
+        let input = match serde_json::to_vec(&params.brief) {
+            Ok(input) => input,
+            Err(error) => return format!("invalid brief: {error}"),
+        };
+        match profile::profile(&input)
+            .and_then(|result| serde_json::to_vec(&result).map_err(profile::ProfileError::from))
+        {
+            Ok(output) => String::from_utf8_lossy(&output).into_owned(),
+            Err(error) => format!("profile unavailable: {error}"),
+        }
+    }
+
     #[tool(
         description = "Check the pinned provider corpus for evidence; unavailable until corpus ingestion is complete"
     )]
@@ -83,6 +109,11 @@ async fn main() -> Result<()> {
         .unwrap_or_else(|| root.join("python/stackfit_rag/.venv/bin/python"));
     let worker = Arc::new(Worker::new(python, root.join("python/stackfit_rag")));
     match args.command {
+        Command::Profile { file } => {
+            let input = std::fs::read(file).context("reading brief")?;
+            let result = profile::profile(&input)?;
+            println!("{}", serde_json::to_string_pretty(&result)?);
+        }
         Command::Search { query } => {
             let request = WorkerRequest {
                 schema_version: SCHEMA_VERSION,
