@@ -1,0 +1,77 @@
+# Rust
+/target/
+**/target/
+**/*.rs.bk
+Cargo.lock.bak
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+uv.lock.bak
+.pytest_cache/
+.ruff_cache/
+
+# Retrieval / model artifacts
+models/
+*.onnx
+*.safetensors
+*.bin
+*.pt
+*.gguf
+*.index
+*.sqlite
+*.db
+index/
+corpus-cache/
+
+# Captures & secrets — NEVER commit real traffic or certs
+/captures/
+**/*.capture.jsonl
+certs/
+**/*.pem
+**/*.key
+**/*.pfx
+**/*.crt
+**/*.p12
+
+# Cloud creds
+.env
+.env.*
+!.env.example
+*.publishsettings
+azureProfile.json
+accessTokens.json
+service_principal.json
+**/credentials.json
+
+# Terraform
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/*.tfvars
+**/*.tfvars.json
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+!.vscode/extensions.json
+.cursor/rules/
+.claude/
+CLAUDE.md
+docs/*
+
+# Misc
+*.log
+tmp/
+.cache/
