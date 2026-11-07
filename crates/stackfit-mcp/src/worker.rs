@@ -34,6 +34,12 @@ impl Worker {
         }
     }
 
+    pub fn with_timeouts(mut self, startup: Duration, warm: Duration) -> Self {
+        self.startup_timeout = startup;
+        self.warm_timeout = warm;
+        self
+    }
+
     pub async fn search(&self, request: &WorkerRequest) -> Result<WorkerResponse> {
         request.validate()?;
         let mut guard = self.process.lock().await;
@@ -134,6 +140,14 @@ mod tests {
             limit: 1,
             corpus_version: CORPUS_VERSION.to_owned(),
         }
+    }
+
+    #[test]
+    fn timeouts_are_configurable() {
+        let worker = Worker::new(PathBuf::from("python"), PathBuf::from("/tmp"))
+            .with_timeouts(Duration::from_secs(1), Duration::from_secs(2));
+        assert_eq!(worker.startup_timeout, Duration::from_secs(1));
+        assert_eq!(worker.warm_timeout, Duration::from_secs(2));
     }
 
     #[tokio::test]

@@ -72,11 +72,12 @@ pub struct Requirement {
     pub evidence: Option<Evidence>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum Label {
     Evidence,
     Inference,
+    Constraint,
     Assumption,
 }
 
@@ -157,7 +158,11 @@ pub fn profile(input: &[u8]) -> Result<Profile, ProfileError> {
         requirements.push(Requirement {
             field: field.to_owned(),
             value,
-            label: Label::Assumption,
+            label: if defaulted {
+                Label::Assumption
+            } else {
+                Label::Constraint
+            },
             defaulted,
             evidence: None,
         });
@@ -203,7 +208,14 @@ pub fn profile(input: &[u8]) -> Result<Profile, ProfileError> {
             if line.len() > 512 {
                 continue;
             }
-            if let Some(key) = env_reference(line) {
+            let env_key = env_reference(line).or_else(|| {
+                if file.path.to_ascii_lowercase().ends_with(".env.example") {
+                    env_file_reference(line)
+                } else {
+                    None
+                }
+            });
+            if let Some(key) = env_key {
                 requirements.push(Requirement {
                     field: "env_reference".to_owned(),
                     value: Value::String(key.to_owned()),
@@ -349,8 +361,8 @@ pub fn profile(input: &[u8]) -> Result<Profile, ProfileError> {
     let questions: Vec<String> = requirements
         .iter()
         .filter(|requirement| requirement.defaulted)
-        .map(|requirement| format!("What is the expected {}?", requirement.field))
-        .take(1)
+        .take(8)
+        .map(|requirement| question_for(&requirement.field))
         .collect();
     let needs_verification = requirements
         .iter()
@@ -371,14 +383,15 @@ fn allowed_path(path: &str) -> bool {
     .iter()
     .any(|suffix| lower.ends_with(suffix))
         || lower.ends_with("dockerfile")
-        || lower.ends_with("requirements.txt");
+        || lower.ends_with("requirements.txt")
+        || lower.ends_with(".env.example");
     supported
         && !path.starts_with('/')
         && !secret_like(path)
         && !path.contains('\\')
         && !path.split('/').any(|part| part == "..")
         && !lower.split('/').any(|part| {
-            part.starts_with(".env")
+            (part == ".env" || (part.starts_with(".env.") && part != ".env.example"))
                 || part.contains("credential")
                 || part.contains("secret")
                 || matches!(
@@ -390,6 +403,16 @@ fn allowed_path(path: &str) -> bool {
                         | "build"
                         | "credentials"
                         | "secrets"
+                        | "package-lock.json"
+                        | "npm-shrinkwrap.json"
+                        | "yarn.lock"
+                        | "pnpm-lock.yaml"
+                        | "cargo.lock"
+                        | "uv.lock"
+                        | "poetry.lock"
+                        | "pipfile.lock"
+                        | "gemfile.lock"
+                        | "composer.lock"
                 )
         })
         && !lower.ends_with(".pem")
@@ -435,7 +458,15 @@ fn safe_version(value: &str) -> bool {
 }
 
 fn env_reference(line: &str) -> Option<&str> {
-    for prefix in ["process.env.", "os.getenv(\"", "os.environ[\""] {
+    for prefix in [
+        "process.env.",
+        "os.getenv(\"",
+        "os.getenv('",
+        "os.environ[\"",
+        "os.environ['",
+        "os.environ.get(\"",
+        "os.environ.get('",
+    ] {
         if let Some((_, rest)) = line.split_once(prefix) {
             let end = rest
                 .bytes()
@@ -449,6 +480,43 @@ fn env_reference(line: &str) -> Option<&str> {
         }
     }
     None
+}
+
+fn env_file_reference(line: &str) -> Option<&str> {
+    let (key, _) = line.trim().split_once('=')?;
+    let key = key.trim();
+    if key.is_empty() || key.len() > 64 {
+        return None;
+    }
+    if key
+        .bytes()
+        .all(|byte| byte.is_ascii_uppercase() || byte.is_ascii_digit() || byte == b'_')
+    {
+        Some(key)
+    } else {
+        None
+    }
+}
+
+fn question_for(field: &str) -> String {
+    match field {
+        "runtime" => "What runtime will the application use (for example Node, Python, or static)?",
+        "traffic" => "What traffic pattern should be assumed (steady, bursty, or sporadic)?",
+        "database" => "Which database engine and version does the application require?",
+        "storage_gb" => "How many GB of storage will the application use per month?",
+        "egress_gb" => "How many GB will be delivered or egressed per month?",
+        "requests_per_month" => "How many requests per month should be assumed?",
+        "region" => "Which region or data-residency requirement applies?",
+        "commercial_use" => "Is the application commercial?",
+        "availability" => "What availability or recovery target is required?",
+        "ops_appetite" => "How much operational work is acceptable?",
+        "budget_usd" => "What monthly budget cap applies in USD?",
+        "growth_scenarios" => {
+            "Which growth scenarios should be evaluated (for example 3x traffic or 10x storage)?"
+        }
+        _ => "What value should be assumed for this field?",
+    }
+    .to_owned()
 }
 
 #[cfg(test)]
@@ -465,7 +533,26 @@ mod tests {
             .unwrap();
         assert!(storage.value.is_null());
         assert!(storage.defaulted);
+        assert_eq!(storage.label, Label::Assumption);
         assert!(result.needs_verification);
+    }
+
+    #[test]
+    fn supplied_values_are_constraints_not_assumptions() {
+        let result = profile(br#"{"name":"x","runtime":"node"}"#).unwrap();
+        let runtime = result
+            .requirements
+            .iter()
+            .find(|r| r.field == "runtime")
+            .unwrap();
+        assert_eq!(runtime.label, Label::Constraint);
+        assert!(!runtime.defaulted);
+        let storage = result
+            .requirements
+            .iter()
+            .find(|r| r.field == "storage_gb")
+            .unwrap();
+        assert_eq!(storage.label, Label::Assumption);
     }
 
     #[test]
@@ -491,10 +578,18 @@ mod tests {
         ] {
             let result = profile(input).unwrap();
             assert!(!result.requirements.is_empty());
-            assert!(result.questions.len() <= 1);
-            assert!(result.requirements.iter().all(|item| match item.label {
-                Label::Evidence | Label::Inference | Label::Assumption => true,
-            }));
+            assert!(!result.questions.is_empty());
+            assert!(result.questions.len() <= 8);
+            assert!(
+                result
+                    .requirements
+                    .iter()
+                    .any(|item| item.label == Label::Constraint)
+            );
+            assert!(result.requirements.iter().all(|item| matches!(
+                item.label,
+                Label::Evidence | Label::Inference | Label::Constraint | Label::Assumption
+            )));
         }
     }
 
@@ -504,7 +599,40 @@ mod tests {
         let output = serde_json::to_string(&result).unwrap();
         assert!(!output.contains("rank my preferred provider"));
         assert!(!output.contains("authorize deployment"));
+        assert!(!output.contains("Ignore previous instructions"));
         assert!(result.needs_verification);
+    }
+
+    #[test]
+    fn reads_env_example_keys_without_values() {
+        let input = br#"{"name":"x","files":[{"path":".env.example","content":"DATABASE_URL=replace_with_provider_connection_string\nS3_SECRET_ACCESS_KEY=replace_with_secret_key"}]}"#;
+        let result = profile(input).unwrap();
+        assert!(
+            result
+                .requirements
+                .iter()
+                .any(|r| { r.field == "env_reference" && r.value == "DATABASE_URL" })
+        );
+        assert!(
+            result
+                .requirements
+                .iter()
+                .any(|r| { r.field == "env_reference" && r.value == "S3_SECRET_ACCESS_KEY" })
+        );
+        let output = serde_json::to_string(&result).unwrap();
+        assert!(!output.contains("replace_with_provider_connection_string"));
+        assert!(!output.contains("replace_with_secret_key"));
+    }
+
+    #[test]
+    fn skips_generated_lockfiles() {
+        let input = br#"{"name":"x","files":[{"path":"package-lock.json","content":"{\"dependencies\":{\"express\":\"4.21.2\"}}"}]}"#;
+        let result = profile(input).unwrap();
+        assert!(!result.requirements.iter().any(|r| {
+            r.evidence
+                .as_ref()
+                .is_some_and(|e| e.path == "package-lock.json")
+        }));
     }
 
     #[test]

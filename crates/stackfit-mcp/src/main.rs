@@ -2,7 +2,7 @@
 
 mod worker;
 
-use std::{path::PathBuf, sync::Arc};
+use std::{path::PathBuf, sync::Arc, time::Duration};
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
@@ -26,8 +26,22 @@ use worker::Worker;
 struct Args {
     #[command(subcommand)]
     command: Command,
-    #[arg(long, env = "STACKFIT_PYTHON")]
+    #[arg(long, global = true, env = "STACKFIT_PYTHON")]
     python: Option<PathBuf>,
+    #[arg(
+        long,
+        global = true,
+        env = "STACKFIT_WORKER_STARTUP_TIMEOUT_SECS",
+        default_value_t = 60
+    )]
+    worker_startup_timeout_secs: u64,
+    #[arg(
+        long,
+        global = true,
+        env = "STACKFIT_WORKER_WARM_TIMEOUT_SECS",
+        default_value_t = 10
+    )]
+    worker_warm_timeout_secs: u64,
 }
 
 #[derive(Subcommand)]
@@ -107,7 +121,12 @@ async fn main() -> Result<()> {
     let python = args
         .python
         .unwrap_or_else(|| root.join("python/stackfit_rag/.venv/bin/python"));
-    let worker = Arc::new(Worker::new(python, root.join("python/stackfit_rag")));
+    let worker = Arc::new(
+        Worker::new(python, root.join("python/stackfit_rag")).with_timeouts(
+            Duration::from_secs(args.worker_startup_timeout_secs),
+            Duration::from_secs(args.worker_warm_timeout_secs),
+        ),
+    );
     match args.command {
         Command::Profile { file } => {
             let input = std::fs::read(file).context("reading brief")?;

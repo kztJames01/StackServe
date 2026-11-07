@@ -13,7 +13,7 @@
         "properties": {
           "field": {"type": "string"},
           "value": {},
-          "label": {"enum": ["evidence", "inference", "assumption"]},
+          "label": {"enum": ["evidence", "inference", "constraint", "assumption"]},
           "defaulted": {"type": "boolean"},
           "evidence": {
             "oneOf": [
@@ -30,7 +30,7 @@
         }
       }
     },
-    "questions": {"type": "array", "maxItems": 1, "items": {"type": "string"}},
+    "questions": {"type": "array", "maxItems": 8, "items": {"type": "string"}},
     "needs_verification": {"type": "boolean"}
   }
 }
