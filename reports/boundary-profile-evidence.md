@@ -1,4 +1,4 @@
-# Sprint 1 evidence — 7 Nov 2026
+# Boundary and profile verification — 7 Nov 2026
 
 ## Local checks
 
@@ -12,8 +12,8 @@
 
 Command target: local `stackfit-mcp serve` binary, stdio transport. Inspector `initialize` returned `serverInfo.name=stackfit-mcp`, `serverInfo.version=0.1.0`, protocol `2025-11-25`, and tools capability. Inspector `tools/call` for `profile_project` returned a labeled profile. Inspector `tools/call` for `search_provider_docs` reached the Python worker and returned `status=unavailable`, `retrieval_mode=none`, and `error=corpus_not_available`.
 
-The official provider corpus is a Sprint 2 dependency. Sprint 1 cannot truthfully produce a provider citation through the worker yet; the cited project facts come from selected file paths and line numbers in `profile_project`.
+The official provider corpus has not been curated yet. The worker cannot truthfully produce a provider citation; the cited project facts come from selected file paths and line numbers in `profile_project`.
 
 ## External gate
 
-CI jobs are defined in `.github/workflows/ci.yml`. Their remote execution and the branch protection setting have not yet been verified here.
+CI jobs are defined in `.github/workflows/ci.yml`. The feature branch is published, but no pull request has started those checks; branch protection has not been verified.

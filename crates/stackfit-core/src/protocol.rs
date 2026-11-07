@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 pub const SCHEMA_VERSION: u8 = 1;
-pub const CORPUS_VERSION: &str = "sprint1-placeholder";
+pub const CORPUS_VERSION: &str = "none";
 pub const MAX_LINE_BYTES: usize = 65_536;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
