@@ -49,14 +49,17 @@ jobs:
   contract:
     name: shared protocol contract
     runs-on: ubuntu-latest
+    env:
+      STACKFIT_PROFILE_BIN: ${{ github.workspace }}/target/debug/stackfit-mcp
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@1.94.0
       - uses: astral-sh/setup-uv@v5
       - run: cargo test -p stackfit-core protocol::tests::shared_fixture --locked
+      - run: cargo build -p stackfit-mcp --locked
       - run: uv sync --locked
         working-directory: python/stackfit_rag
-      - run: uv run pytest tests/test_protocol.py
+      - run: uv run pytest tests/test_protocol.py tests/test_profile_schema.py
         working-directory: python/stackfit_rag
 
   deny:
