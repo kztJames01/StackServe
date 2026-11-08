@@ -136,6 +136,7 @@ mod tests {
             request_id: "test".to_owned(),
             operation: "search".to_owned(),
             query: "test".to_owned(),
+            follow_up_query: None,
             filters: Filters::default(),
             limit: 1,
             corpus_version: CORPUS_VERSION.to_owned(),
