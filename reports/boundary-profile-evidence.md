@@ -6,13 +6,13 @@
 - `uv sync --locked`, `uv run ruff check .`, `uv run ruff format --check .`, and `uv run pytest` run in `python/stackfit_rag` with Python 3.12.7.
 - The Rust and Python protocol tests parse the same `fixtures/protocol/request.jsonl` and `response.jsonl`.
 - Both frozen briefs pass the Rust profile test and validate against `schemas/profile-output.schema.json` in the cross-language contract check. Missing usage remains `null` with `defaulted: true` and an `assumption` label; brief-supplied values are `constraint`; file observations and inferences keep their own labels. The adversarial brief is treated as data, and its source excerpt is scanned without leaking the instruction text.
-- Worker tests cover crash, startup timeout, and cancellation. Cancellation drops the owned child process through Tokio's `kill_on_drop` path.
+- Worker tests cover crash, startup timeout, and cancellation. The cancellation test waits for a fixture-written PID marker, aborts the in-flight search, and verifies the child PID is gone; it no longer relies on a fixed sleep to infer that the worker is still running.
 
 ## MCP Inspector CLI 2.13.0
 
 Command target: local `stackfit-mcp serve` binary, stdio transport. Inspector `initialize` returned `serverInfo.name=stackfit-mcp`, `serverInfo.version=0.1.0`, protocol `2025-11-25`, and tools capability. Inspector `tools/call` for `profile_project` returned a labeled profile. Inspector `tools/call` for `search_provider_docs` reached the Python worker and returned `status=unavailable`, `retrieval_mode=none`, and `error=corpus_not_available`.
 
-The official provider corpus has not been curated yet. The worker cannot truthfully produce a provider citation; the cited project facts come from selected file paths and line numbers in `profile_project`.
+This transcript predates the Sprint 2 corpus. At that point the worker could not truthfully produce a provider citation, and the cited project facts came from selected file paths and line numbers in `profile_project`. Sprint 2 now ships the curated corpus; current retrieval evidence is in `reports/retrieval-evidence.md`. A post-corpus Inspector transcript is not recorded here.
 
 ## Review fixes (7 Nov 2026)
 
@@ -27,7 +27,7 @@ The official provider corpus has not been curated yet. The worker cannot truthfu
 
 - Profile and boundary stories are implemented and locally verified.
 - Remote CI and branch protection remain open: the feature branch was pushed, but no PR has run remote CI.
-- The cited-worker exit condition is not met because retrieval is intentionally unavailable until the corpus exists.
+- The cited-worker exit condition is now met locally by `search_provider_docs` against the Sprint 2 corpus; the pre-corpus Inspector transcript above is not evidence for it.
 
 ## External gate
 

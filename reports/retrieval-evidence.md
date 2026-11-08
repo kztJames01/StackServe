@@ -29,9 +29,8 @@ bundles, cloud resources, publishing or release status changed.
 - `uv sync --locked --offline`: passed using the populated temporary uv cache.
 - `uv sync --locked --extra vector --offline`: passed using that same cache.
 - Ruff check and format check: passed.
-- Python pytest with `STACKFIT_PROFILE_BIN` set: 30 passed, no skips in the base
-  environment. The earlier vector-environment run passed all 29 tests present
-  before the final credential-redaction regression test was added.
+- Python pytest with `STACKFIT_PROFILE_BIN` set: 34 passed. Without the binary,
+  the three contract tests skip.
 - MCP stdio integration: initialize with protocol `2025-11-25`, tools/list,
   schema-validated search arguments, two repeated tools/call requests using
   provider filtering, follow-up and limit=2, then clean EOF shutdown. Exercised
@@ -45,6 +44,19 @@ bundles, cloud resources, publishing or release status changed.
 - Original source headings and summary attribution inspected against cached
   official Markdown. Model SHA-256 matches the pinned upstream ONNX LFS digest.
 - `git diff --check`: passed. Model, index and raw source cache remain ignored.
+
+## Review follow-up (7 Nov 2026)
+
+- The worker cancellation test now synchronizes on a fixture-written PID marker
+  and verifies the child exits after abort. It no longer uses a 100 ms sleep to
+  infer that the search is still running.
+- Added unit coverage for the hybrid fusion branch, cosine ordering with a fake
+  model (no ONNX), chunk attribution/freshness, and date-based eval report paths.
+- `cargo test --all-features --workspace`: 16 passed. Python pytest with
+  `STACKFIT_PROFILE_BIN`: 34 passed.
+- The real ONNX hybrid evaluation remains local-only: `models/` and `index/` are
+  ignored, and CI installs the base environment. The evaluation is a local
+  measurement, not a CI gate.
 
 ## Counterexamples and limits
 
