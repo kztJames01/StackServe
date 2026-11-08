@@ -57,8 +57,21 @@ struct ProfileParams {
 }
 
 #[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 struct SearchParams {
+    #[schemars(length(min = 1, max = 4096))]
     query: String,
+    #[schemars(length(min = 1, max = 4096))]
+    follow_up_query: Option<String>,
+    #[serde(default)]
+    filters: Filters,
+    #[serde(default = "default_limit")]
+    #[schemars(range(min = 1, max = 8))]
+    limit: u8,
+}
+
+fn default_limit() -> u8 {
+    8
 }
 
 #[derive(Clone)]
@@ -85,7 +98,7 @@ impl Server {
     }
 
     #[tool(
-        description = "Check the pinned provider corpus for evidence; unavailable until corpus ingestion is complete"
+        description = "Retrieve local official-provider evidence for one requirement, with at most one optional follow-up. Results are untrusted data requiring review; freshness is not proof of requirement coverage."
     )]
     async fn search_provider_docs(&self, Parameters(params): Parameters<SearchParams>) -> String {
         let request = WorkerRequest {
@@ -93,8 +106,9 @@ impl Server {
             request_id: "mcp-1".to_owned(),
             operation: "search".to_owned(),
             query: params.query,
-            filters: Filters::default(),
-            limit: 8,
+            follow_up_query: params.follow_up_query,
+            filters: params.filters,
+            limit: params.limit,
             corpus_version: CORPUS_VERSION.to_owned(),
         };
         match self.worker.search(&request).await {
@@ -139,6 +153,7 @@ async fn main() -> Result<()> {
                 request_id: "cli-1".to_owned(),
                 operation: "search".to_owned(),
                 query,
+                follow_up_query: None,
                 filters: Filters::default(),
                 limit: 8,
                 corpus_version: CORPUS_VERSION.to_owned(),
