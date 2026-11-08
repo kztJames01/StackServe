@@ -5,6 +5,7 @@ import pytest
 
 from stackfit_rag.corpus import IntegrityError, digest, load_corpus, with_freshness
 from stackfit_rag.embeddings import VectorSearch, metadata, validate_vectors
+from stackfit_rag.evaluate import report_path
 from stackfit_rag.protocol import Filters, Request
 from stackfit_rag.retrieval import Retriever, bm25, rrf
 from stackfit_rag.worker import Worker, sanitize
@@ -72,6 +73,66 @@ def test_filters_followup_and_fallback(tmp_path):
 
 def test_rrf_deterministic_and_deduplicated():
     assert rrf([["b", "a"], ["a", "b"]]) == ["a", "b"]
+
+
+def test_hybrid_fusion_is_used_when_vectors_are_available():
+    sections, _ = load_corpus()
+
+    class FakeVectors:
+        def rank(self, query, candidates):
+            assert query
+            return [section.id for section in reversed(candidates)], None
+
+    response = Retriever(sections, FakeVectors()).search(
+        request(query="Render PORT", filters=Filters(provider="render"), limit=3), TODAY
+    )
+    assert response.retrieval_mode == "hybrid"
+    assert response.chunks
+    assert len(response.chunks) <= 3
+    assert len({chunk.id for chunk in response.chunks}) == len(response.chunks)
+    assert not any("vector_" in warning for warning in response.warnings)
+    assert response.needs_verification and not response.verified_ready
+
+
+def test_vector_ranking_orders_by_cosine_without_onnx(tmp_path):
+    sections, hash_ = load_corpus()
+
+    class FakeModel:
+        def encode(self, texts):
+            assert texts == ["query"]
+            return [[1.0, 0.0]]
+
+    search = VectorSearch(sections, hash_, index_path=tmp_path / "missing")
+    search.model = FakeModel()
+    search.vectors = {
+        section.id: [1.0, 0.0] if section.id == "render-web-port" else [0.0, 1.0]
+        for section in sections
+    }
+    ranked, fallback = search.rank("query", sections)
+    assert fallback is None
+    assert ranked[0] == "render-web-port"
+
+
+def test_chunks_carry_attribution_and_freshness():
+    sections, _ = load_corpus()
+    response = Retriever(sections).search(request(query="Render PORT"), TODAY)
+    assert response.chunks
+    for chunk in response.chunks:
+        assert chunk.source_url.startswith("https://")
+        assert chunk.source_fetch_url.startswith("https://")
+        assert chunk.heading and chunk.parent_context
+        assert chunk.content_hash and chunk.source_hash
+        assert chunk.freshness in {
+            "fresh",
+            "stale",
+            "unverified",
+            "superseded",
+            "invalid_date",
+        }
+
+
+def test_eval_report_path_uses_run_date():
+    assert report_path(date(2026, 11, 8)).name == "retrieval-2026-11-08.md"
 
 
 @pytest.mark.parametrize(

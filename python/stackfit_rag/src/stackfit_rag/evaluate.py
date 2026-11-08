@@ -2,6 +2,7 @@ import argparse
 import json
 import time
 from datetime import date
+from pathlib import Path
 
 from stackfit_rag.corpus import ROOT, load_corpus, read_bounded
 from stackfit_rag.embeddings import VectorSearch, model_spec
@@ -9,7 +10,12 @@ from stackfit_rag.protocol import CORPUS_VERSION, Filters, Request
 from stackfit_rag.retrieval import Retriever
 
 
-def evaluate() -> str:
+def report_path(day: date | None = None) -> Path:
+    return ROOT / "evals/reports" / f"retrieval-{(day or date.today()).isoformat()}.md"
+
+
+def evaluate(day: date | None = None) -> str:
+    day = day or date.today()
     sections, corpus_hash = load_corpus()
     labels = json.loads(read_bounded(ROOT / "evals/queries.json", 65_536))
     if len(labels) != 20 or len({row["id"] for row in labels}) != 20:
@@ -78,7 +84,7 @@ def evaluate() -> str:
     )
     unsupported = Retriever(sections, vectors).search(probe, date(2026, 11, 7))
     report = [
-        "# Retrieval evaluation — 2026-11-07",
+        f"# Retrieval evaluation — {day.isoformat()}",
         "",
         f"Corpus `{CORPUS_VERSION}`: 36 curated sections, SHA-256 `{corpus_hash}`.",
         f"Model `{spec['model_id']}` at `{spec['revision']}`, {spec['dimension']} dimensions; `{spec['index_version']}`.",
@@ -119,9 +125,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--write", action="store_true")
     args = parser.parse_args()
-    report = evaluate()
+    day = date.today()
+    report = evaluate(day)
     if args.write:
-        path = ROOT / "evals/reports/retrieval-2026-11-07.md"
+        path = report_path(day)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(report)
     print(report)
