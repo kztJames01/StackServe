@@ -7,6 +7,13 @@ dependencies = ["pydantic==2.12.5"]
 [project.scripts]
 stackfit-rag-worker = "stackfit_rag.worker:main"
 
+[project.optional-dependencies]
+vector = [
+    "numpy==2.3.4",
+    "onnxruntime==1.23.2",
+    "tokenizers==0.22.1",
+]
+
 [dependency-groups]
 dev = ["jsonschema==4.25.1", "pytest==8.4.2", "ruff==0.14.3"]
 

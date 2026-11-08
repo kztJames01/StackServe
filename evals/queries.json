@@ -1,0 +1,231 @@
+[
+  {
+    "id": "q01",
+    "kind": "exact",
+    "query": "What PORT must my Render HTTP server bind to?",
+    "relevant_ids": [
+      "render-web-port"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q02",
+    "kind": "exact",
+    "query": "How do I set NODE_VERSION on Render?",
+    "relevant_ids": [
+      "render-node-version"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q03",
+    "kind": "exact",
+    "query": "Does Neon sslmode=verify-full verify the server hostname?",
+    "relevant_ids": [
+      "neon-ssl-tls"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q04",
+    "kind": "exact",
+    "query": "R2 S3 region auto",
+    "relevant_ids": [
+      "r2-s3-region"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q05",
+    "kind": "exact",
+    "query": "Pages _headers responses from Functions",
+    "relevant_ids": [
+      "pages-headers-headers"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q06",
+    "kind": "semantic",
+    "query": "My free backend goes quiet overnight; will the first visitor wait?",
+    "relevant_ids": [
+      "render-free-sleep"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q07",
+    "kind": "semantic",
+    "query": "Can I keep uploaded photos on the application filesystem between deploys?",
+    "relevant_ids": [
+      "render-free-filesystem",
+      "render-disks-mount"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q08",
+    "kind": "semantic",
+    "query": "The browser rejects my signed upload even though authentication succeeds.",
+    "relevant_ids": [
+      "r2-cors-presigned-cors"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q09",
+    "kind": "semantic",
+    "query": "Which database connection should schema migrations use?",
+    "relevant_ids": [
+      "neon-pooling-migrations"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q10",
+    "kind": "semantic",
+    "query": "How can many short-lived database clients share server connections?",
+    "relevant_ids": [
+      "neon-pooling-pooling",
+      "neon-pooling-migrations"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q11",
+    "kind": "semantic",
+    "query": "Deploy Python with my own operating system packages in a container.",
+    "relevant_ids": [
+      "render-docker-dockerfile",
+      "render-docker-native"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q12",
+    "kind": "exact",
+    "query": "Cloudflare Pages build output directory monorepo root",
+    "relevant_ids": [
+      "pages-build-build"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q13",
+    "kind": "semantic",
+    "query": "Limit storage credentials to only the upload bucket.",
+    "relevant_ids": [
+      "r2-tokens-scope"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q14",
+    "kind": "conflicting-claim",
+    "query": "Does choosing an R2 location hint guarantee US data residency?",
+    "relevant_ids": [
+      "r2-location-hints",
+      "r2-location-jurisdiction"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q15",
+    "kind": "conflicting-claim",
+    "query": "Does Neon Free stay awake permanently with scale to zero disabled?",
+    "relevant_ids": [
+      "neon-scale-sleep"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q16",
+    "kind": "exact",
+    "query": "Render HTTP health checks response status and timeout",
+    "relevant_ids": [
+      "render-health-health"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q17",
+    "kind": "missing",
+    "query": "What is the AWS Lambda GPU price? ",
+    "relevant_ids": [],
+    "filters": {
+      "provider": "aws"
+    },
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q18",
+    "kind": "missing",
+    "query": "Does Python 99 run on Render?",
+    "relevant_ids": [],
+    "filters": {
+      "provider": "render",
+      "runtime_version": "python-99"
+    },
+    "as_of": "2026-11-07",
+    "superseded_ids": []
+  },
+  {
+    "id": "q19",
+    "kind": "stale",
+    "query": "R2 free allowance Standard storage",
+    "relevant_ids": [
+      "r2-pricing-allowance"
+    ],
+    "filters": {
+      "document_type": "pricing"
+    },
+    "as_of": "2026-11-15",
+    "superseded_ids": []
+  },
+  {
+    "id": "q20",
+    "kind": "superseded",
+    "query": "R2 S3 region auto",
+    "relevant_ids": [
+      "r2-s3-region"
+    ],
+    "filters": {},
+    "as_of": "2026-11-07",
+    "superseded_ids": [
+      "r2-s3-region"
+    ]
+  }
+]

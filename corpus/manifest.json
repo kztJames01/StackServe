@@ -1,0 +1,17 @@
+{
+  "corpus_version": "2026-11-07.1",
+  "recipes": {
+    "a": [
+      "cloudflare/pages",
+      "render/web-services:node",
+      "neon/postgresql",
+      "cloudflare/r2"
+    ],
+    "b": [
+      "render/web-services:docker-python",
+      "neon/postgresql",
+      "cloudflare/r2"
+    ]
+  },
+  "sections_sha256": "5e589df2476a7d78ffc6a3c243dc97dfd499f63f111aceebe5f0d1ca54f28ae7"
+}
