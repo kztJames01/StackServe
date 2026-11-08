@@ -8,7 +8,7 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-stackfit-core = { path = "../stackfit-core" }
+stackfit-core = { version = "0.1.0", path = "../stackfit-core" }
 anyhow = { workspace = true }
 clap = { workspace = true }
 rmcp = { workspace = true }
