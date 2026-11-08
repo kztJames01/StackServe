@@ -1,27 +1,411 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://stackfit.local/schemas/protocol.schema.json",
-  "oneOf": [{"$ref": "#/$defs/request"}, {"$ref": "#/$defs/response"}],
   "$defs": {
-    "filters": {
-      "type": "object", "additionalProperties": false,
-      "required": ["provider", "product"],
-      "properties": {"provider": {"type": ["string", "null"], "maxLength": 100}, "product": {"type": ["string", "null"], "maxLength": 100}}
+    "Chunk": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 100,
+          "minLength": 1,
+          "pattern": "^[a-z0-9-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "source_url": {
+          "maxLength": 500,
+          "title": "Source Url",
+          "type": "string"
+        },
+        "source_fetch_url": {
+          "maxLength": 500,
+          "title": "Source Fetch Url",
+          "type": "string"
+        },
+        "heading": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Heading",
+          "type": "string"
+        },
+        "parent_context": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Parent Context",
+          "type": "string"
+        },
+        "content_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "source_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Hash",
+          "type": "string"
+        },
+        "provider": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "product": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Product",
+          "type": "string"
+        },
+        "product_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Product Version",
+          "type": "string"
+        },
+        "runtime_version": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Runtime Version"
+        },
+        "regions": {
+          "items": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Regions",
+          "type": "array"
+        },
+        "document_type": {
+          "enum": [
+            "pricing",
+            "limits",
+            "setup",
+            "security",
+            "compatibility"
+          ],
+          "title": "Document Type",
+          "type": "string"
+        },
+        "fetched_at": {
+          "title": "Fetched At",
+          "type": "string"
+        },
+        "verified_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Verified At"
+        },
+        "superseded": {
+          "title": "Superseded",
+          "type": "boolean"
+        },
+        "freshness": {
+          "enum": [
+            "fresh",
+            "stale",
+            "unverified",
+            "superseded",
+            "invalid_date"
+          ],
+          "title": "Freshness",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "source_url",
+        "source_fetch_url",
+        "heading",
+        "parent_context",
+        "content_hash",
+        "source_hash",
+        "provider",
+        "product",
+        "product_version",
+        "runtime_version",
+        "regions",
+        "document_type",
+        "fetched_at",
+        "verified_at",
+        "superseded",
+        "freshness"
+      ],
+      "title": "Chunk",
+      "type": "object"
     },
-    "chunk": {
-      "type": "object", "additionalProperties": false,
-      "required": ["id", "text", "source_url", "heading", "verified_at"],
-      "properties": {"id": {"type": "string"}, "text": {"type": "string"}, "source_url": {"type": "string", "format": "uri"}, "heading": {"type": "string"}, "verified_at": {"type": "string", "format": "date"}}
+    "Filters": {
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Product"
+        },
+        "runtime_version": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Runtime Version"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "document_type": {
+          "anyOf": [
+            {
+              "enum": [
+                "pricing",
+                "limits",
+                "setup",
+                "security",
+                "compatibility"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Document Type"
+        }
+      },
+      "title": "Filters",
+      "type": "object"
     },
-    "request": {
-      "type": "object", "additionalProperties": false,
-      "required": ["schema_version", "request_id", "operation", "query", "filters", "limit", "corpus_version"],
-      "properties": {"schema_version": {"const": 1}, "request_id": {"type": "string", "minLength": 1, "maxLength": 64}, "operation": {"const": "search"}, "query": {"type": "string", "maxLength": 4096}, "filters": {"$ref": "#/$defs/filters"}, "limit": {"type": "integer", "minimum": 1, "maximum": 8}, "corpus_version": {"const": "none"}}
+    "Request": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 2,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "request_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "operation": {
+          "const": "search",
+          "title": "Operation",
+          "type": "string"
+        },
+        "query": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Query",
+          "type": "string"
+        },
+        "follow_up_query": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Follow Up Query"
+        },
+        "filters": {
+          "$ref": "#/$defs/Filters"
+        },
+        "limit": {
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "corpus_version": {
+          "const": "2026-11-07.1",
+          "title": "Corpus Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "request_id",
+        "operation",
+        "query",
+        "filters",
+        "limit",
+        "corpus_version"
+      ],
+      "title": "Request",
+      "type": "object"
     },
-    "response": {
-      "type": "object", "additionalProperties": false,
-      "required": ["schema_version", "request_id", "corpus_version", "status", "retrieval_mode", "chunks", "error"],
-      "properties": {"schema_version": {"const": 1}, "request_id": {"type": "string", "minLength": 1, "maxLength": 64}, "corpus_version": {"const": "none"}, "status": {"enum": ["ok", "unavailable", "error"]}, "retrieval_mode": {"enum": ["lexical", "hybrid", "none"]}, "chunks": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/chunk"}}, "error": {"type": ["string", "null"]}}
+    "Response": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 2,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "request_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "corpus_version": {
+          "const": "2026-11-07.1",
+          "title": "Corpus Version",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "unavailable",
+            "error"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "retrieval_mode": {
+          "enum": [
+            "lexical",
+            "hybrid",
+            "none"
+          ],
+          "title": "Retrieval Mode",
+          "type": "string"
+        },
+        "chunks": {
+          "items": {
+            "$ref": "#/$defs/Chunk"
+          },
+          "maxItems": 8,
+          "title": "Chunks",
+          "type": "array"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Error"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Warnings",
+          "type": "array"
+        },
+        "needs_verification": {
+          "const": true,
+          "default": true,
+          "title": "Needs Verification",
+          "type": "boolean"
+        },
+        "verified_ready": {
+          "const": false,
+          "default": false,
+          "title": "Verified Ready",
+          "type": "boolean"
+        },
+        "follow_up_used": {
+          "title": "Follow Up Used",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema_version",
+        "request_id",
+        "corpus_version",
+        "status",
+        "retrieval_mode",
+        "chunks",
+        "error",
+        "warnings",
+        "follow_up_used"
+      ],
+      "title": "Response",
+      "type": "object"
     }
-  }
+  },
+  "anyOf": [
+    {
+      "$ref": "#/$defs/Request"
+    },
+    {
+      "$ref": "#/$defs/Response"
+    }
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stackfit.local/schemas/protocol.schema.json"
 }

@@ -1,1 +1,1 @@
-{"schema_version":1,"request_id":"fixture-1","operation":"search","query":"health check","filters":{"provider":null,"product":null},"limit":1,"corpus_version":"none"}
+{"schema_version":2,"request_id":"fixture-1","operation":"search","query":"Render PORT binding","follow_up_query":null,"filters":{"provider":"render","product":null,"runtime_version":null,"region":null,"document_type":null},"limit":2,"corpus_version":"2026-11-07.1"}
