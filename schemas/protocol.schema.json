@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stackfit.local/schemas/protocol.schema.json",
+  "oneOf": [{"$ref": "#/$defs/request"}, {"$ref": "#/$defs/response"}],
+  "$defs": {
+    "filters": {
+      "type": "object", "additionalProperties": false,
+      "required": ["provider", "product"],
+      "properties": {"provider": {"type": ["string", "null"], "maxLength": 100}, "product": {"type": ["string", "null"], "maxLength": 100}}
+    },
+    "chunk": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "text", "source_url", "heading", "verified_at"],
+      "properties": {"id": {"type": "string"}, "text": {"type": "string"}, "source_url": {"type": "string", "format": "uri"}, "heading": {"type": "string"}, "verified_at": {"type": "string", "format": "date"}}
+    },
+    "request": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "request_id", "operation", "query", "filters", "limit", "corpus_version"],
+      "properties": {"schema_version": {"const": 1}, "request_id": {"type": "string", "minLength": 1, "maxLength": 64}, "operation": {"const": "search"}, "query": {"type": "string", "maxLength": 4096}, "filters": {"$ref": "#/$defs/filters"}, "limit": {"type": "integer", "minimum": 1, "maximum": 8}, "corpus_version": {"const": "none"}}
+    },
+    "response": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "request_id", "corpus_version", "status", "retrieval_mode", "chunks", "error"],
+      "properties": {"schema_version": {"const": 1}, "request_id": {"type": "string", "minLength": 1, "maxLength": 64}, "corpus_version": {"const": "none"}, "status": {"enum": ["ok", "unavailable", "error"]}, "retrieval_mode": {"enum": ["lexical", "hybrid", "none"]}, "chunks": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/chunk"}}, "error": {"type": ["string", "null"]}}
+    }
+  }
+}

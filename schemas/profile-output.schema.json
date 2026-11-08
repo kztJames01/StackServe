@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "requirements", "questions", "needs_verification"],
+  "properties": {
+    "name": {"type": "string"},
+    "requirements": {
+      "type": "array", "maxItems": 128,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["field", "value", "label", "defaulted", "evidence"],
+        "properties": {
+          "field": {"type": "string"},
+          "value": {},
+          "label": {"enum": ["evidence", "inference", "constraint", "assumption"]},
+          "defaulted": {"type": "boolean"},
+          "evidence": {
+            "oneOf": [
+              {"type": "null"},
+              {"type": "object", "additionalProperties": false,
+               "required": ["path", "line_start", "line_end", "fact", "confidence"],
+               "properties": {
+                 "path": {"type": "string"}, "line_start": {"type": "integer", "minimum": 1},
+                 "line_end": {"type": "integer", "minimum": 1}, "fact": {"type": "string"},
+                 "confidence": {"enum": ["high", "medium"]}
+               }}
+            ]
+          }
+        }
+      }
+    },
+    "questions": {"type": "array", "maxItems": 8, "items": {"type": "string"}},
+    "needs_verification": {"type": "boolean"}
+  }
+}

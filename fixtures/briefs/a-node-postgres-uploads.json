@@ -1,0 +1,12 @@
+{
+  "name": "Fixture A: commercial Node app",
+  "description": "A commercial Node application with PostgreSQL and user uploads. This is an illustrative test brief, not a customer project.",
+  "runtime": "node",
+  "traffic": "sporadic",
+  "database": "postgresql",
+  "commercial_use": true,
+  "files": [
+    {"path": "package.json", "content": "{\"dependencies\":{\"express\":\"4.21.2\",\"pg\":\"8.13.1\"}}"},
+    {"path": "src/uploads.js", "content": "export function uploadFile(file) { return file; }"}
+  ]
+}

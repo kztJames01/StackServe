@@ -19,7 +19,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.94.0
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
@@ -46,13 +46,29 @@ jobs:
         run: uv run pytest
         working-directory: python/stackfit_rag
 
+  contract:
+    name: shared protocol contract
+    runs-on: ubuntu-latest
+    env:
+      STACKFIT_PROFILE_BIN: ${{ github.workspace }}/target/debug/stackfit-mcp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.94.0
+      - uses: astral-sh/setup-uv@v5
+      - run: cargo test -p stackfit-core protocol::tests::shared_fixture --locked
+      - run: cargo build -p stackfit-mcp --locked
+      - run: uv sync --locked
+        working-directory: python/stackfit_rag
+      - run: uv run pytest tests/test_protocol.py tests/test_profile_schema.py
+        working-directory: python/stackfit_rag
+
   deny:
     name: cargo-deny
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.94.0
       - uses: EmbarkStudios/cargo-deny-action@v2
         with:
           command: check
