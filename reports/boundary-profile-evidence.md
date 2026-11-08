@@ -23,11 +23,11 @@ The official provider corpus has not been curated yet. The worker cannot truthfu
 - The adversarial fixture now uses a scanned source path rather than an ignored prose file.
 - `cargo fmt`, `cargo clippy`, `cargo test`, `uv sync --locked`, Ruff, and pytest pass locally.
 
-## Sprint 1 status
+## Profile implementation status
 
-- A1–A4 and B1–B4 are implemented and locally verified.
-- A5 remains open: the feature branch was pushed, but no PR has run remote CI, and branch protection has not been verified.
-- The cited-worker exit condition is not met because retrieval is intentionally unavailable until the Sprint 2 corpus exists.
+- Profile and boundary stories are implemented and locally verified.
+- Remote CI and branch protection remain open: the feature branch was pushed, but no PR has run remote CI.
+- The cited-worker exit condition is not met because retrieval is intentionally unavailable until the corpus exists.
 
 ## External gate
 
