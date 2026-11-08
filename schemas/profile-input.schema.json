@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name"],
+  "properties": {
+    "name": {"type": "string", "minLength": 1, "maxLength": 100},
+    "description": {"type": "string", "maxLength": 4096},
+    "runtime": {"type": ["string", "null"], "maxLength": 100},
+    "traffic": {"type": ["string", "null"], "maxLength": 100},
+    "database": {"type": ["string", "null"], "maxLength": 100},
+    "storage_gb": {"type": ["integer", "null"], "minimum": 0, "maximum": 1000000},
+    "egress_gb": {"type": ["integer", "null"], "minimum": 0, "maximum": 1000000},
+    "requests_per_month": {"type": ["integer", "null"], "minimum": 0, "maximum": 1000000000000},
+    "region": {"type": ["string", "null"], "maxLength": 100},
+    "commercial_use": {"type": ["boolean", "null"]},
+    "availability": {"type": ["string", "null"], "maxLength": 100},
+    "ops_appetite": {"type": ["string", "null"], "maxLength": 100},
+    "budget_usd": {"type": ["integer", "null"], "minimum": 0, "maximum": 1000000000},
+    "growth_scenarios": {"type": ["array", "null"], "maxItems": 3, "items": {"type": "integer", "minimum": 1, "maximum": 100}},
+    "files": {"type": "array", "maxItems": 16, "items": {"type": "object", "additionalProperties": false, "required": ["path", "content"], "properties": {"path": {"type": "string", "maxLength": 256}, "content": {"type": "string", "maxLength": 16384}}}
+  }
+}

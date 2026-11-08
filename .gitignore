@@ -69,6 +69,7 @@ Thumbs.db
 .cursor/rules/
 .claude/
 CLAUDE.md
+AGENTS.md
 docs/*
 
 # Misc

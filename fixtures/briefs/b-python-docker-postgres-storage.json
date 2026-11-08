@@ -1,0 +1,12 @@
+{
+  "name": "Fixture B: always-on Python API",
+  "description": "A Dockerized Python API using PostgreSQL and object storage, with US residency. Illustrative test brief only.",
+  "runtime": "docker-python",
+  "traffic": "always-on",
+  "database": "postgresql",
+  "region": "us",
+  "files": [
+    {"path": "requirements.txt", "content": "fastapi==0.115.6\npsycopg==3.2.3"},
+    {"path": "Dockerfile", "content": "FROM python:3.12-slim"}
+  ]
+}
