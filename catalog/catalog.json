@@ -1,5 +1,5 @@
 {
-  "catalog_version": "2026-11-07.1",
+  "catalog_version": "2026-11-09.1",
   "cards": [
     {
       "id": "cloudflare-pages-free",
@@ -47,7 +47,7 @@
       "evidence": [
         {"source_url": "https://render.com/pricing", "note": "Hobby workspace $0/month plus compute; Starter instance $7/month; Node, Python and custom Docker supported; positioned for personal projects and prototypes."},
         {"source_url": "https://render.com/docs/outbound-bandwidth", "note": "Hobby includes 5 GB outbound per month; $0.15 per GB beyond."},
-        {"source_url": "https://render.com/docs/regions", "note": "Oregon, Ohio, Virginia, Frankfurt, Singapore."}
+        {"source_url": "https://render.com/docs/regions", "note": "Oregon (slug: oregon), Ohio (slug: ohio), Virginia (slug: virginia), Frankfurt (slug: frankfurt), Singapore (slug: singapore)."}
       ],
       "price_formula": {
         "charges": [
@@ -85,7 +85,7 @@
       "evidence": [
         {"source_url": "https://render.com/pricing", "note": "Pro workspace $25/month plus compute, for teams deploying production-grade apps; Starter instance $7/month."},
         {"source_url": "https://render.com/docs/outbound-bandwidth", "note": "Pro includes 25 GB outbound per month; $0.15 per GB beyond."},
-        {"source_url": "https://render.com/docs/regions", "note": "Oregon, Ohio, Virginia, Frankfurt, Singapore."}
+        {"source_url": "https://render.com/docs/regions", "note": "Oregon (slug: oregon), Ohio (slug: ohio), Virginia (slug: virginia), Frankfurt (slug: frankfurt), Singapore (slug: singapore)."}
       ],
       "price_formula": {
         "charges": [
@@ -124,7 +124,7 @@
       "evidence": [
         {"source_url": "https://neon.com/pricing", "note": "Free: 100 CU-hours per project, 1 GB storage per project, compute scales to zero after 5 minutes."},
         {"source_url": "https://neon.com/docs/introduction/plans", "note": "Free is for prototypes, side projects and small teams."},
-        {"source_url": "https://neon.com/docs/introduction/regions", "note": "AWS US East, US West and Europe regions."}
+        {"source_url": "https://neon.com/docs/introduction/regions", "note": "AWS US East Ohio (slug: aws-us-east-2), US West and Europe regions including Frankfurt, Germany (slug: aws-eu-central-1, GDPR-native EU member state) and London, UK (slug: aws-eu-west-2)."}
       ],
       "price_formula": {"charges": [{"kind": "fixed", "label": "Free plan", "amount": "0"}]},
       "commitment": {"type": "none"},
@@ -160,7 +160,7 @@
       "evidence": [
         {"source_url": "https://neon.com/pricing", "note": "Launch: $0.106 per CU-hour, $0.35 per GB-month, scale-to-zero can be disabled, restore history up to 7 days."},
         {"source_url": "https://neon.com/docs/introduction/plans", "note": "Launch is for startups and growing teams."},
-        {"source_url": "https://neon.com/docs/introduction/regions", "note": "AWS US East, US West and Europe regions."}
+        {"source_url": "https://neon.com/docs/introduction/regions", "note": "AWS US East Ohio (slug: aws-us-east-2), US West and Europe regions including Frankfurt, Germany (slug: aws-eu-central-1, GDPR-native EU member state) and London, UK (slug: aws-eu-west-2)."}
       ],
       "price_formula": {
         "charges": [
@@ -191,13 +191,13 @@
       "plan": "Standard storage",
       "category": "object_storage",
       "status": "modeled",
-      "eligible_regions": ["eu"],
+      "eligible_regions": ["us", "eu"],
       "capabilities": ["s3_compatible_api"],
       "exclusions": ["Infrequent Access storage and retrieval fees", "Buckets beyond 100,000 per account"],
       "operations_level": "low",
       "evidence": [
         {"source_url": "https://developers.cloudflare.com/r2/pricing/", "note": "Standard: $0.015/GB-month, $4.50 per million Class A, $0.36 per million Class B; free 10 GB-month, 1M Class A, 10M Class B; egress free; usage rounds up to the next billing unit."},
-        {"source_url": "https://developers.cloudflare.com/r2/reference/data-location/", "note": "Binding data location is by jurisdiction (EU); location hints are not a guarantee."}
+        {"source_url": "https://developers.cloudflare.com/r2/reference/data-location/", "note": "Binding data location is by jurisdiction (us, eu, fedramp) with the matching jurisdiction S3 endpoint; location hints are not a guarantee."}
       ],
       "price_formula": {
         "charges": [
@@ -236,7 +236,10 @@
       "evidence": [
         {"source_url": "https://www.backblaze.com/cloud-storage/pricing", "note": "$6.95/TB per 30 days, first 10 GB free, free egress up to 3x monthly average storage then $0.01/GB, Class A/B/C calls free."},
         {"source_url": "https://www.backblaze.com/cloud-storage/transaction-pricing", "note": "S3-compatible API lists object lock configuration, retention and legal hold calls."},
-        {"source_url": "https://www.backblaze.com/docs/cloud-storage-data-regions", "note": "Account region chosen at creation: US East, US West, EU Central, Canada East."}
+        {"source_url": "https://www.backblaze.com/docs/cloud-storage-data-regions", "note": "Account region chosen at creation: US East, US West, EU Central, Canada East. S3 endpoint format https://s3.<region>.backblazeb2.com (e.g. https://s3.us-east-005.backblazeb2.com, https://s3.us-west-004.backblazeb2.com, https://s3.eu-central-003.backblazeb2.com); S3 client region matches the exact 3-digit cluster segment (e.g. us-east-005, us-west-004, eu-central-003)."},
+        {"source_url": "https://www.backblaze.com/docs/cloud-storage-s3-compatible-api", "note": "Buckets default to Private (allPrivate) and are versioned by default; only bucket-level canned ACLs (private, public-read) are supported (object-level ACL overrides return 403 Forbidden). Master Application Key is incompatible with the S3 API; generate a dedicated Application Key (keyID maps to AWS_ACCESS_KEY_ID, applicationKey maps to AWS_SECRET_ACCESS_KEY) scoped to a single bucket and optional fileNamePrefix with Read/Write permissions. Supports CRUD, Multipart Uploads, and SigV4 presigned URLs; does not support IAM policies, XML ACLs, S3 Object Tagging, Website Hosting, or SSE-KMS."},
+        {"source_url": "https://www.backblaze.com/docs/cloud-storage-create-and-manage-buckets", "note": "To delete a B2 bucket, first delete all files and versions in the bucket, then in the Backblaze web console open B2 Cloud Storage, Buckets, Bucket Settings, and select Delete Bucket."},
+        {"source_url": "https://www.backblaze.com/docs/cloud-storage-application-keys", "note": "Deleting a standard Application Key in Application Keys or via b2_delete_key immediately removes access for that key without disrupting other keys."}
       ],
       "price_formula": {
         "charges": [
@@ -460,6 +463,50 @@
       "s3_features": [],
       "limits": [],
       "temporary_offers": []
+    },
+    {
+      "id": "aikido-security-free",
+      "provider": "Aikido Security",
+      "product": "Aikido Platform",
+      "plan": "Developer",
+      "category": "security",
+      "status": "discoverable",
+      "eligible_regions": [
+        "global"
+      ],
+      "capabilities": [
+        "repository_security_scanning"
+      ],
+      "exclusions": [
+        "Discovery only: workload has no users, repositories, container images, domains or cloud-account meters; free eligibility is not evaluated.",
+        "Paid upgrade price, billing cadence and quota enforcement need verification; no automatic $350 charge is established.",
+        "Commercial-use terms and data residency need verification.",
+        "Not included in recipe totals; no repository or cloud-account integration is configured."
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://www.aikido.dev/pricing",
+          "note": "Developer advertised at $0 with 2 users, 10 repositories, 2 container images, 1 domain and 1 cloud account; rescans every 3 days. Verify current terms before purchase. Paid billing cadence and upgrade behavior are not modeled."
+        }
+      ],
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "Not priced; global discovery is not a data-residency guarantee.",
+      "tax_note": "Taxes excluded; no paid price modeled.",
+      "fetched_at": "2026-11-09",
+      "verified_at": "2026-11-09",
+      "confidence": "low",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "unverified",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
     }
   ],
   "recipes": [
@@ -471,7 +518,7 @@
         {"category": "frontend", "card_ids": ["cloudflare-pages-free"]},
         {"category": "runtime", "card_ids": ["render-web-starter-hobby", "render-web-starter-pro"]},
         {"category": "database", "card_ids": ["neon-free", "neon-launch"]},
-        {"category": "object_storage", "card_ids": ["cloudflare-r2-standard"]}
+        {"category": "object_storage", "card_ids": ["cloudflare-r2-standard", "backblaze-b2"]}
       ],
       "edges": [
         {"from": "frontend", "to": "runtime", "auth": "Browser calls the API; configure a CORS origin allow-list.", "latency_note": "Frontend is served from an edge network; API latency depends on the chosen Render region and is not measured."},
@@ -486,7 +533,7 @@
       "slots": [
         {"category": "runtime", "card_ids": ["render-web-starter-hobby", "render-web-starter-pro"]},
         {"category": "database", "card_ids": ["neon-free", "neon-launch"]},
-        {"category": "object_storage", "card_ids": ["backblaze-b2"]}
+        {"category": "object_storage", "card_ids": ["cloudflare-r2-standard", "backblaze-b2"]}
       ],
       "edges": [
         {"from": "runtime", "to": "database", "auth": "Server-side connection string over TLS.", "latency_note": "Render and Neon regions are chosen independently; pick the same cloud region. Latency is not measured."},

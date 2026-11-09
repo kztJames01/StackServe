@@ -53,13 +53,14 @@ pub enum DbEngine {
     Sqlite,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Category {
     Frontend,
     Runtime,
     Database,
     ObjectStorage,
+    Security,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -475,6 +476,24 @@ mod tests {
         let catalog = Catalog::embedded().unwrap();
         assert!((12..=16).contains(&catalog.cards.len()));
         assert_eq!(catalog.recipes.len(), 2);
+    }
+
+    #[test]
+    fn aikido_is_discovery_only_without_inferred_price_or_eligibility() {
+        let catalog = Catalog::embedded().unwrap();
+        let card = catalog.card("aikido-security-free").unwrap();
+        assert_eq!(card.status, Status::Discoverable);
+        assert!(card.price_formula.is_none());
+        assert_eq!(card.commercial_use, Support::Unverified);
+        assert!(catalog.recipes.iter().all(|recipe| {
+            recipe
+                .slots
+                .iter()
+                .all(|slot| !slot.card_ids.contains(&card.id))
+        }));
+        let mut value = embedded_value();
+        value["recipes"][0]["slots"][0]["card_ids"] = json!(["aikido-security-free"]);
+        assert!(load(&value).is_err());
     }
 
     #[test]

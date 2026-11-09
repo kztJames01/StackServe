@@ -256,8 +256,18 @@ mod tests {
 
     #[test]
     fn us_residency_rejects_a_plan_with_only_eu_placement() {
-        let result = verdict("cloudflare-r2-standard", json!({"residency": "us"}));
+        let result = verdict("hetzner-cloud-cx23-eu", json!({"residency": "us"}));
         assert_eq!(codes(&result.rejected), [ReasonCode::RegionNotAvailable]);
+        assert!(
+            verdict("hetzner-cloud-cx23-eu", json!({"residency": "eu"}))
+                .rejected
+                .is_empty()
+        );
+        assert!(
+            verdict("cloudflare-r2-standard", json!({"residency": "us"}))
+                .rejected
+                .is_empty()
+        );
         assert!(
             verdict("cloudflare-r2-standard", json!({"residency": "eu"}))
                 .rejected

@@ -58,10 +58,40 @@ Rejected cheap alternative:
 | Object storage | `backblaze-b2` | Storage `((100 - 10) / 1000) * $6.95 = $0.6255`; egress `max(0, 250 - 3 * 100) * $0.01 = $0.00` | `$0.6255` | Storage `$0.6255` + egress `(750 - 300) * $0.01 = $4.50` = `$5.1255` | Storage `((1000 - 10) / 1000) * $6.95 = $6.8805`; egress `max(0, 2500 - 3000) = $0.00` |
 | **Total known (USD)** | | | **`$33.2755`** | **`$89.1755`** (egress cliff at `300 GB`) | **`$45.8305`** |
 
+#### Alternative Object Storage on `recipe-b`: `recipe-b/render-web-starter-hobby+neon-launch+cloudflare-r2-standard`
+
+- Both `recipe-a` and `recipe-b` allow `["cloudflare-r2-standard", "backblaze-b2"]` in the `object_storage` slot (`cloudflare-r2-standard` declares `eligible_regions: ["us", "eu"]` via Cloudflare R2 jurisdictional restrictions).
+- At `now` (`250 GB` egress <= `300 GB` B2 free allowance), Backblaze B2 (`$0.6255`) beats Cloudflare R2 (`$1.35`), so `recipe-b` selects B2 (`$33.2755` vs `$34.000`).
+- At `3x` traffic (`750 GB` egress > `300 GB` B2 free allowance), Cloudflare R2 (`$85.400`) beats Backblaze B2 (`$89.1755`) because B2 incurs `(750 - 300) * $0.01 = $4.50` in egress overage.
+
+---
+
+## External Calculator Cross-Check (`D7` / `S3-4`)
+
+We audited an independent external calculator estimate against our deterministic engine on both workloads:
+
+### 1. Where the External Calculator & Our Engine Agree
+- **Cloudflare R2 (`100 GB` storage, `1,000 GB` or `250 GB` egress, `100k` Class A writes, `1M` Class B reads):** Both arrive at **`$1.35 / month`** (`(100 - 10) * $0.015 = $1.35`, `$0.00` egress, operations within `1M` Class A / `10M` Class B free tiers).
+- **Neon Free (`0.5 GB` storage, `60 CU-hours/month`, sleep-tolerant, no backup required):** Both arrive at **`$0.00 / month`** (`0.5 <= 1.0 GB` and `60 <= 100 CU-hours`).
+
+### 2. Defects & Omissions Identified in the External Calculator
+1. **Setup 1 Total Arithmetic Contradiction:** The external calculator's header claims `$0.00 / month` while its body totals `$1.35 / month` (with R2), and suggests `$0.00 / month` with Backblaze B2 + Cloudflare CDN Bandwidth Alliance without accounting for B2's `10 GB` free storage limit (`90 GB` overage = `$0.6255/mo` at `$6.95/TB-month`, or `$0.54/mo` at legacy `$6/TB-month`) and without requiring a custom Cloudflare proxied domain in front of the bucket.
+2. **Stale / Legacy Vendor Pricing on Setup 2 (Option A — Neon Launch):** The external calculator used Neon's legacy `$19/month` flat base plan (which included `300 CU-hours` and `10 GB` storage). Under Neon's current usage-based Launch pricing (`https://neon.com/pricing`, checked `2026-11-07`), compute is billed at `$0.106 / CU-hour` (`200 * $0.106 = $21.20`) plus storage at `$0.35 / GB-month` (`2 * $0.35 = $0.70`) = **`$21.90 / month`** (plus any PITR history storage, which we surface as `unknown`).
+3. **Hard Rule Violation — Treating Monthly Credits as Base Price (Railway Hobby):** The external calculator priced `railway-hobby` at `$5.00 / month` by assuming the `$5` monthly usage credit covers 730 hours of container CPU, memory, and `30 GB` outbound egress without computing the per-vCPU, per-GB-RAM, or per-GB-egress meters. Our engine rejects turning credits into flat totals and marks `railway-hobby` `discoverable` until its compute/egress meters are modeled.
+4. **Unverified Residency & Hidden Operational Costs (Hetzner US / OCI Always Free / Supabase Pro):**
+   - `hetzner-cloud-cx23-eu` is priced in EUR for EU locations (`EUR 3.49/mo`); US locations (Ashburn/Hillsboro) are separate SKUs and a single-VPS setup shifts OS patching, PostgreSQL HA, and `pg_dump` cron monitoring to the operator.
+   - `supabase-pro` (`$25/mo` base) omits outbound bandwidth and compute add-on meters (`discoverable` in our catalog).
+   - OCI Always Free carries capacity-availability and idle-reclamation conditions and is outside our v1 curated provider scope.
+
+### 3. Gaps Identified in Our System & How We Resolved Them
+1. **`cloudflare-r2-standard` US & EU Residency Eligibility:** Previously `cloudflare-r2-standard` had `eligible_regions: []`, causing US/EU residency workloads to reject R2 unless `residency == any`. Fixed by adding `"us"` and `"eu"` to `cloudflare-r2-standard.eligible_regions` in `catalog/catalog.json` (backed by `corpus/sections.json` `r2-location-jurisdiction`, verified `2026-11-07`).
+2. **Both `cloudflare-r2-standard` and `backblaze-b2` in `recipe-a` and `recipe-b`:** Updated `catalog/catalog.json` so both recipes evaluate both modeled object storage cards (`8` combinations per recipe, `16` total, within `MAX_COMBINATIONS = 64`), letting the engine compare R2 vs B2 directly on US/EU workloads.
+3. **Render Free Web Service (`render-web-free`):** Kept out of modeled cards per v1 scope (`S3-11`); documented as a post-v1 candidate because Render Free spins down after 15 minutes, does not support persistent disks, and suspends on outbound bandwidth exhaustion.
+
 ## Checks Executed
 
 - `cargo fmt --all -- --check`: passed.
 - `cargo clippy --all-targets --all-features -- -D warnings`: passed.
-- `cargo test --all-features --workspace`: 81 passed (64 unit tests in `stackfit-core`, 13 scenario tests in `stackfit-core`, 4 worker supervisor tests in `stackfit-mcp`).
+- `cargo test --all-features --workspace`: 97 passed (79 unit tests in `stackfit-core`, 14 scenario tests in `stackfit-core`, 4 worker supervisor tests in `stackfit-mcp`).
 - `uv run ruff check . && uv run ruff format --check .`: passed.
-- `uv run pytest` with `STACKFIT_PROFILE_BIN` set: 34 passed, including MCP stdio round-trip validation for `recommend_stacks` and `compare_stacks`.
+- `uv run pytest` with `STACKFIT_PROFILE_BIN` set: 36 passed, including MCP stdio round-trip validation and JSON Schema contract validation for `recommend_stacks`, `compare_stacks`, and `generate_setup_bundle`.

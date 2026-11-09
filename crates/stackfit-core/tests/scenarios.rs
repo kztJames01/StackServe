@@ -2,6 +2,7 @@ use std::{fs, path::PathBuf, str::FromStr};
 
 use rust_decimal::Decimal;
 use stackfit_core::{
+    bundle::{ArtifactStatus, generate_bundle_from_json, scan_for_secrets},
     engine::{CliffKind, Comparison, Recommendation, Role, compare_from_json, recommend_from_json},
     filters::{Filter, ReasonCode},
     workload::Scenario,
@@ -12,6 +13,8 @@ const NODE_STACK: &str =
 const NODE_LAUNCH_STACK: &str =
     "recipe-a/cloudflare-pages-free+render-web-starter-hobby+neon-launch+cloudflare-r2-standard";
 const PYTHON_STACK: &str = "recipe-b/render-web-starter-hobby+neon-launch+backblaze-b2";
+const PYTHON_R2_STACK: &str =
+    "recipe-b/render-web-starter-hobby+neon-launch+cloudflare-r2-standard";
 
 fn fixture(name: &str) -> Vec<u8> {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -60,7 +63,7 @@ fn recipe_for_a_different_runtime_is_rejected_with_the_failed_filter() {
         .iter()
         .filter(|item| item.stack_id.starts_with("recipe-b/"))
         .collect();
-    assert_eq!(rejected.len(), 4);
+    assert_eq!(rejected.len(), 8);
     for item in rejected {
         assert!(item.findings.iter().any(|finding| {
             finding.filter == Filter::Runtime && finding.code == ReasonCode::UnsupportedRuntime
@@ -101,7 +104,7 @@ fn unverified_commercial_terms_give_a_conditional_result_without_a_rank() {
     let result = recommend("node-commercial.json");
     assert!(result.selections.is_empty());
     assert!(result.comparison.is_empty());
-    assert_eq!(result.conditional.len(), 4);
+    assert_eq!(result.conditional.len(), 8);
     assert!(result.conditional.iter().all(|item| {
         item.conditions
             .iter()
@@ -206,6 +209,17 @@ fn python_scenarios_show_the_egress_allowance_cliff() {
     assert_eq!(stack.cliffs[0].card_id, "backblaze-b2");
     assert_eq!(stack.cliffs[0].first_exceeded_in, Scenario::ThreeXTraffic);
     assert_eq!(stack.cliffs[0].threshold, dec("300"));
+
+    let r2_cmp = compare("python-us-always-on.json", PYTHON_R2_STACK);
+    let r2_totals: Vec<_> = r2_cmp.stacks[0]
+        .scenarios
+        .iter()
+        .map(|item| item.estimate.usd_total().unwrap())
+        .collect();
+    // R2 is $34.00 at now ($0.7245 more than B2) but $85.40 at 3x ($3.7755 cheaper than B2's egress cliff)
+    // 3x: 19.75 + 63.60 + 0.70 + 1.35 = 85.400
+    // 10x: 10.75 + 21.20 + 7.00 + 990 x 0.015 = 53.800
+    assert_eq!(r2_totals, [dec("34.000"), dec("85.400"), dec("53.800")]);
 }
 
 #[test]
@@ -239,4 +253,43 @@ fn compare_rejects_unknown_ids_and_too_many_stacks() {
 fn recommend_rejects_malformed_workload() {
     assert!(recommend_from_json(b"{}").is_err());
     assert!(recommend_from_json(b"not json").is_err());
+}
+
+fn project_fixture(name: &str) -> Vec<u8> {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../fixtures/projects")
+        .join(name);
+    fs::read(path).unwrap()
+}
+
+#[test]
+fn both_project_bundles_validate_and_match_hand_calculated_totals() {
+    for (file, expected_stack, expected_total) in [
+        ("a-node-uploads.json", NODE_STACK, "$10.60"),
+        ("b-python-docker.json", PYTHON_STACK, "$33.2755"),
+    ] {
+        let bundle = generate_bundle_from_json(&project_fixture(file)).unwrap();
+        assert_eq!(bundle.status, ArtifactStatus::Prepared);
+        assert_eq!(bundle.stack_id, expected_stack);
+        assert!(bundle.validation.valid, "{file}");
+        assert!(bundle.validation.secret_scan_clean, "{file}");
+        assert!(scan_for_secrets(&bundle.files).is_empty(), "{file}");
+        assert_eq!(bundle.files.len(), 5);
+        assert!(!bundle.sources.is_empty());
+        assert!(
+            bundle
+                .sources
+                .iter()
+                .all(|s| s.source_url.starts_with("https://")
+                    && matches!(s.verified_at.as_str(), "2026-11-07" | "2026-11-09"))
+        );
+        let adr = &bundle
+            .files
+            .iter()
+            .find(|f| f.path == "architecture-decision.md")
+            .unwrap()
+            .content;
+        assert!(adr.contains(expected_total), "{file}: {expected_total}");
+        assert!(adr.contains("2026-11-07"));
+    }
 }

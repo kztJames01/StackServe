@@ -17,6 +17,7 @@ use schemars::JsonSchema;
 use serde::Deserialize;
 use serde_json::Value;
 use stackfit_core::{
+    bundle::generate_bundle_from_json,
     engine::{compare_from_json, recommend_from_json},
     profile,
     protocol::{CORPUS_VERSION, Filters, SCHEMA_VERSION, WorkerRequest},
@@ -59,6 +60,9 @@ enum Command {
         #[arg(long = "stack", required = true, num_args = 1..=3)]
         stacks: Vec<String>,
     },
+    Bundle {
+        file: PathBuf,
+    },
     Search {
         query: String,
     },
@@ -96,6 +100,12 @@ struct CompareParams {
     workload: Value,
     #[schemars(length(min = 1, max = 3))]
     stack_ids: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+struct BundleParams {
+    request: Value,
 }
 
 fn default_limit() -> u8 {
@@ -147,6 +157,17 @@ impl Server {
             })
             .and_then(|result| serde_json::to_string(&result).map_err(|error| error.to_string()));
         result.unwrap_or_else(|error| format!("comparison unavailable: {error}"))
+    }
+
+    #[tool(
+        description = "Generate a validated, secret-free setup bundle (.env.example, DEPLOYMENT.md, architecture-decision.md, provisioning-prompt.md, resource-manifest.json) for a selected feasible stack and project excerpts. Status is always 'prepared'; the host reviews the diff before writing."
+    )]
+    fn generate_setup_bundle(&self, Parameters(params): Parameters<BundleParams>) -> String {
+        let result = serde_json::to_vec(&params.request)
+            .map_err(|error| error.to_string())
+            .and_then(|input| generate_bundle_from_json(&input).map_err(|error| error.to_string()))
+            .and_then(|result| serde_json::to_string(&result).map_err(|error| error.to_string()));
+        result.unwrap_or_else(|error| format!("bundle unavailable: {error}"))
     }
 
     #[tool(
@@ -207,6 +228,11 @@ async fn main() -> Result<()> {
         Command::Compare { file, stacks } => {
             let input = std::fs::read(file).context("reading workload")?;
             let result = compare_from_json(&input, &stacks)?;
+            println!("{}", serde_json::to_string_pretty(&result)?);
+        }
+        Command::Bundle { file } => {
+            let input = std::fs::read(file).context("reading bundle request")?;
+            let result = generate_bundle_from_json(&input)?;
             println!("{}", serde_json::to_string_pretty(&result)?);
         }
         Command::Search { query } => {

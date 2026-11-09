@@ -4,7 +4,7 @@ from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-CORPUS_VERSION = "2026-11-07.1"
+CORPUS_VERSION = "2026-11-09.1"
 DocumentType = Literal["pricing", "limits", "setup", "security", "compatibility"]
 ShortText = Annotated[str, Field(min_length=1, max_length=100)]
 Hash = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
@@ -30,7 +30,7 @@ class Request(StrictModel):
     follow_up_query: str | None = Field(default=None, min_length=1, max_length=4096)
     filters: Filters
     limit: int = Field(ge=1, le=8)
-    corpus_version: Literal["2026-11-07.1"]
+    corpus_version: Literal["2026-11-09.1"]
 
     @field_validator("query", "follow_up_query")
     @classmethod
@@ -89,7 +89,7 @@ class Chunk(Section):
 class Response(StrictModel):
     schema_version: Literal[2]
     request_id: str = Field(min_length=1, max_length=64)
-    corpus_version: Literal["2026-11-07.1"]
+    corpus_version: Literal["2026-11-09.1"]
     status: Literal["ok", "unavailable", "error"]
     retrieval_mode: Literal["lexical", "hybrid", "none"]
     chunks: list[Chunk] = Field(max_length=8)

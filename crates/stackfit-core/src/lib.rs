@@ -1,5 +1,6 @@
 #![deny(unsafe_code)]
 
+pub mod bundle;
 pub mod catalog;
 pub mod engine;
 pub mod filters;
