@@ -486,11 +486,11 @@ mod tests {
     fn candidates_are_bounded_explicit_combinations() {
         let catalog = Catalog::embedded().unwrap();
         let all = candidates(&catalog);
-        assert_eq!(all.len(), 8);
+        assert_eq!(all.len(), 16);
         assert!(all.iter().all(|candidate| candidate.cards.len() >= 3));
         let mut ids: Vec<_> = all.iter().map(|candidate| candidate.id.clone()).collect();
         ids.sort();
         ids.dedup();
-        assert_eq!(ids.len(), 8);
+        assert_eq!(ids.len(), 16);
     }
 }
