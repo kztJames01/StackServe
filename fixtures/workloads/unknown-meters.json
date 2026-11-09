@@ -1,0 +1,9 @@
+{
+  "runtime": "node",
+  "db_engine": "postgresql",
+  "residency": "any",
+  "commercial_use": false,
+  "sleep_tolerant": true,
+  "backup_required": false,
+  "storage_gb_month": 100
+}

@@ -1,0 +1,16 @@
+{
+  "runtime": "docker",
+  "db_engine": "postgresql",
+  "residency": "us",
+  "commercial_use": false,
+  "sleep_tolerant": false,
+  "backup_required": true,
+  "storage_gb_month": 100,
+  "egress_gb": 250,
+  "writes_month": 100000,
+  "reads_month": 1000000,
+  "requests_month": 2000000,
+  "app_outbound_gb": 30,
+  "db_gb": 2,
+  "db_cu_hours": 200
+}
