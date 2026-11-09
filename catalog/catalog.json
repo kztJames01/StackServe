@@ -1,0 +1,497 @@
+{
+  "catalog_version": "2026-11-07.1",
+  "cards": [
+    {
+      "id": "cloudflare-pages-free",
+      "provider": "Cloudflare",
+      "product": "Pages",
+      "plan": "Free",
+      "category": "frontend",
+      "status": "modeled",
+      "eligible_regions": ["global"],
+      "capabilities": ["custom_domains"],
+      "exclusions": ["Pages Functions requests (billed as Workers requests)", "Builds above 500 per month"],
+      "operations_level": "low",
+      "evidence": [
+        {"source_url": "https://developers.cloudflare.com/pages/functions/pricing/", "note": "Requests to static assets are free and unlimited on free and paid plans."},
+        {"source_url": "https://developers.cloudflare.com/pages/platform/limits/", "note": "Free plan: 500 builds per month, 20-minute build timeout."}
+      ],
+      "price_formula": {"charges": [{"kind": "fixed", "label": "Static hosting (free plan)", "amount": "0"}]},
+      "commitment": {"type": "none"},
+      "currency": "usd",
+      "priced_region": "global edge network",
+      "tax_note": "Free plan; no charge to tax.",
+      "fetched_at": "2026-11-07",
+      "verified_at": "2026-11-07",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "unverified",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "render-web-starter-hobby",
+      "provider": "Render",
+      "product": "Web service",
+      "plan": "Starter instance on Hobby workspace",
+      "category": "runtime",
+      "status": "modeled",
+      "eligible_regions": ["us", "eu"],
+      "capabilities": ["custom_domains"],
+      "exclusions": ["Persistent disks ($0.25 per GB-month)", "Build pipeline minutes", "Private-link bandwidth"],
+      "operations_level": "low",
+      "evidence": [
+        {"source_url": "https://render.com/pricing", "note": "Hobby workspace $0/month plus compute; Starter instance $7/month; Node, Python and custom Docker supported; positioned for personal projects and prototypes."},
+        {"source_url": "https://render.com/docs/outbound-bandwidth", "note": "Hobby includes 5 GB outbound per month; $0.15 per GB beyond."},
+        {"source_url": "https://render.com/docs/regions", "note": "Oregon, Ohio, Virginia, Frankfurt, Singapore."}
+      ],
+      "price_formula": {
+        "charges": [
+          {"kind": "fixed", "label": "Starter instance", "amount": "7"},
+          {"kind": "metered", "label": "Outbound bandwidth", "meter": "app_outbound_gb", "unit": "GB", "rate": "0.15", "per_units": "1", "free": {"type": "units", "amount": "5"}, "round_up": false}
+        ]
+      },
+      "commitment": {"type": "none"},
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude taxes.",
+      "fetched_at": "2026-11-07",
+      "verified_at": "2026-11-07",
+      "confidence": "medium",
+      "runtimes": ["node", "python", "docker"],
+      "db_engines": [],
+      "commercial_use": "unverified",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "render-web-starter-pro",
+      "provider": "Render",
+      "product": "Web service",
+      "plan": "Starter instance on Pro workspace",
+      "category": "runtime",
+      "status": "modeled",
+      "eligible_regions": ["us", "eu"],
+      "capabilities": ["custom_domains"],
+      "exclusions": ["Persistent disks ($0.25 per GB-month)", "Build pipeline minutes", "Private-link bandwidth"],
+      "operations_level": "low",
+      "evidence": [
+        {"source_url": "https://render.com/pricing", "note": "Pro workspace $25/month plus compute, for teams deploying production-grade apps; Starter instance $7/month."},
+        {"source_url": "https://render.com/docs/outbound-bandwidth", "note": "Pro includes 25 GB outbound per month; $0.15 per GB beyond."},
+        {"source_url": "https://render.com/docs/regions", "note": "Oregon, Ohio, Virginia, Frankfurt, Singapore."}
+      ],
+      "price_formula": {
+        "charges": [
+          {"kind": "fixed", "label": "Pro workspace", "amount": "25"},
+          {"kind": "fixed", "label": "Starter instance", "amount": "7"},
+          {"kind": "metered", "label": "Outbound bandwidth", "meter": "app_outbound_gb", "unit": "GB", "rate": "0.15", "per_units": "1", "free": {"type": "units", "amount": "25"}, "round_up": false}
+        ]
+      },
+      "commitment": {"type": "none"},
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude taxes.",
+      "fetched_at": "2026-11-07",
+      "verified_at": "2026-11-07",
+      "confidence": "medium",
+      "runtimes": ["node", "python", "docker"],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "neon-free",
+      "provider": "Neon",
+      "product": "Postgres",
+      "plan": "Free",
+      "category": "database",
+      "status": "modeled",
+      "eligible_regions": ["us", "eu"],
+      "capabilities": ["connection_pooling"],
+      "exclusions": ["Egress above the plan allowance"],
+      "operations_level": "low",
+      "evidence": [
+        {"source_url": "https://neon.com/pricing", "note": "Free: 100 CU-hours per project, 1 GB storage per project, compute scales to zero after 5 minutes."},
+        {"source_url": "https://neon.com/docs/introduction/plans", "note": "Free is for prototypes, side projects and small teams."},
+        {"source_url": "https://neon.com/docs/introduction/regions", "note": "AWS US East, US West and Europe regions."}
+      ],
+      "price_formula": {"charges": [{"kind": "fixed", "label": "Free plan", "amount": "0"}]},
+      "commitment": {"type": "none"},
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Free plan; no charge to tax.",
+      "fetched_at": "2026-11-07",
+      "verified_at": "2026-11-07",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": ["postgresql"],
+      "commercial_use": "unverified",
+      "sleep": "always",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [
+        {"meter": "db_gb", "max": "1"},
+        {"meter": "db_cu_hours", "max": "100"}
+      ],
+      "temporary_offers": []
+    },
+    {
+      "id": "neon-launch",
+      "provider": "Neon",
+      "product": "Postgres",
+      "plan": "Launch",
+      "category": "database",
+      "status": "modeled",
+      "eligible_regions": ["us", "eu"],
+      "capabilities": ["connection_pooling", "point_in_time_restore"],
+      "exclusions": ["Branch-hours ($0.002 per branch-hour)", "Snapshots and restore history storage", "Egress"],
+      "operations_level": "low",
+      "evidence": [
+        {"source_url": "https://neon.com/pricing", "note": "Launch: $0.106 per CU-hour, $0.35 per GB-month, scale-to-zero can be disabled, restore history up to 7 days."},
+        {"source_url": "https://neon.com/docs/introduction/plans", "note": "Launch is for startups and growing teams."},
+        {"source_url": "https://neon.com/docs/introduction/regions", "note": "AWS US East, US West and Europe regions."}
+      ],
+      "price_formula": {
+        "charges": [
+          {"kind": "metered", "label": "Compute", "meter": "db_cu_hours", "unit": "CU-hour", "rate": "0.106", "per_units": "1", "free": {"type": "none"}, "round_up": false},
+          {"kind": "metered", "label": "Database storage", "meter": "db_gb", "unit": "GB-month", "rate": "0.35", "per_units": "1", "free": {"type": "none"}, "round_up": false}
+        ]
+      },
+      "commitment": {"type": "none"},
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude taxes.",
+      "fetched_at": "2026-11-07",
+      "verified_at": "2026-11-07",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": ["postgresql"],
+      "commercial_use": "yes",
+      "sleep": "optional",
+      "backup": "yes",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "cloudflare-r2-standard",
+      "provider": "Cloudflare",
+      "product": "R2",
+      "plan": "Standard storage",
+      "category": "object_storage",
+      "status": "modeled",
+      "eligible_regions": ["eu"],
+      "capabilities": ["s3_compatible_api"],
+      "exclusions": ["Infrequent Access storage and retrieval fees", "Buckets beyond 100,000 per account"],
+      "operations_level": "low",
+      "evidence": [
+        {"source_url": "https://developers.cloudflare.com/r2/pricing/", "note": "Standard: $0.015/GB-month, $4.50 per million Class A, $0.36 per million Class B; free 10 GB-month, 1M Class A, 10M Class B; egress free; usage rounds up to the next billing unit."},
+        {"source_url": "https://developers.cloudflare.com/r2/reference/data-location/", "note": "Binding data location is by jurisdiction (EU); location hints are not a guarantee."}
+      ],
+      "price_formula": {
+        "charges": [
+          {"kind": "metered", "label": "Standard storage", "meter": "storage_gb_month", "unit": "GB-month", "rate": "0.015", "per_units": "1", "free": {"type": "units", "amount": "10"}, "round_up": true},
+          {"kind": "metered", "label": "Class A operations", "meter": "writes_month", "unit": "million requests", "rate": "4.50", "per_units": "1000000", "free": {"type": "units", "amount": "1000000"}, "round_up": true},
+          {"kind": "metered", "label": "Class B operations", "meter": "reads_month", "unit": "million requests", "rate": "0.36", "per_units": "1000000", "free": {"type": "units", "amount": "10000000"}, "round_up": true}
+        ]
+      },
+      "commitment": {"type": "none"},
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude taxes.",
+      "fetched_at": "2026-11-07",
+      "verified_at": "2026-11-07",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "unverified",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "backblaze-b2",
+      "provider": "Backblaze",
+      "product": "B2 Cloud Storage",
+      "plan": "Pay-as-you-go",
+      "category": "object_storage",
+      "status": "modeled",
+      "eligible_regions": ["us", "eu"],
+      "capabilities": ["s3_compatible_api"],
+      "exclusions": ["Class D transactions ($0.004 per 10,000 after 2,500 free per day)"],
+      "operations_level": "low",
+      "evidence": [
+        {"source_url": "https://www.backblaze.com/cloud-storage/pricing", "note": "$6.95/TB per 30 days, first 10 GB free, free egress up to 3x monthly average storage then $0.01/GB, Class A/B/C calls free."},
+        {"source_url": "https://www.backblaze.com/cloud-storage/transaction-pricing", "note": "S3-compatible API lists object lock configuration, retention and legal hold calls."},
+        {"source_url": "https://www.backblaze.com/docs/cloud-storage-data-regions", "note": "Account region chosen at creation: US East, US West, EU Central, Canada East."}
+      ],
+      "price_formula": {
+        "charges": [
+          {"kind": "metered", "label": "Storage", "meter": "storage_gb_month", "unit": "TB-month", "rate": "6.95", "per_units": "1000", "free": {"type": "units", "amount": "10"}, "round_up": false},
+          {"kind": "metered", "label": "Egress above free allowance", "meter": "egress_gb", "unit": "GB", "rate": "0.01", "per_units": "1", "free": {"type": "multiple_of", "meter": "storage_gb_month", "factor": "3"}, "round_up": false}
+        ]
+      },
+      "commitment": {"type": "none"},
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude taxes.",
+      "fetched_at": "2026-11-07",
+      "verified_at": "2026-11-07",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "unverified",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": ["object_lock"],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "sliplane-object-storage",
+      "provider": "Sliplane",
+      "product": "Object storage",
+      "plan": "S3-compatible storage",
+      "category": "object_storage",
+      "status": "discoverable",
+      "eligible_regions": ["us", "eu"],
+      "capabilities": ["s3_compatible_api"],
+      "exclusions": ["VAT"],
+      "operations_level": "low",
+      "evidence": [
+        {"source_url": "https://sliplane.io/pricing", "note": "First 1 GB free, then EUR 5.00 per 250 GB block; no egress or request fees; average storage billed monthly."}
+      ],
+      "price_formula": {
+        "charges": [
+          {"kind": "metered", "label": "Storage blocks", "meter": "storage_gb_month", "unit": "250 GB block", "rate": "5", "per_units": "250", "free": {"type": "units", "amount": "1"}, "round_up": true}
+        ]
+      },
+      "commitment": {"type": "none"},
+      "currency": "eur",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude VAT.",
+      "fetched_at": "2026-11-07",
+      "verified_at": "2026-11-07",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "unverified",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "wasabi-pay-as-you-go",
+      "provider": "Wasabi",
+      "product": "Hot Cloud Storage",
+      "plan": "Pay as You Go",
+      "category": "object_storage",
+      "status": "discoverable",
+      "eligible_regions": ["us", "eu"],
+      "capabilities": ["s3_compatible_api"],
+      "exclusions": [],
+      "operations_level": "low",
+      "evidence": [
+        {"source_url": "https://www.wasabi.com/pricing", "note": "Starting at $7.99 per TB-month, minimum monthly charge tied to 1 TB, 90-day minimum storage duration, no egress or API request fees, free trial."},
+        {"source_url": "https://docs.wasabi.com/docs/what-are-the-service-urls-for-wasabi-s-different-storage-regions", "note": "US and EU storage regions."}
+      ],
+      "price_formula": {
+        "charges": [
+          {"kind": "metered", "label": "Storage", "meter": "storage_gb_month", "unit": "TB-month", "rate": "7.99", "per_units": "1000", "free": {"type": "none"}, "round_up": false}
+        ],
+        "plan_minimum_monthly": "7.99"
+      },
+      "commitment": {"type": "minimum_storage_duration_days", "days": 90},
+      "currency": "usd",
+      "priced_region": "published starting price",
+      "tax_note": "Prices exclude taxes.",
+      "fetched_at": "2026-11-07",
+      "verified_at": "2026-11-07",
+      "confidence": "medium",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "unverified",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": [
+        {"kind": "trial", "label": "Wasabi free trial", "note": "100 GB for 30 days on a company email domain; 10 GB for 14 days on a freemail domain. Not applied to any total."}
+      ]
+    },
+    {
+      "id": "gcp-cloud-run-request-based",
+      "provider": "Google Cloud",
+      "product": "Cloud Run",
+      "plan": "Request-based billing",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": ["us", "eu"],
+      "capabilities": ["custom_domains"],
+      "exclusions": ["Artifact Registry", "Outbound network traffic", "Logging and monitoring"],
+      "operations_level": "medium",
+      "evidence": [
+        {"source_url": "https://cloud.google.com/run/pricing", "note": "Request-based services in us-central1: $0.000024 per vCPU-second, $0.0000025 per GiB-second, $0.40 per million requests; free 180,000 vCPU-seconds, 360,000 GiB-seconds and 2 million requests per month."}
+      ],
+      "price_formula": {
+        "charges": [
+          {"kind": "metered", "label": "CPU", "meter": "cpu_seconds", "unit": "vCPU-second", "rate": "0.000024", "per_units": "1", "free": {"type": "units", "amount": "180000"}, "round_up": false},
+          {"kind": "metered", "label": "Memory", "meter": "memory_gib_seconds", "unit": "GiB-second", "rate": "0.0000025", "per_units": "1", "free": {"type": "units", "amount": "360000"}, "round_up": false},
+          {"kind": "metered", "label": "Requests", "meter": "requests_month", "unit": "million requests", "rate": "0.40", "per_units": "1000000", "free": {"type": "units", "amount": "2000000"}, "round_up": false}
+        ]
+      },
+      "commitment": {"type": "none"},
+      "currency": "usd",
+      "priced_region": "us-central1 (tier 1)",
+      "tax_note": "Prices exclude taxes.",
+      "fetched_at": "2026-11-07",
+      "verified_at": "2026-11-07",
+      "confidence": "medium",
+      "runtimes": ["node", "python", "docker"],
+      "db_engines": [],
+      "commercial_use": "unverified",
+      "sleep": "optional",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "hetzner-cloud-cx23-eu",
+      "provider": "Hetzner",
+      "product": "Cloud server CX23",
+      "plan": "EU shared vCPU",
+      "category": "runtime",
+      "status": "needs_manual_quote",
+      "eligible_regions": ["eu"],
+      "capabilities": [],
+      "exclusions": ["Public IPv4", "Backups", "VAT"],
+      "operations_level": "high",
+      "evidence": [
+        {"source_url": "https://www.hetzner.com/cloud/", "note": "Maintainer research snapshot lists EUR 5.49 per month excluding IPv4 and VAT; the rate was not re-verified on this page, so no price is encoded."}
+      ],
+      "commitment": {"type": "none"},
+      "currency": "eur",
+      "priced_region": "EU",
+      "tax_note": "Prices exclude VAT.",
+      "fetched_at": "2026-11-07",
+      "verified_at": "2026-11-07",
+      "confidence": "low",
+      "runtimes": ["node", "python", "docker"],
+      "db_engines": [],
+      "commercial_use": "unverified",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "supabase-free",
+      "provider": "Supabase",
+      "product": "Postgres",
+      "plan": "Free",
+      "category": "database",
+      "status": "discoverable",
+      "eligible_regions": ["global"],
+      "capabilities": [],
+      "exclusions": ["Egress above 5 GB", "Additional projects"],
+      "operations_level": "low",
+      "evidence": [
+        {"source_url": "https://supabase.com/pricing", "note": "Free: 500 MB database, 5 GB egress, 1 GB file storage, projects paused after 1 week of inactivity, 2 active projects."}
+      ],
+      "commitment": {"type": "none"},
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Free plan; no charge to tax.",
+      "fetched_at": "2026-11-07",
+      "verified_at": "2026-11-07",
+      "confidence": "medium",
+      "runtimes": [],
+      "db_engines": ["postgresql"],
+      "commercial_use": "unverified",
+      "sleep": "always",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [{"meter": "db_gb", "max": "0.5"}],
+      "temporary_offers": []
+    },
+    {
+      "id": "railway-usage-based",
+      "provider": "Railway",
+      "product": "App hosting",
+      "plan": "Subscription plus usage",
+      "category": "runtime",
+      "status": "needs_manual_quote",
+      "eligible_regions": ["global"],
+      "capabilities": [],
+      "exclusions": ["Subscription fee", "Usage-based compute and egress"],
+      "operations_level": "low",
+      "evidence": [
+        {"source_url": "https://railway.com/pricing", "note": "Page reachable on the checked date; rates and terms are not yet reviewed, so no price is encoded."}
+      ],
+      "commitment": {"type": "none"},
+      "currency": "usd",
+      "priced_region": "unreviewed",
+      "tax_note": "Unreviewed.",
+      "fetched_at": "2026-11-07",
+      "verified_at": "2026-11-07",
+      "confidence": "low",
+      "runtimes": ["node", "python", "docker"],
+      "db_engines": [],
+      "commercial_use": "unverified",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    }
+  ],
+  "recipes": [
+    {
+      "id": "recipe-a",
+      "name": "Static frontend, Node API, PostgreSQL and object storage",
+      "runtimes": ["node"],
+      "slots": [
+        {"category": "frontend", "card_ids": ["cloudflare-pages-free"]},
+        {"category": "runtime", "card_ids": ["render-web-starter-hobby", "render-web-starter-pro"]},
+        {"category": "database", "card_ids": ["neon-free", "neon-launch"]},
+        {"category": "object_storage", "card_ids": ["cloudflare-r2-standard"]}
+      ],
+      "edges": [
+        {"from": "frontend", "to": "runtime", "auth": "Browser calls the API; configure a CORS origin allow-list.", "latency_note": "Frontend is served from an edge network; API latency depends on the chosen Render region and is not measured."},
+        {"from": "runtime", "to": "database", "auth": "Server-side connection string over TLS.", "latency_note": "Render and Neon regions are chosen independently; pick the same cloud region. Latency is not measured."},
+        {"from": "runtime", "to": "object_storage", "auth": "Scoped S3 access key held by the API.", "latency_note": "Cross-provider transfer; include it in the application outbound meter. Latency is not measured."}
+      ]
+    },
+    {
+      "id": "recipe-b",
+      "name": "Container API, PostgreSQL and object storage",
+      "runtimes": ["python", "docker"],
+      "slots": [
+        {"category": "runtime", "card_ids": ["render-web-starter-hobby", "render-web-starter-pro"]},
+        {"category": "database", "card_ids": ["neon-free", "neon-launch"]},
+        {"category": "object_storage", "card_ids": ["backblaze-b2"]}
+      ],
+      "edges": [
+        {"from": "runtime", "to": "database", "auth": "Server-side connection string over TLS.", "latency_note": "Render and Neon regions are chosen independently; pick the same cloud region. Latency is not measured."},
+        {"from": "runtime", "to": "object_storage", "auth": "Scoped S3 application key held by the API.", "latency_note": "Cross-provider transfer; include it in the application outbound meter. Latency is not measured."}
+      ]
+    }
+  ]
+}
