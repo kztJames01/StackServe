@@ -18,14 +18,14 @@ def request(**values):
         schema_version=2,
         request_id="test",
         operation="search",
-        corpus_version="2026-11-07.1",
+        corpus_version="2026-11-09.1",
         **{"query": "Render PORT", "filters": Filters(), "limit": 8, **values},
     )
 
 
 def test_corpus_and_exact_identifier():
     sections, _ = load_corpus()
-    assert len(sections) == 36
+    assert len(sections) == 48
     assert bm25("Render PORT binding", sections)[0] == "render-web-port"
     assert all(s.content_hash == digest(s.text.encode()) for s in sections)
 

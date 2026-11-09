@@ -375,7 +375,7 @@ pub fn profile(input: &[u8]) -> Result<Profile, ProfileError> {
     })
 }
 
-fn allowed_path(path: &str) -> bool {
+pub(crate) fn allowed_path(path: &str) -> bool {
     let lower = path.to_ascii_lowercase();
     let supported = [
         ".json", ".js", ".ts", ".jsx", ".tsx", ".py", ".rs", ".toml", ".yaml", ".yml",
@@ -419,7 +419,7 @@ fn allowed_path(path: &str) -> bool {
         && !lower.ends_with(".key")
 }
 
-fn secret_like(line: &str) -> bool {
+pub(crate) fn secret_like(line: &str) -> bool {
     let lower = line.to_ascii_lowercase();
     [
         "password",
@@ -457,29 +457,53 @@ fn safe_version(value: &str) -> bool {
         })
 }
 
-fn env_reference(line: &str) -> Option<&str> {
-    for prefix in [
-        "process.env.",
-        "os.getenv(\"",
-        "os.getenv('",
-        "os.environ[\"",
-        "os.environ['",
-        "os.environ.get(\"",
-        "os.environ.get('",
+pub(crate) fn env_references(line: &str) -> Vec<&str> {
+    let trimmed = line.trim_start();
+    if trimmed.starts_with("//")
+        || trimmed.starts_with('#')
+        || trimmed.starts_with("/*")
+        || trimmed.starts_with('*')
+    {
+        return Vec::new();
+    }
+    let active = trimmed.split("//").next().unwrap_or(trimmed);
+    let mut keys = Vec::new();
+    for (prefix, closing) in [
+        ("process.env.", None),
+        ("os.getenv(\"", Some(b'"')),
+        ("os.getenv('", Some(b'\'')),
+        ("os.environ[\"", Some(b'"')),
+        ("os.environ['", Some(b'\'')),
+        ("os.environ.get(\"", Some(b'"')),
+        ("os.environ.get('", Some(b'\'')),
     ] {
-        if let Some((_, rest)) = line.split_once(prefix) {
+        let mut cursor = active;
+        while let Some((_, rest)) = cursor.split_once(prefix) {
             let end = rest
                 .bytes()
                 .take_while(|byte| {
                     byte.is_ascii_uppercase() || byte.is_ascii_digit() || *byte == b'_'
                 })
                 .count();
-            if end > 0 && end <= 64 {
-                return Some(&rest[..end]);
+            let valid_boundary = match (closing, rest.as_bytes().get(end).copied()) {
+                (Some(quote), next) => next == Some(quote),
+                (None, Some(next)) => !next.is_ascii_alphanumeric() && next != b'_',
+                (None, None) => true,
+            };
+            if end > 0 && end <= 64 && rest.as_bytes()[0].is_ascii_uppercase() && valid_boundary {
+                let key = &rest[..end];
+                if !keys.contains(&key) {
+                    keys.push(key);
+                }
             }
+            cursor = &rest[end..];
         }
     }
-    None
+    keys
+}
+
+fn env_reference(line: &str) -> Option<&str> {
+    env_references(line).into_iter().next()
 }
 
 fn env_file_reference(line: &str) -> Option<&str> {

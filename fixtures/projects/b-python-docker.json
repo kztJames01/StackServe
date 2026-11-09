@@ -1,0 +1,35 @@
+{
+  "stack_id": "recipe-b/render-web-starter-hobby+neon-launch+backblaze-b2",
+  "workload": {
+    "runtime": "docker",
+    "db_engine": "postgresql",
+    "residency": "us",
+    "commercial_use": false,
+    "sleep_tolerant": false,
+    "backup_required": true,
+    "storage_gb_month": 100,
+    "egress_gb": 250,
+    "writes_month": 100000,
+    "reads_month": 1000000,
+    "requests_month": 2000000,
+    "app_outbound_gb": 30,
+    "db_gb": 2,
+    "db_cu_hours": 200
+  },
+  "files": [
+    {
+      "path": "requirements.txt",
+      "content": "fastapi==0.115.6\npsycopg==3.2.3\nboto3==1.35.76\n"
+    },
+    {
+      "path": "Dockerfile",
+      "content": "FROM python:3.12-slim\nCMD [\"uvicorn\", \"app.main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"10000\"]\n"
+    },
+    {
+      "path": "app/settings.py",
+      "content": "import os\nDATABASE_URL = os.environ[\"DATABASE_URL\"]\nS3_ENDPOINT = os.getenv(\"S3_ENDPOINT\")\nS3_REGION = os.getenv('S3_REGION')\nS3_BUCKET = os.environ.get(\"S3_BUCKET\")\nS3_ACCESS_KEY_ID = os.environ['S3_ACCESS_KEY_ID']\nS3_SECRET_ACCESS_KEY = os.environ.get('S3_SECRET_ACCESS_KEY')\n"
+    }
+  ],
+  "env_mapping": {},
+  "adapter_patches": []
+}

@@ -1,0 +1,391 @@
+{
+  "recipe_id": "recipe-a",
+  "recipe_version": "2026-11-09.2",
+  "corpus_version": "2026-11-09.1",
+  "name": "Static frontend, Node API, PostgreSQL and private object storage for uploads",
+  "resources": [
+    {
+      "category": "frontend",
+      "kind": "Cloudflare Pages project",
+      "name_placeholder": "replace_with_pages_project_name",
+      "sources": [{"corpus": "pages-build-build"}],
+      "gaps": []
+    },
+    {
+      "category": "runtime",
+      "kind": "Render web service (native Node.js runtime)",
+      "name_placeholder": "replace_with_render_service_name",
+      "sources": [{"corpus": "render-docker-native"}],
+      "gaps": []
+    },
+    {
+      "category": "database",
+      "kind": "Neon project with one branch, database and role",
+      "name_placeholder": "replace_with_neon_project_name",
+      "sources": [{"corpus": "neon-connect-connection"}],
+      "gaps": []
+    },
+    {
+      "category": "object_storage",
+      "kind": "Private Cloudflare R2 bucket",
+      "name_placeholder": "replace_with_bucket_name",
+      "sources": [{"corpus": "r2-public-public"}],
+      "gaps": []
+    }
+  ],
+  "placements": [
+    {
+      "residencies": ["us", "any"],
+      "category": "runtime",
+      "region": "Render Ohio (slug: ohio)",
+      "sources": [
+        {"corpus": "render-regions-regions"},
+        {"card": {"card_id": "render-web-starter-hobby", "url": "https://render.com/docs/regions"}}
+      ],
+      "gaps": []
+    },
+    {
+      "residencies": ["us", "any"],
+      "category": "database",
+      "region": "Neon AWS US East, Ohio (slug: aws-us-east-2)",
+      "sources": [
+        {"corpus": "neon-regions-regions"},
+        {"card": {"card_id": "neon-launch", "url": "https://neon.com/docs/introduction/regions"}}
+      ],
+      "gaps": []
+    },
+    {
+      "residencies": ["us", "any"],
+      "category": "object_storage",
+      "region": "Cloudflare R2 (US jurisdiction for US residency, or default placement with S3 client region auto)",
+      "sources": [
+        {"corpus": "r2-location-jurisdiction"},
+        {"corpus": "r2-s3-region"},
+        {"corpus": "r2-location-hints"}
+      ],
+      "gaps": []
+    },
+    {
+      "residencies": ["eu"],
+      "category": "runtime",
+      "region": "Render Frankfurt (slug: frankfurt)",
+      "sources": [
+        {"corpus": "render-regions-regions"},
+        {"card": {"card_id": "render-web-starter-hobby", "url": "https://render.com/docs/regions"}}
+      ],
+      "gaps": []
+    },
+    {
+      "residencies": ["eu"],
+      "category": "database",
+      "region": "Neon AWS EU Central, Frankfurt (slug: aws-eu-central-1, GDPR-native EU member state)",
+      "sources": [
+        {"card": {"card_id": "neon-launch", "url": "https://neon.com/docs/introduction/regions"}}
+      ],
+      "gaps": []
+    },
+    {
+      "residencies": ["eu"],
+      "category": "object_storage",
+      "region": "Cloudflare R2 EU jurisdiction (eu) with S3 client region auto",
+      "sources": [
+        {"corpus": "r2-location-jurisdiction"},
+        {"corpus": "r2-s3-region"}
+      ],
+      "gaps": []
+    }
+  ],
+  "env": [
+    {
+      "role": "database_url",
+      "default_key": "DATABASE_URL",
+      "category": "database",
+      "secret": true,
+      "placeholder": "replace_with_neon_pooled_connection_string",
+      "comment": "Server-side only. Use the pooled connection string (hostname contains -pooler) and keep its TLS parameters.",
+      "sources": [{"corpus": "neon-connect-connection"}, {"corpus": "neon-pooling-pooling"}, {"corpus": "neon-ssl-tls"}],
+      "gaps": []
+    },
+    {
+      "role": "storage_endpoint",
+      "default_key": "S3_ENDPOINT",
+      "category": "object_storage",
+      "secret": false,
+      "placeholder": "replace_with_r2_account_endpoint",
+      "comment": "R2 account S3 endpoint. A jurisdictional bucket needs the matching jurisdiction endpoint.",
+      "sources": [{"corpus": "r2-tokens-endpoint"}],
+      "gaps": []
+    },
+    {
+      "role": "storage_region",
+      "default_key": "S3_REGION",
+      "category": "object_storage",
+      "secret": false,
+      "placeholder": "replace_with_r2_client_region",
+      "comment": "R2 documents auto as the S3 client region. This setting is not a residency guarantee.",
+      "sources": [{"corpus": "r2-s3-region"}],
+      "gaps": []
+    },
+    {
+      "role": "storage_bucket",
+      "default_key": "S3_BUCKET",
+      "category": "object_storage",
+      "secret": false,
+      "placeholder": "replace_with_bucket_name",
+      "comment": "Bucket name. R2 buckets start private; public access stays off unless explicitly enabled.",
+      "sources": [{"corpus": "r2-public-public"}],
+      "gaps": []
+    },
+    {
+      "role": "storage_access_key_id",
+      "default_key": "S3_ACCESS_KEY_ID",
+      "category": "object_storage",
+      "secret": true,
+      "placeholder": "replace_with_scoped_access_key_id",
+      "comment": "Object Read and Write credential limited to this bucket; no administrative permission.",
+      "sources": [{"corpus": "r2-tokens-scope"}],
+      "gaps": []
+    },
+    {
+      "role": "storage_secret_access_key",
+      "default_key": "S3_SECRET_ACCESS_KEY",
+      "category": "object_storage",
+      "secret": true,
+      "placeholder": "replace_with_scoped_secret_access_key",
+      "comment": "Server-side only. Presigned URLs let the browser upload without ever receiving this key.",
+      "sources": [{"corpus": "r2-presigned-signed"}],
+      "gaps": []
+    },
+    {
+      "role": "cors_origin",
+      "default_key": "CORS_ORIGIN",
+      "category": "frontend",
+      "secret": false,
+      "placeholder": "replace_with_frontend_origin",
+      "comment": "Exact browser origin of the Pages site: scheme and hostname, optional port, no path, no wildcard.",
+      "sources": [{"corpus": "r2-cors-origins"}, {"corpus": "pages-domains-domains"}],
+      "gaps": []
+    }
+  ],
+  "actions": [
+    {
+      "id": "create-frontend",
+      "topic": "provision",
+      "title": "Create the Cloudflare Pages project",
+      "detail": "Set the build command and the directory with the generated static files. In a monorepo, set the project root instead of assuming the repository root.",
+      "sources": [{"corpus": "pages-build-build"}],
+      "gaps": []
+    },
+    {
+      "id": "create-runtime",
+      "topic": "provision",
+      "title": "Create the Render web service (Node.js runtime) in Ohio (slug: ohio)",
+      "detail": "The server must listen on 0.0.0.0 at PORT (default 10000); deployment fails when no listening port is detected. Bound the Node.js version with NODE_VERSION, .node-version, .nvmrc or package.json engines.",
+      "sources": [
+        {"corpus": "render-web-port"},
+        {"corpus": "render-node-version"},
+        {"corpus": "render-regions-regions"},
+        {"card": {"card_id": "render-web-starter-hobby", "url": "https://render.com/docs/regions"}}
+      ],
+      "gaps": []
+    },
+    {
+      "id": "create-database",
+      "topic": "provision",
+      "title": "Create the Neon project in AWS US East, Ohio (slug: aws-us-east-2)",
+      "detail": "Pick the region near the application (aws-us-east-2 for US or aws-eu-central-1 for EU), then select the branch, database and role to obtain the pooled and the direct connection strings.",
+      "sources": [
+        {"corpus": "neon-regions-regions"},
+        {"corpus": "neon-connect-connection"},
+        {"card": {"card_id": "neon-launch", "url": "https://neon.com/docs/introduction/regions"}}
+      ],
+      "gaps": []
+    },
+    {
+      "id": "create-storage",
+      "topic": "provision",
+      "title": "Create a private R2 bucket",
+      "detail": "Leave public access disabled. The r2.dev URL is for development only; use a custom domain if objects are ever delivered publicly.",
+      "sources": [{"corpus": "r2-public-public"}],
+      "gaps": []
+    },
+    {
+      "id": "scope-storage-credential",
+      "topic": "least_privilege",
+      "title": "Scope the R2 credential and Neon application role",
+      "detail": "Do not grant administrative permissions; R2 Object Read and Write permissions limited to this bucket are enough for uploads and reads. Create a dedicated application role using SQL, with only the database, schema, table and sequence privileges the application requires. Do not use the default owner or a default console/API role as the application identity. Review public privileges, role memberships, row-level security and privileges on future objects for the actual schema. Keep the migration identity separate. Verify required operations succeed and prohibited operations fail before switching application credentials.",
+      "sources": [
+        {
+          "corpus": "r2-tokens-scope"
+        },
+        {
+          "corpus": "neon-roles-lifecycle"
+        }
+      ],
+      "gaps": [
+        "Verify application-specific grants, inherited/public privileges, row-level security and future-object privileges; record successful allowed-operation and denied-operation checks before switching credentials."
+      ]
+    },
+    {
+      "id": "wire-domain",
+      "topic": "dns",
+      "title": "Attach the custom domain to Pages",
+      "detail": "Add the subdomain to the Pages project in the dashboard first, then point its CNAME record at the pages.dev hostname. Adding only the DNS record can produce a 522 error. For the Render API, add the domain in service Settings, follow the DNS-provider instructions linked in the Render custom-domain docs, remove conflicting AAAA records, then click Verify. Check workspace custom-domain quotas and charges.",
+      "sources": [
+        {
+          "corpus": "pages-domains-domains"
+        },
+        {
+          "corpus": "render-domains-lifecycle"
+        }
+      ],
+      "gaps": []
+    },
+    {
+      "id": "set-environment",
+      "topic": "env_vars",
+      "title": "Set the real values on the Render service",
+      "detail": "Copy each key from .env.example into the service environment variables or a secret file. Never commit real values.",
+      "sources": [{"corpus": "render-env-secrets"}],
+      "gaps": []
+    },
+    {
+      "id": "configure-cors",
+      "topic": "cors",
+      "title": "Allow the exact Pages origin in the API and the bucket CORS policy",
+      "detail": "Use scheme, hostname and optional port with no path and no wildcard. A valid presigned URL still needs the bucket CORS policy for browser uploads and downloads.",
+      "sources": [{"corpus": "r2-cors-origins"}, {"corpus": "r2-cors-presigned-cors"}],
+      "gaps": []
+    },
+    {
+      "id": "run-migrations",
+      "topic": "migration",
+      "title": "Run schema migrations over the direct connection",
+      "detail": "Use the direct (non-pooled) Neon connection string for migrations before the new release takes traffic; the application keeps the pooled string.",
+      "sources": [{"corpus": "neon-pooling-migrations"}, {"corpus": "neon-connect-connection"}],
+      "gaps": []
+    },
+    {
+      "id": "verify-tls",
+      "topic": "tls",
+      "title": "Verify TLS on the database and the API",
+      "detail": "Connect to Neon with sslmode=verify-full and confirm that a plain HTTP request to the API is redirected to HTTPS.",
+      "sources": [{"corpus": "neon-ssl-tls"}, {"corpus": "render-web-tls"}],
+      "gaps": []
+    },
+    {
+      "id": "verify-health",
+      "topic": "health_check",
+      "title": "Configure and pass the Render health check",
+      "detail": "The health-check path must answer with a 2xx or 3xx status within five seconds.",
+      "sources": [{"corpus": "render-health-health"}],
+      "gaps": []
+    },
+    {
+      "id": "verify-upload-read",
+      "topic": "upload_read",
+      "title": "Upload, read back and delete one test object",
+      "detail": "From the Pages origin, upload a small object through a presigned URL, read it back, then delete it. A browser CORS error here means the bucket policy origin does not match.",
+      "sources": [{"corpus": "r2-presigned-signed"}, {"corpus": "r2-cors-presigned-cors"}],
+      "gaps": []
+    },
+    {
+      "id": "patch-os",
+      "topic": "os_patching",
+      "title": "Confirm operating-system and dependency patching cadence",
+      "detail": "Render maintains underlying OS and supported runtime security. The application owner reviews application dependencies, runtime version constraints and deployment compatibility; record the responsible owner and update cadence.",
+      "sources": [
+        {
+          "corpus": "render-os-lifecycle"
+        },
+        {
+          "corpus": "render-node-version"
+        }
+      ],
+      "gaps": [
+        "Verify application dependency and Node.js version constraint status; record compatibility test evidence, the responsible owner and update cadence."
+      ]
+    },
+    {
+      "id": "drill-restore",
+      "topic": "backup_restore",
+      "title": "Run a database restore drill",
+      "detail": "Restore the database into a non-production target and run the health check against it before you depend on backups. Inspect the configured Neon history window first: Free supports six hours capped at 1 GB of history; Launch defaults to one day and allows up to seven days. A zero window disables instant restore. Paid history storage is a separate unmodeled cost.",
+      "sources": [
+        {
+          "corpus": "neon-restore-lifecycle"
+        }
+      ],
+      "gaps": [
+        "Verify the actual project history window, retained recovery point, history-storage cost and restore-drill result."
+      ]
+    },
+    {
+      "id": "check-expiry",
+      "topic": "expiry_checks",
+      "title": "Track certificate and domain expiry",
+      "detail": "Record the domain renewal date with your registrar and confirm that certificates for each custom domain renew. Render documents automatic custom-domain certificate issuance and renewal; Cloudflare Universal SSL certificates have a 90-day validity period and begin automatic renewal attempts 30 days before expiration (requiring active DCV and non-blocking CAA records). Verify the live certificates and monitoring for your domains.",
+      "sources": [
+        {
+          "corpus": "render-domains-lifecycle"
+        },
+        {
+          "corpus": "pages-certificate-lifecycle"
+        },
+        {
+          "corpus": "cloudflare-ssl-renewal-lifecycle"
+        }
+      ],
+      "gaps": [
+        "Domain renewal terms depend on the user's registrar.",
+        "Certificate expiry monitoring and alert delivery require project-specific verification."
+      ]
+    },
+    {
+      "id": "roll-back",
+      "topic": "rollback",
+      "title": "Roll back a bad release",
+      "detail": "In Render Deploys, select a successful deployment with a retained build artifact and confirm Rollback to this deploy. Dashboard rollback disables automatic deploys; reenable them only after resolving the issue. API rollback does not disable them. Disks are not rolled back. For registry images use an available immutable digest. Review database migration compatibility separately; a provider application rollback does not prove that a reverse migration is safe. In Pages Deployments, choose a successful production deployment, open its actions menu and confirm Rollback to this deployment. Preview deployments are not eligible.",
+      "sources": [
+        {
+          "corpus": "neon-pooling-migrations"
+        },
+        {
+          "corpus": "render-rollback-lifecycle"
+        },
+        {
+          "corpus": "pages-rollback-lifecycle"
+        }
+      ],
+      "gaps": [
+        "Project-specific migration rollback safety and recovery procedure require verification."
+      ]
+    },
+    {
+      "id": "tear-down",
+      "topic": "teardown",
+      "title": "Tear down every resource",
+      "detail": "Empty the R2 bucket (R2 bucket Settings, Empty Bucket, after removing any bucket lock rules) and delete the empty bucket (Settings, Delete Bucket or npx wrangler r2 bucket delete), revoke the scoped R2 API token, delete the Render web service (service Settings or render services delete <service> --confirm), delete the Neon project (Settings, General, Delete project; seven-day recovery period, and deleting projects does not itself stop paid-plan billing), and delete the Cloudflare Pages project after removing custom domains (if the project has over 100 deployments, remove preview deployments first with npx wrangler pages deployment delete).",
+      "sources": [
+        {
+          "corpus": "r2-delete-lifecycle"
+        },
+        {
+          "corpus": "r2-tokens-scope"
+        },
+        {
+          "corpus": "render-delete-lifecycle"
+        },
+        {
+          "corpus": "neon-delete-lifecycle"
+        },
+        {
+          "corpus": "pages-delete-lifecycle"
+        }
+      ],
+      "gaps": [
+        "Physical backup purge timing and final billing/retention outcomes after resource deletion require account verification."
+      ]
+    }
+  ]
+}
