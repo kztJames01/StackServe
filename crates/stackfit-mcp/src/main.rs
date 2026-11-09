@@ -17,6 +17,7 @@ use schemars::JsonSchema;
 use serde::Deserialize;
 use serde_json::Value;
 use stackfit_core::{
+    engine::{compare_from_json, recommend_from_json},
     profile,
     protocol::{CORPUS_VERSION, Filters, SCHEMA_VERSION, WorkerRequest},
 };
@@ -47,11 +48,24 @@ struct Args {
 #[derive(Subcommand)]
 enum Command {
     Serve,
-    Profile { file: PathBuf },
-    Search { query: String },
+    Profile {
+        file: PathBuf,
+    },
+    Recommend {
+        file: PathBuf,
+    },
+    Compare {
+        file: PathBuf,
+        #[arg(long = "stack", required = true, num_args = 1..=3)]
+        stacks: Vec<String>,
+    },
+    Search {
+        query: String,
+    },
 }
 
 #[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 struct ProfileParams {
     brief: Value,
 }
@@ -68,6 +82,20 @@ struct SearchParams {
     #[serde(default = "default_limit")]
     #[schemars(range(min = 1, max = 8))]
     limit: u8,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+struct RecommendParams {
+    workload: Value,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+struct CompareParams {
+    workload: Value,
+    #[schemars(length(min = 1, max = 3))]
+    stack_ids: Vec<String>,
 }
 
 fn default_limit() -> u8 {
@@ -95,6 +123,30 @@ impl Server {
             Ok(output) => String::from_utf8_lossy(&output).into_owned(),
             Err(error) => format!("profile unavailable: {error}"),
         }
+    }
+
+    #[tool(
+        description = "Recommend up to three feasible stacks (lowest_cost, balanced, performance) for a confirmed workload. Unverified or incomplete stacks are returned as conditional without a rank; rejected stacks carry reason codes."
+    )]
+    fn recommend_stacks(&self, Parameters(params): Parameters<RecommendParams>) -> String {
+        let result = serde_json::to_vec(&params.workload)
+            .map_err(|error| error.to_string())
+            .and_then(|input| recommend_from_json(&input).map_err(|error| error.to_string()))
+            .and_then(|result| serde_json::to_string(&result).map_err(|error| error.to_string()));
+        result.unwrap_or_else(|error| format!("recommendation unavailable: {error}"))
+    }
+
+    #[tool(
+        description = "Itemize up to three stack ids from recommend_stacks at now, 3x traffic, and 10x storage/egress, with billing cliffs, excluded and unknown items. A total appears only when no price is unknown."
+    )]
+    fn compare_stacks(&self, Parameters(params): Parameters<CompareParams>) -> String {
+        let result = serde_json::to_vec(&params.workload)
+            .map_err(|error| error.to_string())
+            .and_then(|input| {
+                compare_from_json(&input, &params.stack_ids).map_err(|error| error.to_string())
+            })
+            .and_then(|result| serde_json::to_string(&result).map_err(|error| error.to_string()));
+        result.unwrap_or_else(|error| format!("comparison unavailable: {error}"))
     }
 
     #[tool(
@@ -145,6 +197,16 @@ async fn main() -> Result<()> {
         Command::Profile { file } => {
             let input = std::fs::read(file).context("reading brief")?;
             let result = profile::profile(&input)?;
+            println!("{}", serde_json::to_string_pretty(&result)?);
+        }
+        Command::Recommend { file } => {
+            let input = std::fs::read(file).context("reading workload")?;
+            let result = recommend_from_json(&input)?;
+            println!("{}", serde_json::to_string_pretty(&result)?);
+        }
+        Command::Compare { file, stacks } => {
+            let input = std::fs::read(file).context("reading workload")?;
+            let result = compare_from_json(&input, &stacks)?;
             println!("{}", serde_json::to_string_pretty(&result)?);
         }
         Command::Search { query } => {

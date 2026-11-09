@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+from pathlib import Path
 
 import jsonschema
 import pytest
@@ -67,6 +68,37 @@ def test_mcp_search_round_trip():
                 assert all(chunk["provider"] == "render" for chunk in response["chunks"])
                 assert response["follow_up_used"] and response["needs_verification"]
                 assert not response["verified_ready"]
+            recommend = next(tool for tool in tools if tool["name"] == "recommend_stacks")
+            compare = next(tool for tool in tools if tool["name"] == "compare_stacks")
+            workload = json.loads(
+                (Path(__file__).parents[3] / "fixtures/workloads/node-sporadic.json").read_text()
+            )
+            rec_args = {"workload": workload}
+            jsonschema.validate(rec_args, recommend["inputSchema"])
+            await send(
+                {
+                    "jsonrpc": "2.0",
+                    "id": 5,
+                    "method": "tools/call",
+                    "params": {"name": "recommend_stacks", "arguments": rec_args},
+                }
+            )
+            rec_resp = json.loads((await receive())["result"]["content"][0]["text"])
+            stack_id = rec_resp["selections"][0]["stack_id"]
+            assert rec_resp["selections"][0]["estimate"]["total_known"] == {"usd": "10.600"}
+            cmp_args = {"workload": workload, "stack_ids": [stack_id]}
+            jsonschema.validate(cmp_args, compare["inputSchema"])
+            await send(
+                {
+                    "jsonrpc": "2.0",
+                    "id": 6,
+                    "method": "tools/call",
+                    "params": {"name": "compare_stacks", "arguments": cmp_args},
+                }
+            )
+            cmp_resp = json.loads((await receive())["result"]["content"][0]["text"])
+            assert len(cmp_resp["stacks"][0]["scenarios"]) == 3
+            assert len(cmp_resp["stacks"][0]["cliffs"]) == 2
             process.stdin.close()
             await asyncio.wait_for(process.wait(), timeout=10)
             assert not await process.stderr.read()
