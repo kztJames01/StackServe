@@ -285,7 +285,7 @@
           "type": "integer"
         },
         "corpus_version": {
-          "const": "2026-11-07.1",
+          "const": "2026-11-09.1",
           "title": "Corpus Version",
           "type": "string"
         }
@@ -317,7 +317,7 @@
           "type": "string"
         },
         "corpus_version": {
-          "const": "2026-11-07.1",
+          "const": "2026-11-09.1",
           "title": "Corpus Version",
           "type": "string"
         },

@@ -86,7 +86,7 @@ def evaluate(day: date | None = None) -> str:
     report = [
         f"# Retrieval evaluation — {day.isoformat()}",
         "",
-        f"Corpus `{CORPUS_VERSION}`: 36 curated sections, SHA-256 `{corpus_hash}`.",
+        f"Corpus `{CORPUS_VERSION}`: {len(sections)} curated sections, SHA-256 `{corpus_hash}`.",
         f"Model `{spec['model_id']}` at `{spec['revision']}`, {spec['dimension']} dimensions; `{spec['index_version']}`.",
         "",
         "Command: `uv run --locked --extra vector python -m stackfit_rag.evaluate --write`.",

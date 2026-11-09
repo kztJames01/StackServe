@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 pub const SCHEMA_VERSION: u8 = 2;
-pub const CORPUS_VERSION: &str = "2026-11-07.1";
+pub const CORPUS_VERSION: &str = "2026-11-09.1";
 pub const MAX_LINE_BYTES: usize = 65_536;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

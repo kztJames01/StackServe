@@ -1,6 +1,6 @@
 # Provider evidence snapshot
 
-Version `2026-11-07.1` contains 36 short, manually reviewed summaries from 24
+Version `2026-11-09.1` contains 44 short, manually reviewed summaries from 31
 official documentation pages. These are paraphrases, not full source copies.
 Source URLs, fetch URLs, original-page SHA-256, summary SHA-256, heading, parent
 context and dates travel with each result. The manifest hashes the complete
