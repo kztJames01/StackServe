@@ -118,14 +118,13 @@ async fn exchange(process: &mut Process, request: &WorkerRequest) -> Result<Work
 #[cfg(test)]
 mod tests {
     use super::*;
-    use stackfit_core::protocol::{CORPUS_VERSION, Filters, SCHEMA_VERSION};
 
     // Fixture files are written and executed by parallel tests. Serializing the
     // write/spawn window avoids a test-only exec race on the generated script.
     static WORKER_TEST_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
 
     #[cfg(unix)]
-    fn hang_script(suffix: &str) -> PathBuf {
+    fn fixture_script(suffix: &str, body: &str) -> PathBuf {
         use std::os::unix::fs::PermissionsExt;
         use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -137,15 +136,39 @@ mod tests {
             "stackfit-{suffix}-{}-{unique}.sh",
             std::process::id()
         ));
-        // The marker gives the test a deterministic "child is running" signal
-        // instead of assuming a fixed sleep is long enough.
-        std::fs::write(
-            &script,
-            "#!/bin/sh\nprintf '%s\\n' \"$$\" > \"$0.started\"\nexec sleep 30\n",
-        )
-        .unwrap();
+        std::fs::write(&script, format!("#!/bin/sh\n{body}")).unwrap();
         std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o700)).unwrap();
         script
+    }
+
+    #[cfg(unix)]
+    fn response_fixture(suffix: &str) -> PathBuf {
+        use std::time::{SystemTime, UNIX_EPOCH};
+
+        let unique = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!(
+            "stackfit-response-{suffix}-{}-{unique}.jsonl",
+            std::process::id()
+        ));
+        std::fs::write(
+            &path,
+            include_str!("../../../fixtures/protocol/response.jsonl"),
+        )
+        .unwrap();
+        path
+    }
+
+    #[cfg(unix)]
+    fn hang_script(suffix: &str) -> PathBuf {
+        // The marker gives the test a deterministic "child is running" signal
+        // instead of assuming a fixed sleep is long enough.
+        fixture_script(
+            suffix,
+            "printf '%s\\n' \"$$\" > \"$0.started\"\nexec sleep 30\n",
+        )
     }
 
     #[cfg(unix)]
@@ -192,16 +215,14 @@ mod tests {
     }
 
     fn request() -> WorkerRequest {
-        WorkerRequest {
-            schema_version: SCHEMA_VERSION,
-            request_id: "test".to_owned(),
-            operation: "search".to_owned(),
-            query: "test".to_owned(),
-            follow_up_query: None,
-            filters: Filters::default(),
-            limit: 1,
-            corpus_version: CORPUS_VERSION.to_owned(),
-        }
+        serde_json::from_str(include_str!("../../../fixtures/protocol/request.jsonl")).unwrap()
+    }
+
+    #[test]
+    fn default_timeouts_match_the_worker_contract() {
+        let worker = Worker::new(PathBuf::from("python"), PathBuf::from("/tmp"));
+        assert_eq!(worker.startup_timeout, Duration::from_secs(60));
+        assert_eq!(worker.warm_timeout, Duration::from_secs(10));
     }
 
     #[test]
@@ -212,11 +233,71 @@ mod tests {
         assert_eq!(worker.warm_timeout, Duration::from_secs(2));
     }
 
+    #[cfg(unix)]
     #[tokio::test]
     async fn crashed_worker_returns_error() {
         let _test = WORKER_TEST_LOCK.lock().await;
-        let worker = Worker::new(PathBuf::from("/bin/false"), PathBuf::from("/tmp"));
+        let script = fixture_script("crash", "exit 1\n");
+        let worker = Worker::new(script.clone(), std::env::temp_dir());
         assert!(worker.search(&request()).await.is_err());
+        remove_fixture(&script);
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn warm_timeout_is_applied_after_the_first_response() {
+        let _test = WORKER_TEST_LOCK.lock().await;
+        let response = response_fixture("warm-timeout");
+        let script = fixture_script(
+            "warm-timeout",
+            &format!(
+                "read line\ncat '{}'\nread line\nexec sleep 30\n",
+                response.display()
+            ),
+        );
+        let mut worker = Worker::new(script.clone(), std::env::temp_dir());
+        worker.startup_timeout = Duration::from_secs(2);
+        worker.warm_timeout = Duration::from_millis(100);
+        worker.search(&request()).await.unwrap();
+        let error = worker.search(&request()).await.unwrap_err();
+        assert!(error.to_string().contains("timed out"), "{error}");
+        remove_fixture(&script);
+        let _ = std::fs::remove_file(response);
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn worker_crash_after_the_first_response_returns_error() {
+        let _test = WORKER_TEST_LOCK.lock().await;
+        let response = response_fixture("warm-crash");
+        let script = fixture_script(
+            "warm-crash",
+            &format!("read line\ncat '{}'\nexit 1\n", response.display()),
+        );
+        let worker = Worker::new(script.clone(), std::env::temp_dir());
+        worker.search(&request()).await.unwrap();
+        let error = worker.search(&request()).await.unwrap_err();
+        let message = error.to_string();
+        assert!(
+            message.contains("worker exited") || message.contains("worker response missing"),
+            "{message}"
+        );
+        remove_fixture(&script);
+        let _ = std::fs::remove_file(response);
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn oversized_worker_output_is_rejected() {
+        let _test = WORKER_TEST_LOCK.lock().await;
+        let script = fixture_script(
+            "oversized",
+            "read line\nhead -c 65537 /dev/zero | tr '\\0' a\nprintf '\\n'\nexec sleep 30\n",
+        );
+        let worker = Worker::new(script.clone(), std::env::temp_dir());
+        let error = worker.search(&request()).await.unwrap_err();
+        assert!(error.to_string().contains("too large"), "{error}");
+        remove_fixture(&script);
     }
 
     #[cfg(unix)]
