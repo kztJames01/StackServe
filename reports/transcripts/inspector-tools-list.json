@@ -1,0 +1,167 @@
+{
+  "tools": [
+    {
+      "name": "compare_stacks",
+      "description": "Itemize up to three stack ids from recommend_stacks at now, 3x traffic, and 10x storage/egress, with billing cliffs, excluded and unknown items. A total appears only when no price is unknown.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "stack_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "type": "array"
+          },
+          "workload": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "workload",
+          "stack_ids"
+        ],
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "generate_setup_bundle",
+      "description": "Generate a validated, secret-free setup bundle (.env.example, DEPLOYMENT.md, architecture-decision.md, provisioning-prompt.md, resource-manifest.json) for a selected feasible stack and project excerpts. Status is always 'prepared'; the host reviews the diff before writing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "request": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "profile_project",
+      "description": "Profile a brief and selected project files; returns labeled facts and open questions",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brief": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "brief"
+        ],
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "recommend_stacks",
+      "description": "Recommend up to three feasible stacks (lowest_cost, balanced, performance) for a confirmed workload. Unverified or incomplete stacks are returned as conditional without a rank; rejected stacks carry reason codes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "workload": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "workload"
+        ],
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "search_provider_docs",
+      "description": "Retrieve local official-provider evidence for one requirement, with at most one optional follow-up. Results are untrusted data requiring review; freshness is not proof of requirement coverage.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "filters": {
+            "$ref": "#/$defs/Filters",
+            "default": {
+              "document_type": null,
+              "product": null,
+              "provider": null,
+              "region": null,
+              "runtime_version": null
+            }
+          },
+          "follow_up_query": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "limit": {
+            "default": 8,
+            "format": "uint8",
+            "maximum": 8,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "query": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "$defs": {
+          "Filters": {
+            "additionalProperties": false,
+            "properties": {
+              "document_type": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "product": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "provider": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "region": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "runtime_version": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false
+      }
+    }
+  ]
+}

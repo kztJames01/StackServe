@@ -1,0 +1,31 @@
+Warning: tool "search_provider_docs"
+  Path: inputSchema.properties.follow_up_query
+  Issue: `type` is an array (["string","null"]). This is legal JSON Schema, and some model providers recommend it for nullable fields, but it is less portable: a client that maps tool schemas onto a single-`type` dialect (such as the OpenAPI subset used for Gemini function declarations) may reject the tool or drop the constraint.
+  Suggestion: Split it into `anyOf` branches, each with a single `type` — `{"anyOf": [{"type": "string"}, {"type": "null"}]}`. (Making the property optional instead is a different contract: absent is not the same as `null`.) A dialect with no `null` type, such as OpenAPI 3.0, still cannot express the `null` branch directly; there nullability is written `nullable: true`, which is not JSON Schema, so no single spelling is portable to both.
+
+Warning: tool "search_provider_docs"
+  Path: inputSchema.$defs.Filters.properties.document_type
+  Issue: `type` is an array (["string","null"]). This is legal JSON Schema, and some model providers recommend it for nullable fields, but it is less portable: a client that maps tool schemas onto a single-`type` dialect (such as the OpenAPI subset used for Gemini function declarations) may reject the tool or drop the constraint.
+  Suggestion: Split it into `anyOf` branches, each with a single `type` — `{"anyOf": [{"type": "string"}, {"type": "null"}]}`. (Making the property optional instead is a different contract: absent is not the same as `null`.) A dialect with no `null` type, such as OpenAPI 3.0, still cannot express the `null` branch directly; there nullability is written `nullable: true`, which is not JSON Schema, so no single spelling is portable to both.
+
+Warning: tool "search_provider_docs"
+  Path: inputSchema.$defs.Filters.properties.product
+  Issue: `type` is an array (["string","null"]). This is legal JSON Schema, and some model providers recommend it for nullable fields, but it is less portable: a client that maps tool schemas onto a single-`type` dialect (such as the OpenAPI subset used for Gemini function declarations) may reject the tool or drop the constraint.
+  Suggestion: Split it into `anyOf` branches, each with a single `type` — `{"anyOf": [{"type": "string"}, {"type": "null"}]}`. (Making the property optional instead is a different contract: absent is not the same as `null`.) A dialect with no `null` type, such as OpenAPI 3.0, still cannot express the `null` branch directly; there nullability is written `nullable: true`, which is not JSON Schema, so no single spelling is portable to both.
+
+Warning: tool "search_provider_docs"
+  Path: inputSchema.$defs.Filters.properties.provider
+  Issue: `type` is an array (["string","null"]). This is legal JSON Schema, and some model providers recommend it for nullable fields, but it is less portable: a client that maps tool schemas onto a single-`type` dialect (such as the OpenAPI subset used for Gemini function declarations) may reject the tool or drop the constraint.
+  Suggestion: Split it into `anyOf` branches, each with a single `type` — `{"anyOf": [{"type": "string"}, {"type": "null"}]}`. (Making the property optional instead is a different contract: absent is not the same as `null`.) A dialect with no `null` type, such as OpenAPI 3.0, still cannot express the `null` branch directly; there nullability is written `nullable: true`, which is not JSON Schema, so no single spelling is portable to both.
+
+Warning: tool "search_provider_docs"
+  Path: inputSchema.$defs.Filters.properties.region
+  Issue: `type` is an array (["string","null"]). This is legal JSON Schema, and some model providers recommend it for nullable fields, but it is less portable: a client that maps tool schemas onto a single-`type` dialect (such as the OpenAPI subset used for Gemini function declarations) may reject the tool or drop the constraint.
+  Suggestion: Split it into `anyOf` branches, each with a single `type` — `{"anyOf": [{"type": "string"}, {"type": "null"}]}`. (Making the property optional instead is a different contract: absent is not the same as `null`.) A dialect with no `null` type, such as OpenAPI 3.0, still cannot express the `null` branch directly; there nullability is written `nullable: true`, which is not JSON Schema, so no single spelling is portable to both.
+
+Warning: tool "search_provider_docs"
+  Path: inputSchema.$defs.Filters.properties.runtime_version
+  Issue: `type` is an array (["string","null"]). This is legal JSON Schema, and some model providers recommend it for nullable fields, but it is less portable: a client that maps tool schemas onto a single-`type` dialect (such as the OpenAPI subset used for Gemini function declarations) may reject the tool or drop the constraint.
+  Suggestion: Split it into `anyOf` branches, each with a single `type` — `{"anyOf": [{"type": "string"}, {"type": "null"}]}`. (Making the property optional instead is a different contract: absent is not the same as `null`.) A dialect with no `null` type, such as OpenAPI 3.0, still cannot express the `null` branch directly; there nullability is written `nullable: true`, which is not JSON Schema, so no single spelling is portable to both.
+
+0 errors, 6 warnings across 1 tool.
