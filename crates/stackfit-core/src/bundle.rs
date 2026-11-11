@@ -1109,8 +1109,21 @@ fn render_bundle_files(ctx: &RenderContext<'_>) -> Result<Vec<GeneratedFile>, Bu
         ));
     }
     deploy_lines.push(String::new());
+    deploy_lines
+        .push("## 3. Pre-Implementation Terms, Renewal & Cancellation Checklist".to_owned());
+    deploy_lines.push(String::new());
     deploy_lines.push(
-        "## 3. Ordered Provisioning, Verification, Ongoing Operations, Rollback & Teardown"
+        "Verify and approve these contractual terms and lifecycle conditions before provisioning:"
+            .to_owned(),
+    );
+    deploy_lines.push(String::new());
+    deploy_lines.push("- [ ] **Domain Registration & Renewal Cliff:** Introductory teaser rates expire after 12 months; verify standard annual renewal rate ($15–$25/yr) and registrar transfer lock policies.".to_owned());
+    deploy_lines.push("- [ ] **Automated SSL/TLS Renewal:** Edge certificates carry 90-day validity and renew automatically 30 days prior to expiration via HTTP DCV; verify active proxying and CAA record permissions.".to_owned());
+    deploy_lines.push("- [ ] **Database History & Retention Limits:** Neon Point-in-Time Recovery history window is strictly bounded (6h Free / 1-7d Launch); WAL retention beyond included storage incurs overage fees.".to_owned());
+    deploy_lines.push("- [ ] **Teardown & Cancellation Proration:** Compute and storage charges are prorated to the second upon service deletion; object storage buckets and deployment previews must be emptied before project deletion succeeds.".to_owned());
+    deploy_lines.push(String::new());
+    deploy_lines.push(
+        "## 4. Ordered Provisioning, Verification, Ongoing Operations, Rollback & Teardown"
             .to_owned(),
     );
     deploy_lines.push(String::new());
@@ -1140,7 +1153,7 @@ fn render_bundle_files(ctx: &RenderContext<'_>) -> Result<Vec<GeneratedFile>, Bu
         deploy_lines.push(String::new());
     }
     if !gaps.is_empty() {
-        deploy_lines.push("## 4. Open Verification Gaps (`needs_verification`)".to_owned());
+        deploy_lines.push("## 5. Open Verification Gaps (`needs_verification`)".to_owned());
         deploy_lines.push(String::new());
         for gap in gaps {
             deploy_lines.push(format!("- **`{}`:** {}", gap.scope, gap.gap));
@@ -1374,6 +1387,23 @@ fn render_bundle_files(ctx: &RenderContext<'_>) -> Result<Vec<GeneratedFile>, Bu
         "recipe_version": recipe.recipe_version,
         "catalog_version": catalog.catalog_version,
         "corpus_version": recipe.corpus_version,
+        "pre_implementation_terms_checklist": [
+            {
+                "topic": "domain_and_ssl_renewal",
+                "term": "Domain auto-renews at registrar standard rate; Cloudflare Universal SSL auto-renews 30 days before 90-day expiration via HTTP DCV with active proxying.",
+                "requires_user_approval": true
+            },
+            {
+                "topic": "database_retention_and_history",
+                "term": "Neon Point-in-Time Recovery history window is strictly 6h (Free) or 1-7d (Launch); WAL history storage beyond included quota incurs storage charges.",
+                "requires_user_approval": true
+            },
+            {
+                "topic": "cancellation_and_teardown_proration",
+                "term": "Render prorates compute/storage by the second; Cloudflare R2 and Pages require complete asset/preview purging before project deletion.",
+                "requires_user_approval": true
+            }
+        ],
         "resources": manifest_resources,
         "environment_variables": traced_keys,
         "estimate_summary": {
@@ -1533,6 +1563,28 @@ mod tests {
                 !deploy.contains("apply its reverse migration over the direct connection first")
             );
         }
+    }
+
+    #[test]
+    fn pre_implementation_terms_checklist_is_embedded_in_deployment_and_manifest() {
+        let bundle = generate_bundle_from_json(NODE_SAMPLE).unwrap();
+        let deploy = &bundle.files[1].content;
+        assert!(deploy.contains("Pre-Implementation Terms, Renewal & Cancellation Checklist"));
+        assert!(deploy.contains("Domain Registration & Renewal Cliff"));
+        assert!(deploy.contains("Automated SSL/TLS Renewal"));
+        assert!(deploy.contains("Database History & Retention Limits"));
+        assert!(deploy.contains("Teardown & Cancellation Proration"));
+
+        let manifest: Value = serde_json::from_str(&bundle.files[4].content).unwrap();
+        let checklist = manifest["pre_implementation_terms_checklist"]
+            .as_array()
+            .unwrap();
+        assert_eq!(checklist.len(), 3);
+        assert!(
+            checklist
+                .iter()
+                .all(|item| item["requires_user_approval"] == true)
+        );
     }
 
     #[test]
