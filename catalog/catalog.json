@@ -1,5 +1,5 @@
 {
-  "catalog_version": "2026-11-09.1",
+  "catalog_version": "2026-11-11.1",
   "cards": [
     {
       "id": "cloudflare-pages-free",
@@ -8,16 +8,39 @@
       "plan": "Free",
       "category": "frontend",
       "status": "modeled",
-      "eligible_regions": ["global"],
-      "capabilities": ["custom_domains"],
-      "exclusions": ["Pages Functions requests (billed as Workers requests)", "Builds above 500 per month"],
+      "eligible_regions": [
+        "global"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "Pages Functions requests (billed as Workers requests)",
+        "Builds above 500 per month"
+      ],
       "operations_level": "low",
       "evidence": [
-        {"source_url": "https://developers.cloudflare.com/pages/functions/pricing/", "note": "Requests to static assets are free and unlimited on free and paid plans."},
-        {"source_url": "https://developers.cloudflare.com/pages/platform/limits/", "note": "Free plan: 500 builds per month, 20-minute build timeout."}
+        {
+          "source_url": "https://developers.cloudflare.com/pages/functions/pricing/",
+          "note": "Requests to static assets are free and unlimited on free and paid plans."
+        },
+        {
+          "source_url": "https://developers.cloudflare.com/pages/platform/limits/",
+          "note": "Free plan: 500 builds per month, 20-minute build timeout."
+        }
       ],
-      "price_formula": {"charges": [{"kind": "fixed", "label": "Static hosting (free plan)", "amount": "0"}]},
-      "commitment": {"type": "none"},
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Static hosting (free plan)",
+            "amount": "0"
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
       "currency": "usd",
       "priced_region": "global edge network",
       "tax_note": "Free plan; no charge to tax.",
@@ -40,29 +63,69 @@
       "plan": "Starter instance on Hobby workspace",
       "category": "runtime",
       "status": "modeled",
-      "eligible_regions": ["us", "eu"],
-      "capabilities": ["custom_domains"],
-      "exclusions": ["Persistent disks ($0.25 per GB-month)", "Build pipeline minutes", "Private-link bandwidth"],
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "Persistent disks ($0.25 per GB-month)",
+        "Build pipeline minutes",
+        "Private-link bandwidth"
+      ],
       "operations_level": "low",
       "evidence": [
-        {"source_url": "https://render.com/pricing", "note": "Hobby workspace $0/month plus compute; Starter instance $7/month; Node, Python and custom Docker supported; positioned for personal projects and prototypes."},
-        {"source_url": "https://render.com/docs/outbound-bandwidth", "note": "Hobby includes 5 GB outbound per month; $0.15 per GB beyond."},
-        {"source_url": "https://render.com/docs/regions", "note": "Oregon (slug: oregon), Ohio (slug: ohio), Virginia (slug: virginia), Frankfurt (slug: frankfurt), Singapore (slug: singapore)."}
+        {
+          "source_url": "https://render.com/pricing",
+          "note": "Hobby workspace $0/month plus compute; Starter instance $7/month; Node, Python and custom Docker supported; positioned for personal projects and prototypes."
+        },
+        {
+          "source_url": "https://render.com/docs/outbound-bandwidth",
+          "note": "Hobby includes 5 GB outbound per month; $0.15 per GB beyond."
+        },
+        {
+          "source_url": "https://render.com/docs/regions",
+          "note": "Oregon (slug: oregon), Ohio (slug: ohio), Virginia (slug: virginia), Frankfurt (slug: frankfurt), Singapore (slug: singapore)."
+        }
       ],
       "price_formula": {
         "charges": [
-          {"kind": "fixed", "label": "Starter instance", "amount": "7"},
-          {"kind": "metered", "label": "Outbound bandwidth", "meter": "app_outbound_gb", "unit": "GB", "rate": "0.15", "per_units": "1", "free": {"type": "units", "amount": "5"}, "round_up": false}
+          {
+            "kind": "fixed",
+            "label": "Starter instance",
+            "amount": "7"
+          },
+          {
+            "kind": "metered",
+            "label": "Outbound bandwidth",
+            "meter": "app_outbound_gb",
+            "unit": "GB",
+            "rate": "0.15",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "5"
+            },
+            "round_up": false
+          }
         ]
       },
-      "commitment": {"type": "none"},
+      "commitment": {
+        "type": "none"
+      },
       "currency": "usd",
       "priced_region": "published list price",
       "tax_note": "Prices exclude taxes.",
       "fetched_at": "2026-11-07",
       "verified_at": "2026-11-07",
       "confidence": "medium",
-      "runtimes": ["node", "python", "docker"],
+      "runtimes": [
+        "node",
+        "python",
+        "docker"
+      ],
       "db_engines": [],
       "commercial_use": "unverified",
       "sleep": "never",
@@ -78,30 +141,74 @@
       "plan": "Starter instance on Pro workspace",
       "category": "runtime",
       "status": "modeled",
-      "eligible_regions": ["us", "eu"],
-      "capabilities": ["custom_domains"],
-      "exclusions": ["Persistent disks ($0.25 per GB-month)", "Build pipeline minutes", "Private-link bandwidth"],
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "Persistent disks ($0.25 per GB-month)",
+        "Build pipeline minutes",
+        "Private-link bandwidth"
+      ],
       "operations_level": "low",
       "evidence": [
-        {"source_url": "https://render.com/pricing", "note": "Pro workspace $25/month plus compute, for teams deploying production-grade apps; Starter instance $7/month."},
-        {"source_url": "https://render.com/docs/outbound-bandwidth", "note": "Pro includes 25 GB outbound per month; $0.15 per GB beyond."},
-        {"source_url": "https://render.com/docs/regions", "note": "Oregon (slug: oregon), Ohio (slug: ohio), Virginia (slug: virginia), Frankfurt (slug: frankfurt), Singapore (slug: singapore)."}
+        {
+          "source_url": "https://render.com/pricing",
+          "note": "Pro workspace $25/month plus compute, for teams deploying production-grade apps; Starter instance $7/month."
+        },
+        {
+          "source_url": "https://render.com/docs/outbound-bandwidth",
+          "note": "Pro includes 25 GB outbound per month; $0.15 per GB beyond."
+        },
+        {
+          "source_url": "https://render.com/docs/regions",
+          "note": "Oregon (slug: oregon), Ohio (slug: ohio), Virginia (slug: virginia), Frankfurt (slug: frankfurt), Singapore (slug: singapore)."
+        }
       ],
       "price_formula": {
         "charges": [
-          {"kind": "fixed", "label": "Pro workspace", "amount": "25"},
-          {"kind": "fixed", "label": "Starter instance", "amount": "7"},
-          {"kind": "metered", "label": "Outbound bandwidth", "meter": "app_outbound_gb", "unit": "GB", "rate": "0.15", "per_units": "1", "free": {"type": "units", "amount": "25"}, "round_up": false}
+          {
+            "kind": "fixed",
+            "label": "Pro workspace",
+            "amount": "25"
+          },
+          {
+            "kind": "fixed",
+            "label": "Starter instance",
+            "amount": "7"
+          },
+          {
+            "kind": "metered",
+            "label": "Outbound bandwidth",
+            "meter": "app_outbound_gb",
+            "unit": "GB",
+            "rate": "0.15",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "25"
+            },
+            "round_up": false
+          }
         ]
       },
-      "commitment": {"type": "none"},
+      "commitment": {
+        "type": "none"
+      },
       "currency": "usd",
       "priced_region": "published list price",
       "tax_note": "Prices exclude taxes.",
       "fetched_at": "2026-11-07",
       "verified_at": "2026-11-07",
       "confidence": "medium",
-      "runtimes": ["node", "python", "docker"],
+      "runtimes": [
+        "node",
+        "python",
+        "docker"
+      ],
       "db_engines": [],
       "commercial_use": "yes",
       "sleep": "never",
@@ -117,17 +224,43 @@
       "plan": "Free",
       "category": "database",
       "status": "modeled",
-      "eligible_regions": ["us", "eu"],
-      "capabilities": ["connection_pooling"],
-      "exclusions": ["Egress above the plan allowance"],
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "connection_pooling"
+      ],
+      "exclusions": [
+        "Egress above the plan allowance"
+      ],
       "operations_level": "low",
       "evidence": [
-        {"source_url": "https://neon.com/pricing", "note": "Free: 100 CU-hours per project, 1 GB storage per project, compute scales to zero after 5 minutes."},
-        {"source_url": "https://neon.com/docs/introduction/plans", "note": "Free is for prototypes, side projects and small teams."},
-        {"source_url": "https://neon.com/docs/introduction/regions", "note": "AWS US East Ohio (slug: aws-us-east-2), US West and Europe regions including Frankfurt, Germany (slug: aws-eu-central-1, GDPR-native EU member state) and London, UK (slug: aws-eu-west-2)."}
+        {
+          "source_url": "https://neon.com/pricing",
+          "note": "Free: 100 CU-hours per project, 1 GB storage per project, compute scales to zero after 5 minutes."
+        },
+        {
+          "source_url": "https://neon.com/docs/introduction/plans",
+          "note": "Free is for prototypes, side projects and small teams."
+        },
+        {
+          "source_url": "https://neon.com/docs/introduction/regions",
+          "note": "AWS US East Ohio (slug: aws-us-east-2), US West and Europe regions including Frankfurt, Germany (slug: aws-eu-central-1, GDPR-native EU member state) and London, UK (slug: aws-eu-west-2)."
+        }
       ],
-      "price_formula": {"charges": [{"kind": "fixed", "label": "Free plan", "amount": "0"}]},
-      "commitment": {"type": "none"},
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Free plan",
+            "amount": "0"
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
       "currency": "usd",
       "priced_region": "published list price",
       "tax_note": "Free plan; no charge to tax.",
@@ -135,14 +268,22 @@
       "verified_at": "2026-11-07",
       "confidence": "high",
       "runtimes": [],
-      "db_engines": ["postgresql"],
+      "db_engines": [
+        "postgresql"
+      ],
       "commercial_use": "unverified",
       "sleep": "always",
       "backup": "unverified",
       "s3_features": [],
       "limits": [
-        {"meter": "db_gb", "max": "1"},
-        {"meter": "db_cu_hours", "max": "100"}
+        {
+          "meter": "db_gb",
+          "max": "1"
+        },
+        {
+          "meter": "db_cu_hours",
+          "max": "100"
+        }
       ],
       "temporary_offers": []
     },
@@ -153,22 +294,65 @@
       "plan": "Launch",
       "category": "database",
       "status": "modeled",
-      "eligible_regions": ["us", "eu"],
-      "capabilities": ["connection_pooling", "point_in_time_restore"],
-      "exclusions": ["Branch-hours ($0.002 per branch-hour)", "Snapshots and restore history storage", "Egress"],
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "connection_pooling",
+        "point_in_time_restore"
+      ],
+      "exclusions": [
+        "Branch-hours ($0.002 per branch-hour)",
+        "Snapshots and restore history storage",
+        "Egress"
+      ],
       "operations_level": "low",
       "evidence": [
-        {"source_url": "https://neon.com/pricing", "note": "Launch: $0.106 per CU-hour, $0.35 per GB-month, scale-to-zero can be disabled, restore history up to 7 days."},
-        {"source_url": "https://neon.com/docs/introduction/plans", "note": "Launch is for startups and growing teams."},
-        {"source_url": "https://neon.com/docs/introduction/regions", "note": "AWS US East Ohio (slug: aws-us-east-2), US West and Europe regions including Frankfurt, Germany (slug: aws-eu-central-1, GDPR-native EU member state) and London, UK (slug: aws-eu-west-2)."}
+        {
+          "source_url": "https://neon.com/pricing",
+          "note": "Launch: $0.106 per CU-hour, $0.35 per GB-month, scale-to-zero can be disabled, restore history up to 7 days."
+        },
+        {
+          "source_url": "https://neon.com/docs/introduction/plans",
+          "note": "Launch is for startups and growing teams."
+        },
+        {
+          "source_url": "https://neon.com/docs/introduction/regions",
+          "note": "AWS US East Ohio (slug: aws-us-east-2), US West and Europe regions including Frankfurt, Germany (slug: aws-eu-central-1, GDPR-native EU member state) and London, UK (slug: aws-eu-west-2)."
+        }
       ],
       "price_formula": {
         "charges": [
-          {"kind": "metered", "label": "Compute", "meter": "db_cu_hours", "unit": "CU-hour", "rate": "0.106", "per_units": "1", "free": {"type": "none"}, "round_up": false},
-          {"kind": "metered", "label": "Database storage", "meter": "db_gb", "unit": "GB-month", "rate": "0.35", "per_units": "1", "free": {"type": "none"}, "round_up": false}
+          {
+            "kind": "metered",
+            "label": "Compute",
+            "meter": "db_cu_hours",
+            "unit": "CU-hour",
+            "rate": "0.106",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          },
+          {
+            "kind": "metered",
+            "label": "Database storage",
+            "meter": "db_gb",
+            "unit": "GB-month",
+            "rate": "0.35",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
         ]
       },
-      "commitment": {"type": "none"},
+      "commitment": {
+        "type": "none"
+      },
       "currency": "usd",
       "priced_region": "published list price",
       "tax_note": "Prices exclude taxes.",
@@ -176,7 +360,9 @@
       "verified_at": "2026-11-07",
       "confidence": "high",
       "runtimes": [],
-      "db_engines": ["postgresql"],
+      "db_engines": [
+        "postgresql"
+      ],
       "commercial_use": "yes",
       "sleep": "optional",
       "backup": "yes",
@@ -191,22 +377,74 @@
       "plan": "Standard storage",
       "category": "object_storage",
       "status": "modeled",
-      "eligible_regions": ["us", "eu"],
-      "capabilities": ["s3_compatible_api"],
-      "exclusions": ["Infrequent Access storage and retrieval fees", "Buckets beyond 100,000 per account"],
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "s3_compatible_api"
+      ],
+      "exclusions": [
+        "Infrequent Access storage and retrieval fees",
+        "Buckets beyond 100,000 per account"
+      ],
       "operations_level": "low",
       "evidence": [
-        {"source_url": "https://developers.cloudflare.com/r2/pricing/", "note": "Standard: $0.015/GB-month, $4.50 per million Class A, $0.36 per million Class B; free 10 GB-month, 1M Class A, 10M Class B; egress free; usage rounds up to the next billing unit."},
-        {"source_url": "https://developers.cloudflare.com/r2/reference/data-location/", "note": "Binding data location is by jurisdiction (us, eu, fedramp) with the matching jurisdiction S3 endpoint; location hints are not a guarantee."}
+        {
+          "source_url": "https://developers.cloudflare.com/r2/pricing/",
+          "note": "Standard: $0.015/GB-month, $4.50 per million Class A, $0.36 per million Class B; free 10 GB-month, 1M Class A, 10M Class B; egress free; usage rounds up to the next billing unit."
+        },
+        {
+          "source_url": "https://developers.cloudflare.com/r2/reference/data-location/",
+          "note": "Binding data location is by jurisdiction (us, eu, fedramp) with the matching jurisdiction S3 endpoint; location hints are not a guarantee."
+        }
       ],
       "price_formula": {
         "charges": [
-          {"kind": "metered", "label": "Standard storage", "meter": "storage_gb_month", "unit": "GB-month", "rate": "0.015", "per_units": "1", "free": {"type": "units", "amount": "10"}, "round_up": true},
-          {"kind": "metered", "label": "Class A operations", "meter": "writes_month", "unit": "million requests", "rate": "4.50", "per_units": "1000000", "free": {"type": "units", "amount": "1000000"}, "round_up": true},
-          {"kind": "metered", "label": "Class B operations", "meter": "reads_month", "unit": "million requests", "rate": "0.36", "per_units": "1000000", "free": {"type": "units", "amount": "10000000"}, "round_up": true}
+          {
+            "kind": "metered",
+            "label": "Standard storage",
+            "meter": "storage_gb_month",
+            "unit": "GB-month",
+            "rate": "0.015",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "10"
+            },
+            "round_up": true
+          },
+          {
+            "kind": "metered",
+            "label": "Class A operations",
+            "meter": "writes_month",
+            "unit": "million requests",
+            "rate": "4.50",
+            "per_units": "1000000",
+            "free": {
+              "type": "units",
+              "amount": "1000000"
+            },
+            "round_up": true
+          },
+          {
+            "kind": "metered",
+            "label": "Class B operations",
+            "meter": "reads_month",
+            "unit": "million requests",
+            "rate": "0.36",
+            "per_units": "1000000",
+            "free": {
+              "type": "units",
+              "amount": "10000000"
+            },
+            "round_up": true
+          }
         ]
       },
-      "commitment": {"type": "none"},
+      "commitment": {
+        "type": "none"
+      },
       "currency": "usd",
       "priced_region": "published list price",
       "tax_note": "Prices exclude taxes.",
@@ -229,25 +467,77 @@
       "plan": "Pay-as-you-go",
       "category": "object_storage",
       "status": "modeled",
-      "eligible_regions": ["us", "eu"],
-      "capabilities": ["s3_compatible_api"],
-      "exclusions": ["Class D transactions ($0.004 per 10,000 after 2,500 free per day)"],
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "s3_compatible_api"
+      ],
+      "exclusions": [
+        "Class D transactions ($0.004 per 10,000 after 2,500 free per day)"
+      ],
       "operations_level": "low",
       "evidence": [
-        {"source_url": "https://www.backblaze.com/cloud-storage/pricing", "note": "$6.95/TB per 30 days, first 10 GB free, free egress up to 3x monthly average storage then $0.01/GB, Class A/B/C calls free."},
-        {"source_url": "https://www.backblaze.com/cloud-storage/transaction-pricing", "note": "S3-compatible API lists object lock configuration, retention and legal hold calls."},
-        {"source_url": "https://www.backblaze.com/docs/cloud-storage-data-regions", "note": "Account region chosen at creation: US East, US West, EU Central, Canada East. S3 endpoint format https://s3.<region>.backblazeb2.com (e.g. https://s3.us-east-005.backblazeb2.com, https://s3.us-west-004.backblazeb2.com, https://s3.eu-central-003.backblazeb2.com); S3 client region matches the exact 3-digit cluster segment (e.g. us-east-005, us-west-004, eu-central-003)."},
-        {"source_url": "https://www.backblaze.com/docs/cloud-storage-s3-compatible-api", "note": "Buckets default to Private (allPrivate) and are versioned by default; only bucket-level canned ACLs (private, public-read) are supported (object-level ACL overrides return 403 Forbidden). Master Application Key is incompatible with the S3 API; generate a dedicated Application Key (keyID maps to AWS_ACCESS_KEY_ID, applicationKey maps to AWS_SECRET_ACCESS_KEY) scoped to a single bucket and optional fileNamePrefix with Read/Write permissions. Supports CRUD, Multipart Uploads, and SigV4 presigned URLs; does not support IAM policies, XML ACLs, S3 Object Tagging, Website Hosting, or SSE-KMS."},
-        {"source_url": "https://www.backblaze.com/docs/cloud-storage-create-and-manage-buckets", "note": "To delete a B2 bucket, first delete all files and versions in the bucket, then in the Backblaze web console open B2 Cloud Storage, Buckets, Bucket Settings, and select Delete Bucket."},
-        {"source_url": "https://www.backblaze.com/docs/cloud-storage-application-keys", "note": "Deleting a standard Application Key in Application Keys or via b2_delete_key immediately removes access for that key without disrupting other keys."}
+        {
+          "source_url": "https://www.backblaze.com/cloud-storage/pricing",
+          "note": "$6.95/TB per 30 days, first 10 GB free, free egress up to 3x monthly average storage then $0.01/GB, Class A/B/C calls free."
+        },
+        {
+          "source_url": "https://www.backblaze.com/cloud-storage/transaction-pricing",
+          "note": "S3-compatible API lists object lock configuration, retention and legal hold calls."
+        },
+        {
+          "source_url": "https://www.backblaze.com/docs/cloud-storage-data-regions",
+          "note": "Account region chosen at creation: US East, US West, EU Central, Canada East. S3 endpoint format https://s3.<region>.backblazeb2.com (e.g. https://s3.us-east-005.backblazeb2.com, https://s3.us-west-004.backblazeb2.com, https://s3.eu-central-003.backblazeb2.com); S3 client region matches the exact 3-digit cluster segment (e.g. us-east-005, us-west-004, eu-central-003)."
+        },
+        {
+          "source_url": "https://www.backblaze.com/docs/cloud-storage-s3-compatible-api",
+          "note": "Buckets default to Private (allPrivate) and are versioned by default; only bucket-level canned ACLs (private, public-read) are supported (object-level ACL overrides return 403 Forbidden). Master Application Key is incompatible with the S3 API; generate a dedicated Application Key (keyID maps to AWS_ACCESS_KEY_ID, applicationKey maps to AWS_SECRET_ACCESS_KEY) scoped to a single bucket and optional fileNamePrefix with Read/Write permissions. Supports CRUD, Multipart Uploads, and SigV4 presigned URLs; does not support IAM policies, XML ACLs, S3 Object Tagging, Website Hosting, or SSE-KMS."
+        },
+        {
+          "source_url": "https://www.backblaze.com/docs/cloud-storage-create-and-manage-buckets",
+          "note": "To delete a B2 bucket, first delete all files and versions in the bucket, then in the Backblaze web console open B2 Cloud Storage, Buckets, Bucket Settings, and select Delete Bucket."
+        },
+        {
+          "source_url": "https://www.backblaze.com/docs/cloud-storage-application-keys",
+          "note": "Deleting a standard Application Key in Application Keys or via b2_delete_key immediately removes access for that key without disrupting other keys."
+        }
       ],
       "price_formula": {
         "charges": [
-          {"kind": "metered", "label": "Storage", "meter": "storage_gb_month", "unit": "TB-month", "rate": "6.95", "per_units": "1000", "free": {"type": "units", "amount": "10"}, "round_up": false},
-          {"kind": "metered", "label": "Egress above free allowance", "meter": "egress_gb", "unit": "GB", "rate": "0.01", "per_units": "1", "free": {"type": "multiple_of", "meter": "storage_gb_month", "factor": "3"}, "round_up": false}
+          {
+            "kind": "metered",
+            "label": "Storage",
+            "meter": "storage_gb_month",
+            "unit": "TB-month",
+            "rate": "6.95",
+            "per_units": "1000",
+            "free": {
+              "type": "units",
+              "amount": "10"
+            },
+            "round_up": false
+          },
+          {
+            "kind": "metered",
+            "label": "Egress above free allowance",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.01",
+            "per_units": "1",
+            "free": {
+              "type": "multiple_of",
+              "meter": "storage_gb_month",
+              "factor": "3"
+            },
+            "round_up": false
+          }
         ]
       },
-      "commitment": {"type": "none"},
+      "commitment": {
+        "type": "none"
+      },
       "currency": "usd",
       "priced_region": "published list price",
       "tax_note": "Prices exclude taxes.",
@@ -259,7 +549,9 @@
       "commercial_use": "unverified",
       "sleep": "never",
       "backup": "unverified",
-      "s3_features": ["object_lock"],
+      "s3_features": [
+        "object_lock"
+      ],
       "limits": [],
       "temporary_offers": []
     },
@@ -270,19 +562,43 @@
       "plan": "S3-compatible storage",
       "category": "object_storage",
       "status": "discoverable",
-      "eligible_regions": ["us", "eu"],
-      "capabilities": ["s3_compatible_api"],
-      "exclusions": ["VAT"],
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "s3_compatible_api"
+      ],
+      "exclusions": [
+        "VAT"
+      ],
       "operations_level": "low",
       "evidence": [
-        {"source_url": "https://sliplane.io/pricing", "note": "First 1 GB free, then EUR 5.00 per 250 GB block; no egress or request fees; average storage billed monthly."}
+        {
+          "source_url": "https://sliplane.io/pricing",
+          "note": "First 1 GB free, then EUR 5.00 per 250 GB block; no egress or request fees; average storage billed monthly."
+        }
       ],
       "price_formula": {
         "charges": [
-          {"kind": "metered", "label": "Storage blocks", "meter": "storage_gb_month", "unit": "250 GB block", "rate": "5", "per_units": "250", "free": {"type": "units", "amount": "1"}, "round_up": true}
+          {
+            "kind": "metered",
+            "label": "Storage blocks",
+            "meter": "storage_gb_month",
+            "unit": "250 GB block",
+            "rate": "5",
+            "per_units": "250",
+            "free": {
+              "type": "units",
+              "amount": "1"
+            },
+            "round_up": true
+          }
         ]
       },
-      "commitment": {"type": "none"},
+      "commitment": {
+        "type": "none"
+      },
       "currency": "eur",
       "priced_region": "published list price",
       "tax_note": "Prices exclude VAT.",
@@ -305,21 +621,46 @@
       "plan": "Pay as You Go",
       "category": "object_storage",
       "status": "discoverable",
-      "eligible_regions": ["us", "eu"],
-      "capabilities": ["s3_compatible_api"],
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "s3_compatible_api"
+      ],
       "exclusions": [],
       "operations_level": "low",
       "evidence": [
-        {"source_url": "https://www.wasabi.com/pricing", "note": "Starting at $7.99 per TB-month, minimum monthly charge tied to 1 TB, 90-day minimum storage duration, no egress or API request fees, free trial."},
-        {"source_url": "https://docs.wasabi.com/docs/what-are-the-service-urls-for-wasabi-s-different-storage-regions", "note": "US and EU storage regions."}
+        {
+          "source_url": "https://www.wasabi.com/pricing",
+          "note": "Starting at $7.99 per TB-month, minimum monthly charge tied to 1 TB, 90-day minimum storage duration, no egress or API request fees, free trial."
+        },
+        {
+          "source_url": "https://docs.wasabi.com/docs/what-are-the-service-urls-for-wasabi-s-different-storage-regions",
+          "note": "US and EU storage regions."
+        }
       ],
       "price_formula": {
         "charges": [
-          {"kind": "metered", "label": "Storage", "meter": "storage_gb_month", "unit": "TB-month", "rate": "7.99", "per_units": "1000", "free": {"type": "none"}, "round_up": false}
+          {
+            "kind": "metered",
+            "label": "Storage",
+            "meter": "storage_gb_month",
+            "unit": "TB-month",
+            "rate": "7.99",
+            "per_units": "1000",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
         ],
         "plan_minimum_monthly": "7.99"
       },
-      "commitment": {"type": "minimum_storage_duration_days", "days": 90},
+      "commitment": {
+        "type": "minimum_storage_duration_days",
+        "days": 90
+      },
       "currency": "usd",
       "priced_region": "published starting price",
       "tax_note": "Prices exclude taxes.",
@@ -334,7 +675,11 @@
       "s3_features": [],
       "limits": [],
       "temporary_offers": [
-        {"kind": "trial", "label": "Wasabi free trial", "note": "100 GB for 30 days on a company email domain; 10 GB for 14 days on a freemail domain. Not applied to any total."}
+        {
+          "kind": "trial",
+          "label": "Wasabi free trial",
+          "note": "100 GB for 30 days on a company email domain; 10 GB for 14 days on a freemail domain. Not applied to any total."
+        }
       ]
     },
     {
@@ -344,28 +689,82 @@
       "plan": "Request-based billing",
       "category": "runtime",
       "status": "discoverable",
-      "eligible_regions": ["us", "eu"],
-      "capabilities": ["custom_domains"],
-      "exclusions": ["Artifact Registry", "Outbound network traffic", "Logging and monitoring"],
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "Artifact Registry",
+        "Outbound network traffic",
+        "Logging and monitoring"
+      ],
       "operations_level": "medium",
       "evidence": [
-        {"source_url": "https://cloud.google.com/run/pricing", "note": "Request-based services in us-central1: $0.000024 per vCPU-second, $0.0000025 per GiB-second, $0.40 per million requests; free 180,000 vCPU-seconds, 360,000 GiB-seconds and 2 million requests per month."}
+        {
+          "source_url": "https://cloud.google.com/run/pricing",
+          "note": "Request-based services in us-central1: $0.000024 per vCPU-second, $0.0000025 per GiB-second, $0.40 per million requests; free 180,000 vCPU-seconds, 360,000 GiB-seconds and 2 million requests per month."
+        }
       ],
       "price_formula": {
         "charges": [
-          {"kind": "metered", "label": "CPU", "meter": "cpu_seconds", "unit": "vCPU-second", "rate": "0.000024", "per_units": "1", "free": {"type": "units", "amount": "180000"}, "round_up": false},
-          {"kind": "metered", "label": "Memory", "meter": "memory_gib_seconds", "unit": "GiB-second", "rate": "0.0000025", "per_units": "1", "free": {"type": "units", "amount": "360000"}, "round_up": false},
-          {"kind": "metered", "label": "Requests", "meter": "requests_month", "unit": "million requests", "rate": "0.40", "per_units": "1000000", "free": {"type": "units", "amount": "2000000"}, "round_up": false}
+          {
+            "kind": "metered",
+            "label": "CPU",
+            "meter": "cpu_seconds",
+            "unit": "vCPU-second",
+            "rate": "0.000024",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "180000"
+            },
+            "round_up": false
+          },
+          {
+            "kind": "metered",
+            "label": "Memory",
+            "meter": "memory_gib_seconds",
+            "unit": "GiB-second",
+            "rate": "0.0000025",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "360000"
+            },
+            "round_up": false
+          },
+          {
+            "kind": "metered",
+            "label": "Requests",
+            "meter": "requests_month",
+            "unit": "million requests",
+            "rate": "0.40",
+            "per_units": "1000000",
+            "free": {
+              "type": "units",
+              "amount": "2000000"
+            },
+            "round_up": false
+          }
         ]
       },
-      "commitment": {"type": "none"},
+      "commitment": {
+        "type": "none"
+      },
       "currency": "usd",
       "priced_region": "us-central1 (tier 1)",
       "tax_note": "Prices exclude taxes.",
       "fetched_at": "2026-11-07",
       "verified_at": "2026-11-07",
       "confidence": "medium",
-      "runtimes": ["node", "python", "docker"],
+      "runtimes": [
+        "node",
+        "python",
+        "docker"
+      ],
       "db_engines": [],
       "commercial_use": "unverified",
       "sleep": "optional",
@@ -380,29 +779,70 @@
       "product": "Cloud server CX23",
       "plan": "EU shared vCPU",
       "category": "runtime",
-      "status": "needs_manual_quote",
-      "eligible_regions": ["eu"],
+      "status": "modeled",
+      "eligible_regions": [
+        "eu"
+      ],
       "capabilities": [],
-      "exclusions": ["Public IPv4", "Backups", "VAT"],
+      "exclusions": [
+        "Public IPv4",
+        "Backups",
+        "VAT"
+      ],
       "operations_level": "high",
       "evidence": [
-        {"source_url": "https://www.hetzner.com/cloud/", "note": "Maintainer research snapshot lists EUR 5.49 per month excluding IPv4 and VAT; the rate was not re-verified on this page, so no price is encoded."}
+        {
+          "source_url": "https://www.hetzner.com/cloud/",
+          "note": "CX23 Cost-Optimized x86 starts at \u20ac5.99/mo; 2 vCPU, 4 GB RAM, 40 GB NVMe; 20 TB/mo free egress in EU with \u20ac1/TB overage."
+        },
+        {
+          "source_url": "https://docs.hetzner.com/cloud/servers/traffic-limits/",
+          "note": "20 TB/mo included outbound transfer per server for EU locations."
+        }
       ],
-      "commitment": {"type": "none"},
+      "commitment": {
+        "type": "none"
+      },
       "currency": "eur",
       "priced_region": "EU",
       "tax_note": "Prices exclude VAT.",
-      "fetched_at": "2026-11-07",
-      "verified_at": "2026-11-07",
-      "confidence": "low",
-      "runtimes": ["node", "python", "docker"],
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker",
+        "node",
+        "python"
+      ],
       "db_engines": [],
-      "commercial_use": "unverified",
+      "commercial_use": "yes",
       "sleep": "never",
       "backup": "unverified",
       "s3_features": [],
       "limits": [],
-      "temporary_offers": []
+      "temporary_offers": [],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "CX23 vCPU instance",
+            "amount": "5.99"
+          },
+          {
+            "kind": "metered",
+            "label": "Outbound egress",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.001",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "20000"
+            },
+            "round_up": false
+          }
+        ]
+      }
     },
     {
       "id": "supabase-free",
@@ -411,14 +851,24 @@
       "plan": "Free",
       "category": "database",
       "status": "discoverable",
-      "eligible_regions": ["global"],
+      "eligible_regions": [
+        "global"
+      ],
       "capabilities": [],
-      "exclusions": ["Egress above 5 GB", "Additional projects"],
+      "exclusions": [
+        "Egress above 5 GB",
+        "Additional projects"
+      ],
       "operations_level": "low",
       "evidence": [
-        {"source_url": "https://supabase.com/pricing", "note": "Free: 500 MB database, 5 GB egress, 1 GB file storage, projects paused after 1 week of inactivity, 2 active projects."}
+        {
+          "source_url": "https://supabase.com/pricing",
+          "note": "Free: 500 MB database, 5 GB egress, 1 GB file storage, projects paused after 1 week of inactivity, 2 active projects."
+        }
       ],
-      "commitment": {"type": "none"},
+      "commitment": {
+        "type": "none"
+      },
       "currency": "usd",
       "priced_region": "published list price",
       "tax_note": "Free plan; no charge to tax.",
@@ -426,12 +876,19 @@
       "verified_at": "2026-11-07",
       "confidence": "medium",
       "runtimes": [],
-      "db_engines": ["postgresql"],
+      "db_engines": [
+        "postgresql"
+      ],
       "commercial_use": "unverified",
       "sleep": "always",
       "backup": "unverified",
       "s3_features": [],
-      "limits": [{"meter": "db_gb", "max": "0.5"}],
+      "limits": [
+        {
+          "meter": "db_gb",
+          "max": "0.5"
+        }
+      ],
       "temporary_offers": []
     },
     {
@@ -440,29 +897,68 @@
       "product": "App hosting",
       "plan": "Subscription plus usage",
       "category": "runtime",
-      "status": "needs_manual_quote",
-      "eligible_regions": ["global"],
+      "status": "modeled",
+      "eligible_regions": [
+        "global"
+      ],
       "capabilities": [],
-      "exclusions": ["Subscription fee", "Usage-based compute and egress"],
+      "exclusions": [
+        "Subscription fee",
+        "Usage-based compute and egress"
+      ],
       "operations_level": "low",
       "evidence": [
-        {"source_url": "https://railway.com/pricing", "note": "Page reachable on the checked date; rates and terms are not yet reviewed, so no price is encoded."}
+        {
+          "source_url": "https://railway.com/pricing",
+          "note": "Hobby plan: $5/mo minimum (includes $5 usage credit). CPU at $20/vCPU/mo, RAM at $10/GB/mo, egress at $0.05/GB."
+        },
+        {
+          "source_url": "https://docs.railway.com/reference/pricing/plans",
+          "note": "Active usage billing per second; up to 48 vCPU / 48 GB RAM per service on Hobby."
+        }
       ],
-      "commitment": {"type": "none"},
+      "commitment": {
+        "type": "none"
+      },
       "currency": "usd",
       "priced_region": "unreviewed",
       "tax_note": "Unreviewed.",
-      "fetched_at": "2026-11-07",
-      "verified_at": "2026-11-07",
-      "confidence": "low",
-      "runtimes": ["node", "python", "docker"],
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker",
+        "node",
+        "python"
+      ],
       "db_engines": [],
-      "commercial_use": "unverified",
+      "commercial_use": "yes",
       "sleep": "never",
       "backup": "unverified",
       "s3_features": [],
       "limits": [],
-      "temporary_offers": []
+      "temporary_offers": [],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Hobby plan base",
+            "amount": "5.00"
+          },
+          {
+            "kind": "metered",
+            "label": "Network egress",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.05",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      }
     },
     {
       "id": "aikido-security-free",
@@ -507,37 +1003,2591 @@
       "s3_features": [],
       "limits": [],
       "temporary_offers": []
+    },
+    {
+      "id": "ovhcloud-vps-1",
+      "provider": "OVHcloud",
+      "product": "Public Cloud VPS",
+      "plan": "VPS-1 Starter",
+      "category": "runtime",
+      "status": "modeled",
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "APAC region egress caps",
+        "Managed database add-ons"
+      ],
+      "operations_level": "medium",
+      "evidence": [
+        {
+          "source_url": "https://www.ovhcloud.com/en/vps/",
+          "note": "Entry VPS-1 starts at $4.54/mo: 1 vCore, 2 GB RAM, 40 GB NVMe SSD. Unmetered free inbound and outbound bandwidth (100 Mbps to 25 Gbps)."
+        },
+        {
+          "source_url": "https://www.ovhcloud.com/en/public-cloud/prices/",
+          "note": "Free managed Kubernetes (MKS) control plane up to 100 worker nodes."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "VPS-1 compute instance",
+            "amount": "4.54"
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "scaleway-dev1-s",
+      "provider": "Scaleway",
+      "product": "Virtual Instances",
+      "plan": "DEV1-S Development",
+      "category": "runtime",
+      "status": "modeled",
+      "eligible_regions": [
+        "eu"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "Object Storage over 75 GB",
+        "Managed database fees"
+      ],
+      "operations_level": "medium",
+      "evidence": [
+        {
+          "source_url": "https://www.scaleway.com/en/pricing/",
+          "note": "DEV1-S development instance costs \u20ac6.55/mo: 2 vCPU, 2 GB RAM, 20 GB SSD. Unmetered egress (100 Mbps-16 Gbps)."
+        },
+        {
+          "source_url": "https://www.scaleway.com/en/virtual-instances/",
+          "note": "Kubernetes Kapsule mutualized free control plane."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "DEV1-S instance",
+            "amount": "6.55"
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "eur",
+      "priced_region": "eu-west-1 (Paris)",
+      "tax_note": "Prices exclude VAT.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "scaleway-object-storage",
+      "provider": "Scaleway",
+      "product": "Object Storage",
+      "plan": "Standard One Zone",
+      "category": "object_storage",
+      "status": "modeled",
+      "eligible_regions": [
+        "eu"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Multi-region replication"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://www.scaleway.com/en/pricing/",
+          "note": "Standard One Zone Object Storage is \u20ac0.00803/GB/mo. 75 GB free egress per month, then \u20ac0.01/GB."
+        },
+        {
+          "source_url": "https://www.scaleway.com/en/docs/storage/object/",
+          "note": "S3-compatible API with SigV4 support."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "metered",
+            "label": "Storage",
+            "meter": "storage_gb_month",
+            "unit": "GB-month",
+            "rate": "0.00803",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          },
+          {
+            "kind": "metered",
+            "label": "Outbound egress",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.01",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "75"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "eur",
+      "priced_region": "eu-west-1 (Paris)",
+      "tax_note": "Prices exclude VAT.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "scaleway-managed-postgres",
+      "provider": "Scaleway",
+      "product": "Managed Database",
+      "plan": "Database Instance PostgreSQL",
+      "category": "database",
+      "status": "modeled",
+      "eligible_regions": [
+        "eu"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Automated backups beyond included retention"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://www.scaleway.com/en/pricing/database/",
+          "note": "Managed PostgreSQL starts at \u20ac11.39/mo with 1 vCPU, 2 GB RAM, 10 GB Block Storage."
+        },
+        {
+          "source_url": "https://www.scaleway.com/en/database/",
+          "note": "High availability replicas and automatic point-in-time recovery available."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "PostgreSQL instance",
+            "amount": "11.39"
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "eur",
+      "priced_region": "eu-west-1 (Paris)",
+      "tax_note": "Prices exclude VAT.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [
+        "postgresql"
+      ],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "yes",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "digitalocean-basic-droplet-1gb",
+      "provider": "DigitalOcean",
+      "product": "Droplets",
+      "plan": "Basic Droplet 1 GB",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": [
+        "us",
+        "eu",
+        "global"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "Automated backups ($1.20/mo)",
+        "Monitoring add-ons"
+      ],
+      "operations_level": "medium",
+      "evidence": [
+        {
+          "source_url": "https://www.digitalocean.com/pricing/droplets",
+          "note": "Basic Droplet 1 GB is $6.00/mo (1 vCPU, 1 GB RAM, 25 GB SSD, 1,000 GiB transfer)."
+        },
+        {
+          "source_url": "https://docs.digitalocean.com/products/networking/traffic-bandwidth/",
+          "note": "Pooled account bandwidth; $0.01/GiB overage."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Basic Droplet 1 GB",
+            "amount": "6.00"
+          },
+          {
+            "kind": "metered",
+            "label": "Outbound transfer",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.01",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "1000"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker",
+        "node",
+        "python"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "vultr-cloud-compute-1gb",
+      "provider": "Vultr",
+      "product": "Cloud Compute",
+      "plan": "Regular Cloud Compute 1 GB",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": [
+        "us",
+        "eu",
+        "global"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "Automated snapshots and backups"
+      ],
+      "operations_level": "medium",
+      "evidence": [
+        {
+          "source_url": "https://www.vultr.com/pricing/",
+          "note": "Regular Cloud Compute 1 GB is $5.00/mo (1 vCPU, 1 GB RAM, 25 GB SSD, 1 TB transfer). Hourly billing capped at 672 hours/mo."
+        },
+        {
+          "source_url": "https://docs.vultr.com/bandwidth-overage-policy",
+          "note": "Overages billed at $0.01/GB worldwide."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Cloud Compute 1 GB",
+            "amount": "5.00"
+          },
+          {
+            "kind": "metered",
+            "label": "Bandwidth overage",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.01",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "1000"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker",
+        "node",
+        "python"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "linode-nanode-1gb",
+      "provider": "Akamai",
+      "product": "Linode Compute",
+      "plan": "Nanode 1 GB",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": [
+        "us",
+        "eu",
+        "global"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "Linode Backups ($2.00/mo)"
+      ],
+      "operations_level": "medium",
+      "evidence": [
+        {
+          "source_url": "https://www.linode.com/pricing/",
+          "note": "Nanode 1 GB is $5.00/mo: 1 vCPU, 1 GB RAM, 25 GB SSD, 1 TB pooled transfer."
+        },
+        {
+          "source_url": "https://www.linode.com/docs/products/networking/network-transfer/",
+          "note": "Pooled transfer across account, overages at $0.005/GB on modern tiers."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Nanode 1 GB",
+            "amount": "5.00"
+          },
+          {
+            "kind": "metered",
+            "label": "Transfer overage",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.005",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "1000"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker",
+        "node",
+        "python"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "upcloud-starter-1gb",
+      "provider": "UpCloud",
+      "product": "Cloud Servers",
+      "plan": "Starter 1 GB",
+      "category": "runtime",
+      "status": "modeled",
+      "eligible_regions": [
+        "eu",
+        "us"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "MaxIOPS enterprise storage upgrades"
+      ],
+      "operations_level": "medium",
+      "evidence": [
+        {
+          "source_url": "https://upcloud.com/pricing/",
+          "note": "Starter 1 GB runs \u20ac3.00/mo (1 vCPU, 1 GB RAM, 10 GB SSD, 99.99% SLA). Zero-cost egress (\u20ac0/GB) across all cloud servers under Fair Transfer Policy."
+        },
+        {
+          "source_url": "https://upcloud.com/products/kubernetes/",
+          "note": "Free UKS Kubernetes Development control plane up to 30 nodes."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Starter 1 GB server",
+            "amount": "3.00"
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "eur",
+      "priced_region": "de-fra1 (Frankfurt)",
+      "tax_note": "Prices exclude VAT.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "latitudesh-vm-micro",
+      "provider": "Latitude.sh",
+      "product": "Virtual Machines",
+      "plan": "vm.micro Local NVMe",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "Bare metal commitments"
+      ],
+      "operations_level": "medium",
+      "evidence": [
+        {
+          "source_url": "https://www.latitude.sh/pricing",
+          "note": "vm.micro runs $18/mo ($0.02/hr): 1 vCPU, 4 GB RAM, 40 GB local NVMe. 20 TB/mo free outbound transfer pooled by project."
+        },
+        {
+          "source_url": "https://docs.latitude.sh/docs/bandwidth-plans",
+          "note": "Outbound overage at $1.25/TB in US/EU; unlimited free inbound."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "vm.micro instance",
+            "amount": "18.00"
+          },
+          {
+            "kind": "metered",
+            "label": "Outbound transfer overage",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.00125",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "20000"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "hetzner-object-storage",
+      "provider": "Hetzner",
+      "product": "Object Storage",
+      "plan": "S3 Object Storage 1 TB",
+      "category": "object_storage",
+      "status": "modeled",
+      "eligible_regions": [
+        "eu"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Multi-region replication"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://www.hetzner.com/storage/object-storage/",
+          "note": "Object Storage costs \u20ac6.49/mo: includes 1 TB storage and 1 TB outbound transfer."
+        },
+        {
+          "source_url": "https://docs.hetzner.com/storage/object-storage/",
+          "note": "S3-compatible API with standard SigV4 and IAM access keys."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Object storage 1 TB bundle",
+            "amount": "6.49"
+          },
+          {
+            "kind": "metered",
+            "label": "Outbound transfer overage",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.001",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "1000"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "eur",
+      "priced_region": "EU (Nuremberg/Falkenstein)",
+      "tax_note": "Prices exclude VAT.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "fly-io-shared-1gb",
+      "provider": "Fly.io",
+      "product": "Fly Machines",
+      "plan": "Shared CPU 1 GB",
+      "category": "runtime",
+      "status": "modeled",
+      "eligible_regions": [
+        "us",
+        "eu",
+        "global"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "NVMe persistent volume storage ($0.15/GB/mo)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://fly.io/docs/about/pricing/",
+          "note": "Shared CPU 1 GB (shared-cpu-1x 1024MB) is $6.70/mo. Billed per second with autostop/autostart proxy."
+        },
+        {
+          "source_url": "https://fly.io/docs/about/pricing/#network-pricing",
+          "note": "Egress in NA and EU is $0.02/GB."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Shared CPU 1 GB Machine",
+            "amount": "6.70"
+          },
+          {
+            "kind": "metered",
+            "label": "Outbound bandwidth",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.02",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Invoices under $5 are waived.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker",
+        "node",
+        "python"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "optional",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "koyeb-standard-nano",
+      "provider": "Koyeb",
+      "product": "MicroVMs",
+      "plan": "Standard Nano",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "Scale tier monthly subscription ($299/mo)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://www.koyeb.com/pricing",
+          "note": "Standard nano bare-metal microVM runs $2.68/mo (0.25 vCPU, 256 MB RAM). 1 TB/mo free bandwidth included."
+        },
+        {
+          "source_url": "https://www.koyeb.com/docs/reference/instances",
+          "note": "Scale-to-zero with light and deep sleep supported."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Standard Nano microVM",
+            "amount": "2.68"
+          },
+          {
+            "kind": "metered",
+            "label": "Outbound bandwidth",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.02",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "1000"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker",
+        "node",
+        "python"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "optional",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "northflank-paygo",
+      "provider": "Northflank",
+      "product": "PaaS Services",
+      "plan": "nf-compute-50",
+      "category": "runtime",
+      "status": "modeled",
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "NVMe persistent disk ($0.11657/GiB/mo)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://northflank.com/pricing",
+          "note": "Pay-As-You-Go has $0/mo base & $0 seat fees. Compute billed at $12/vCPU/mo and $6/GB RAM/mo (0.5c/1GB nf-compute-50 is $12.00/mo)."
+        },
+        {
+          "source_url": "https://northflank.com/docs/v1/overview/billing",
+          "note": "Network egress billed at $0.06/GB; ingress is free."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "nf-compute-50 (0.5c/1GB)",
+            "amount": "12.00"
+          },
+          {
+            "kind": "metered",
+            "label": "Network egress",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.06",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker",
+        "node",
+        "python"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "upsun-standard",
+      "provider": "Upsun",
+      "product": "Flexible Hosting",
+      "plan": "Standard App Compute",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "User license fee ($10/mo) after first project credit",
+        "Backups ($0.10/GB/mo)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://upsun.com/pricing/",
+          "note": "Standard Production is $9/project/mo + Shared CPU ~$24.89/mo (732-hr month) + RAM ~$10.25/GB/mo. 10 GB egress included."
+        },
+        {
+          "source_url": "https://docs.upsun.com/pricing/flexible.html",
+          "note": "Instant Git branch preview environments cloning live production data."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Project & Shared CPU base",
+            "amount": "33.89"
+          },
+          {
+            "kind": "metered",
+            "label": "Egress overage",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.03",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "10"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker",
+        "python",
+        "node"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "elestio-medium-vm",
+      "provider": "Elestio",
+      "product": "Managed Open Source",
+      "plan": "Medium Dedicated VM",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": [
+        "eu",
+        "us"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "SLA support tiers ($50-$200/mo)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://elestio.com/pricing",
+          "note": "Medium Dedicated VM (Netcup reference) runs $16.00/mo: 2 vCPU, 4 GB RAM, 60 GB SSD, 20 TB traffic. Managed deployment with daily Borg/S3 backups."
+        },
+        {
+          "source_url": "https://elestio.com/services/postgresql",
+          "note": "Automated HA PostgreSQL clusters with root SSH."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Medium Dedicated VM",
+            "amount": "16.00"
+          },
+          {
+            "kind": "metered",
+            "label": "Traffic overage",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.02",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "20000"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "yes",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "supabase-pro",
+      "provider": "Supabase",
+      "product": "Postgres BaaS",
+      "plan": "Pro Tier",
+      "category": "database",
+      "status": "modeled",
+      "eligible_regions": [
+        "us",
+        "eu",
+        "global"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Point-in-time recovery 7-day retention ($100/mo)",
+        "Custom domain add-on ($10/mo)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://supabase.com/pricing",
+          "note": "Pro tier is $25.00/mo: includes $10 compute credit covering 1 Micro instance (1 GB RAM, never pauses), 8 GB DB disk, 100 GB storage, and 250 GB uncached egress."
+        },
+        {
+          "source_url": "https://supabase.com/docs/guides/platform/compute-add-ons",
+          "note": "PgBouncer connection pooling and high performance disk supported."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Pro plan base",
+            "amount": "25.00"
+          },
+          {
+            "kind": "metered",
+            "label": "Database disk storage",
+            "meter": "db_gb",
+            "unit": "GB-mo",
+            "rate": "0.125",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "8"
+            },
+            "round_up": false
+          },
+          {
+            "kind": "metered",
+            "label": "Uncached egress",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.09",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "250"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [
+        "postgresql"
+      ],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "yes",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "turso-developer",
+      "provider": "Turso",
+      "product": "libSQL Database",
+      "plan": "Developer Plan",
+      "category": "database",
+      "status": "discoverable",
+      "eligible_regions": [
+        "global"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Embedded syncs over 10 GB ($0.35/GB)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://turso.tech/pricing",
+          "note": "Developer plan is $4.99/mo: unlimited databases, 9 GB storage, 2.5B rows read, 25M rows written, and 10-day PITR."
+        },
+        {
+          "source_url": "https://docs.turso.tech/cloud/limits",
+          "note": "Embedded replicas for microsecond local reads and branch clones."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Developer plan base",
+            "amount": "4.99"
+          },
+          {
+            "kind": "metered",
+            "label": "Database storage",
+            "meter": "db_gb",
+            "unit": "GB-mo",
+            "rate": "0.75",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "9"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [
+        "sqlite"
+      ],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "yes",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "planetscale-postgres-single-node",
+      "provider": "PlanetScale",
+      "product": "Postgres",
+      "plan": "Single-Node PS-5",
+      "category": "database",
+      "status": "discoverable",
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "HA 3-AZ clustering ($15/mo min)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://planetscale.com/pricing",
+          "note": "Single-Node Postgres PS-5 starts at $5.00/mo with 10 GB storage and 100 GB public egress included."
+        },
+        {
+          "source_url": "https://planetscale.com/docs/concepts/billing",
+          "note": "Default VTGates/PgBouncer connection pooling and zero-downtime resizing."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Single-Node PS-5",
+            "amount": "5.00"
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [
+        "postgresql"
+      ],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "yes",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "convex-starter",
+      "provider": "Convex",
+      "product": "Reactive BaaS",
+      "plan": "Starter Plan",
+      "category": "database",
+      "status": "discoverable",
+      "eligible_regions": [
+        "global"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Action compute beyond 20 GB-hrs ($0.33/GB-hr)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://www.convex.dev/pricing",
+          "note": "Starter plan is $0/mo base for 1-6 devs: 1M function calls, 20 GB-hrs Action compute, 0.5 GB DB storage, and 1 GB egress."
+        },
+        {
+          "source_url": "https://docs.convex.dev/production/state",
+          "note": "End-to-end ACID reactive TypeScript queries; query and mutation compute is free."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Starter plan base",
+            "amount": "0"
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Free plan; paygo overages billed on usage.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [
+        "postgresql"
+      ],
+      "commercial_use": "unverified",
+      "sleep": "never",
+      "backup": "yes",
+      "s3_features": [],
+      "limits": [
+        {
+          "meter": "db_gb",
+          "max": "0.5"
+        }
+      ],
+      "temporary_offers": []
+    },
+    {
+      "id": "appwrite-pro",
+      "provider": "Appwrite",
+      "product": "Unified BaaS",
+      "plan": "Pro Plan",
+      "category": "database",
+      "status": "discoverable",
+      "eligible_regions": [
+        "us",
+        "eu"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Additional projects ($15/mo each)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://appwrite.io/pricing",
+          "note": "Pro plan is $25.00/mo base (includes $10 DB compute credit, 150 GB storage, 200k MAUs, and 2 TB/mo API bandwidth)."
+        },
+        {
+          "source_url": "https://appwrite.io/docs/advanced/platform/rate-limits",
+          "note": "Dedicated DB compute scaling from $10/mo 1c/1GB to $85/mo 4c/8GB."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Pro plan base",
+            "amount": "25.00"
+          },
+          {
+            "kind": "metered",
+            "label": "API bandwidth overage",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.15",
+            "per_units": "100",
+            "free": {
+              "type": "units",
+              "amount": "2000"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [
+        "postgresql"
+      ],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "yes",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "vercel-pro",
+      "provider": "Vercel",
+      "product": "Frontend Cloud",
+      "plan": "Pro Plan",
+      "category": "frontend",
+      "status": "discoverable",
+      "eligible_regions": [
+        "global"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "Edge middleware requests above 1M ($2.00/1M)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://vercel.com/pricing",
+          "note": "Pro plan is $20.00/deploying seat/mo: includes $20 flexible credit and Flat Rate CDN covering 1 TB Fast Data Transfer and 1M CDN requests."
+        },
+        {
+          "source_url": "https://vercel.com/docs/pricing/manage-spend",
+          "note": "Fluid compute active CPU execution billed at $0.128/hr."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Pro deploying seat",
+            "amount": "20.00"
+          },
+          {
+            "kind": "metered",
+            "label": "Fast Data Transfer",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.15",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "1000"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "global edge network",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "static",
+        "node"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "civo-compute-small",
+      "provider": "Civo",
+      "product": "Cloud Compute",
+      "plan": "Compute Extra Small",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": [
+        "eu",
+        "us"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "Managed database tiers ($43-$695/mo)"
+      ],
+      "operations_level": "medium",
+      "evidence": [
+        {
+          "source_url": "https://www.civo.com/pricing",
+          "note": "Extra Small is $5.43/mo ($0.00744/hr): 1 core, 1 GB RAM, 25 GB NVMe. Control plane is $0 (Free) with free unlimited ingress and egress bandwidth."
+        },
+        {
+          "source_url": "https://www.civo.com/learn/kubernetes-cluster-overview",
+          "note": "Sub-90-second cluster boot on CivoStack with UK/EU/India sovereign regions."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Extra Small node",
+            "amount": "5.43"
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "exoscale-standard-micro",
+      "provider": "Exoscale",
+      "product": "Compute Instances",
+      "plan": "Standard Compute Micro",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": [
+        "eu"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "SKS Pro SLA control plane (\u20ac40.15/mo)"
+      ],
+      "operations_level": "medium",
+      "evidence": [
+        {
+          "source_url": "https://www.exoscale.com/pricing/",
+          "note": "Micro instance is \u20ac5.32/mo: 1 core, 512 MB RAM, 10 GB SSD. Includes 1.42 GiB/hr (approx 1 TiB/mo) pooled free outbound bandwidth across 8 Swiss/EU zones."
+        },
+        {
+          "source_url": "https://www.exoscale.com/docs/compute/",
+          "note": "Full GDPR, Swiss FDPA, and BSI C5 data sovereignty compliance."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Micro compute instance",
+            "amount": "5.32"
+          },
+          {
+            "kind": "metered",
+            "label": "Outbound egress overage",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.02",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "1000"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "eur",
+      "priced_region": "ch-gva-2 (Geneva)",
+      "tax_note": "Prices exclude VAT.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "leaseweb-compute-c3-large",
+      "provider": "Leaseweb",
+      "product": "Public Cloud",
+      "plan": "Large C3 Compute",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": [
+        "eu",
+        "us"
+      ],
+      "capabilities": [
+        "custom_domains"
+      ],
+      "exclusions": [
+        "Central network SSD block upgrades"
+      ],
+      "operations_level": "medium",
+      "evidence": [
+        {
+          "source_url": "https://www.leaseweb.com/cloud/public",
+          "note": "Large C3 compute-optimized instance runs \u20ac26.02/mo: 2 vCPU, 3 GiB RAM, 5 GB root SSD. First 1 TB/mo pooled outbound traffic is free."
+        },
+        {
+          "source_url": "https://www.leaseweb.com/pricing",
+          "note": "Control plane is \u20ac0 (Free); bandwidth overage from \u20ac1.00/TB."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Large C3 VM",
+            "amount": "26.02"
+          },
+          {
+            "kind": "metered",
+            "label": "Outbound traffic overage",
+            "meter": "egress_gb",
+            "unit": "GB",
+            "rate": "0.0022",
+            "per_units": "1",
+            "free": {
+              "type": "units",
+              "amount": "1000"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "eur",
+      "priced_region": "nl-ams-01 (Amsterdam)",
+      "tax_note": "Prices exclude VAT.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "coreweave-gpu-l40",
+      "provider": "CoreWeave",
+      "product": "Bare-Metal GPUs",
+      "plan": "L40 48GB Node Slice",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": [
+        "us"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Distributed file storage ($0.07/GB/mo)"
+      ],
+      "operations_level": "high",
+      "evidence": [
+        {
+          "source_url": "https://www.coreweave.com/pricing",
+          "note": "8x L40 48GB node runs $10.00/hr ($1.25/GPU/hr on-demand, $6.27/hr spot). Free ingress, egress, intra-cloud transfer, VPC, and NAT."
+        },
+        {
+          "source_url": "https://docs.coreweave.com/cloud-infrastructure/kubernetes",
+          "note": "Bare-metal Kubernetes with NVIDIA BlueField DPUs and Quantum InfiniBand."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "metered",
+            "label": "L40 GPU execution",
+            "meter": "gpu_hours",
+            "unit": "GPU-hour",
+            "rate": "1.25",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "us-east-1",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "runpod-serverless-gpu",
+      "provider": "RunPod",
+      "product": "Serverless GPUs",
+      "plan": "Serverless L4 GPU",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": [
+        "us",
+        "eu",
+        "global"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Network volume storage ($0.07/GB/mo)"
+      ],
+      "operations_level": "medium",
+      "evidence": [
+        {
+          "source_url": "https://www.runpod.io/pricing",
+          "note": "Serverless L4 GPU runs $0.80/hr with per-second execution billing and scale-to-zero. Free ingress and egress."
+        },
+        {
+          "source_url": "https://docs.runpod.io/serverless/overview",
+          "note": "Standard accounts support 30 concurrent serverless workers across all endpoints."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "metered",
+            "label": "Serverless L4 execution",
+            "meter": "gpu_hours",
+            "unit": "GPU-hour",
+            "rate": "0.80",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "optional",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "lambda-gpu-rtx6000",
+      "provider": "Lambda",
+      "product": "On-Demand GPU Cloud",
+      "plan": "On-Demand RTX 6000",
+      "category": "runtime",
+      "status": "discoverable",
+      "eligible_regions": [
+        "us"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Persistent NFS filesystems ($0.20/GiB/mo)"
+      ],
+      "operations_level": "high",
+      "evidence": [
+        {
+          "source_url": "https://lambdalabs.com/service/gpu-cloud#pricing",
+          "note": "On-Demand RTX 6000 24GB is $0.69/hr billed in 1-minute increments. Free ingress and egress."
+        },
+        {
+          "source_url": "https://docs.lambdalabs.com/cloud/billing/",
+          "note": "Pre-configured Lambda Stack with PyTorch, CUDA, and cuDNN."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "metered",
+            "label": "RTX 6000 GPU execution",
+            "meter": "gpu_hours",
+            "unit": "GPU-hour",
+            "rate": "0.69",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "us-west-1",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [
+        "docker"
+      ],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "together-ai-serverless",
+      "provider": "Together AI",
+      "product": "Serverless Inference",
+      "plan": "Serverless PayGo",
+      "category": "inference",
+      "status": "modeled",
+      "eligible_regions": [
+        "global"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Fine-tuning compute fees ($4.00 job minimum)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://www.together.ai/pricing",
+          "note": "Serverless PayGo is $0/mo base. GPT-OSS 120B is $0.15 / $0.60 per 1M input/output tokens; DeepSeek V4.1 Flash is $0.30 / $1.20 ($0.006 cached)."
+        },
+        {
+          "source_url": "https://docs.together.ai/docs/rate-limits",
+          "note": "Adaptive demand-based rate limits and 50% discount on Batch API."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Serverless account base",
+            "amount": "0"
+          },
+          {
+            "kind": "metered",
+            "label": "Token input",
+            "meter": "tokens_input_million",
+            "unit": "million tokens",
+            "rate": "0.15",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          },
+          {
+            "kind": "metered",
+            "label": "Token output",
+            "meter": "tokens_output_million",
+            "unit": "million tokens",
+            "rate": "0.60",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "global endpoint",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "fireworks-ai-serverless",
+      "provider": "Fireworks AI",
+      "product": "Serverless Inference",
+      "plan": "Serverless Tiers 1-4",
+      "category": "inference",
+      "status": "discoverable",
+      "eligible_regions": [
+        "global"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "On-demand dedicated GPU instances ($8-$15/hr)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://fireworks.ai/pricing",
+          "note": "Serverless is $0/mo base. GPT-OSS 120B is $0.15 / $0.60 per 1M tokens ($0.015 cached); DeepSeek V4.1 Flash is $0.30 / $1.20 ($0.006 cached)."
+        },
+        {
+          "source_url": "https://docs.fireworks.ai/reference/rate-limits",
+          "note": "50% off Batch API, 30% off Spot, and up to 6,000 RPM with credit card."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Serverless account base",
+            "amount": "0"
+          },
+          {
+            "kind": "metered",
+            "label": "Token input",
+            "meter": "tokens_input_million",
+            "unit": "million tokens",
+            "rate": "0.15",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          },
+          {
+            "kind": "metered",
+            "label": "Token output",
+            "meter": "tokens_output_million",
+            "unit": "million tokens",
+            "rate": "0.60",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "global endpoint",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "groq-paygo",
+      "provider": "Groq",
+      "product": "LPU Inference",
+      "plan": "Developer PayGo",
+      "category": "inference",
+      "status": "modeled",
+      "eligible_regions": [
+        "global"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Provisioned custom LPU hardware bundles"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://groq.com/pricing/",
+          "note": "Developer PayGo is $0/mo base. GPT-OSS 120B (~500 tok/s) is $0.15 / $0.60 per 1M tokens; GPT-OSS 20B (~1,000 tok/s) is $0.075 / $0.30."
+        },
+        {
+          "source_url": "https://console.groq.com/docs/rate-limits",
+          "note": "Developer plan unlocks 1,000 RPM and 250,000 TPM, with 10x burst via Flex tier."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Developer account base",
+            "amount": "0"
+          },
+          {
+            "kind": "metered",
+            "label": "Token input",
+            "meter": "tokens_input_million",
+            "unit": "million tokens",
+            "rate": "0.15",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          },
+          {
+            "kind": "metered",
+            "label": "Token output",
+            "meter": "tokens_output_million",
+            "unit": "million tokens",
+            "rate": "0.60",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "global endpoint",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "replicate-paygo",
+      "provider": "Replicate",
+      "product": "Model Predictions",
+      "plan": "Pay-As-You-Go",
+      "category": "inference",
+      "status": "discoverable",
+      "eligible_regions": [
+        "global"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Custom model fine-tuning compute"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://replicate.com/pricing",
+          "note": "Pay-As-You-Go is $0/mo base. DeepSeek R1 is $3.75 / $10.00 per 1M tokens. Per-second active hardware execution: T4 $0.81/hr, A100 $5.04/hr, H100 $5.49/hr."
+        },
+        {
+          "source_url": "https://replicate.com/docs/topics/pricing",
+          "note": "Unlocks 3,000 RPM on general endpoints with credit card."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Pay-As-You-Go base",
+            "amount": "0"
+          },
+          {
+            "kind": "metered",
+            "label": "Token input",
+            "meter": "tokens_input_million",
+            "unit": "million tokens",
+            "rate": "3.75",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          },
+          {
+            "kind": "metered",
+            "label": "Token output",
+            "meter": "tokens_output_million",
+            "unit": "million tokens",
+            "rate": "10.00",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "global endpoint",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "modal-serverless",
+      "provider": "Modal",
+      "product": "Serverless Containers & GPUs",
+      "plan": "Starter Serverless Compute",
+      "category": "inference",
+      "status": "discoverable",
+      "eligible_regions": [
+        "global"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Team seats subscription ($250/mo)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://modal.com/pricing",
+          "note": "Starter is $0/mo base + compute (includes $30/mo free credit, 3 seats, 1 TiB free egress). Serverless GPUs: T4 $0.59/hr, L4 $0.80/hr, A100 $2.10/hr, H100 $3.95/hr."
+        },
+        {
+          "source_url": "https://modal.com/docs/guide/resources",
+          "note": "DeepSeek V4.1 Flash is $0.25 / $1.00 per 1M tokens ($0.005 cached). Sub-second cold starts via Memory Snapshots."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Starter plan base",
+            "amount": "0"
+          },
+          {
+            "kind": "metered",
+            "label": "Serverless GPU hours",
+            "meter": "gpu_hours",
+            "unit": "GPU-hour",
+            "rate": "0.80",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "published list price",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "baseten-paygo",
+      "provider": "Baseten",
+      "product": "Model Inference",
+      "plan": "Pay-As-You-Go",
+      "category": "inference",
+      "status": "discoverable",
+      "eligible_regions": [
+        "global"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Custom enterprise SLAs"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://www.baseten.co/pricing/",
+          "note": "Pay-As-You-Go is $0/mo base. GPT-OSS 120B is $0.10 / $0.50 per 1M tokens; DeepSeek V4.1 Flash is $0.30 / $1.20 ($0.007 cached). Dedicated T4 is $0.63/hr, L4 $0.85/hr, H100 $6.50/hr."
+        },
+        {
+          "source_url": "https://docs.baseten.co/rate-limits",
+          "note": "Truss model packaging and Frontier Gateway rate limits with 99.9% uptime SLA."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Pay-As-You-Go base",
+            "amount": "0"
+          },
+          {
+            "kind": "metered",
+            "label": "Token input",
+            "meter": "tokens_input_million",
+            "unit": "million tokens",
+            "rate": "0.10",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          },
+          {
+            "kind": "metered",
+            "label": "Token output",
+            "meter": "tokens_output_million",
+            "unit": "million tokens",
+            "rate": "0.50",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "global endpoint",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "deepinfra-serverless",
+      "provider": "DeepInfra",
+      "product": "Serverless LLMs",
+      "plan": "Serverless PayGo",
+      "category": "inference",
+      "status": "modeled",
+      "eligible_regions": [
+        "global"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Dedicated custom GPU instances ($1.49-$5.89/hr)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://deepinfra.com/pricing",
+          "note": "Serverless PayGo is $0/mo base. DeepSeek V4.1 Flash is $0.098 / $0.294 per 1M tokens ($0.0029 cached); Llama 3.1 8B Turbo is $0.02 / $0.04; Llama 3.3 70B Turbo is $0.10 / $0.32."
+        },
+        {
+          "source_url": "https://deepinfra.com/docs/rate-limits",
+          "note": "20% automatic discount on Batch API, 200 concurrent requests default."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Serverless account base",
+            "amount": "0"
+          },
+          {
+            "kind": "metered",
+            "label": "Token input",
+            "meter": "tokens_input_million",
+            "unit": "million tokens",
+            "rate": "0.098",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          },
+          {
+            "kind": "metered",
+            "label": "Token output",
+            "meter": "tokens_output_million",
+            "unit": "million tokens",
+            "rate": "0.294",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "global endpoint",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
+    },
+    {
+      "id": "cerebras-developer-paygo",
+      "provider": "Cerebras",
+      "product": "Wafer-Scale Inference",
+      "plan": "Developer PayGo",
+      "category": "inference",
+      "status": "discoverable",
+      "eligible_regions": [
+        "global"
+      ],
+      "capabilities": [],
+      "exclusions": [
+        "Code Pro / Max subscription tiers ($50-$200/mo)"
+      ],
+      "operations_level": "low",
+      "evidence": [
+        {
+          "source_url": "https://cerebras.ai/pricing/",
+          "note": "Developer PayGo is $0/mo base. GPT-OSS 120B (~3,000 tok/s on CS-3) is $0.35 / $0.75 per 1M tokens; Qwen 3.8 27B (~1,850 tok/s) is $0.99 / $1.49."
+        },
+        {
+          "source_url": "https://inference-docs.cerebras.ai/rate-limits",
+          "note": "Developer tier unlocks 1,000 RPM, 1M uncached TPM, and 3M total TPM on CS-3."
+        }
+      ],
+      "price_formula": {
+        "charges": [
+          {
+            "kind": "fixed",
+            "label": "Developer account base",
+            "amount": "0"
+          },
+          {
+            "kind": "metered",
+            "label": "Token input",
+            "meter": "tokens_input_million",
+            "unit": "million tokens",
+            "rate": "0.35",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          },
+          {
+            "kind": "metered",
+            "label": "Token output",
+            "meter": "tokens_output_million",
+            "unit": "million tokens",
+            "rate": "0.75",
+            "per_units": "1",
+            "free": {
+              "type": "none"
+            },
+            "round_up": false
+          }
+        ]
+      },
+      "commitment": {
+        "type": "none"
+      },
+      "currency": "usd",
+      "priced_region": "global endpoint",
+      "tax_note": "Prices exclude sales tax.",
+      "fetched_at": "2026-11-11",
+      "verified_at": "2026-11-11",
+      "confidence": "high",
+      "runtimes": [],
+      "db_engines": [],
+      "commercial_use": "yes",
+      "sleep": "never",
+      "backup": "unverified",
+      "s3_features": [],
+      "limits": [],
+      "temporary_offers": []
     }
   ],
   "recipes": [
     {
       "id": "recipe-a",
       "name": "Static frontend, Node API, PostgreSQL and object storage",
-      "runtimes": ["node"],
+      "runtimes": [
+        "node"
+      ],
       "slots": [
-        {"category": "frontend", "card_ids": ["cloudflare-pages-free"]},
-        {"category": "runtime", "card_ids": ["render-web-starter-hobby", "render-web-starter-pro"]},
-        {"category": "database", "card_ids": ["neon-free", "neon-launch"]},
-        {"category": "object_storage", "card_ids": ["cloudflare-r2-standard", "backblaze-b2"]}
+        {
+          "category": "frontend",
+          "card_ids": [
+            "cloudflare-pages-free"
+          ]
+        },
+        {
+          "category": "runtime",
+          "card_ids": [
+            "render-web-starter-hobby",
+            "render-web-starter-pro"
+          ]
+        },
+        {
+          "category": "database",
+          "card_ids": [
+            "neon-free",
+            "neon-launch"
+          ]
+        },
+        {
+          "category": "object_storage",
+          "card_ids": [
+            "cloudflare-r2-standard",
+            "backblaze-b2"
+          ]
+        }
       ],
       "edges": [
-        {"from": "frontend", "to": "runtime", "auth": "Browser calls the API; configure a CORS origin allow-list.", "latency_note": "Frontend is served from an edge network; API latency depends on the chosen Render region and is not measured."},
-        {"from": "runtime", "to": "database", "auth": "Server-side connection string over TLS.", "latency_note": "Render and Neon regions are chosen independently; pick the same cloud region. Latency is not measured."},
-        {"from": "runtime", "to": "object_storage", "auth": "Scoped S3 access key held by the API.", "latency_note": "Cross-provider transfer; include it in the application outbound meter. Latency is not measured."}
+        {
+          "from": "frontend",
+          "to": "runtime",
+          "auth": "Browser calls the API; configure a CORS origin allow-list.",
+          "latency_note": "Frontend is served from an edge network; API latency depends on the chosen Render region and is not measured."
+        },
+        {
+          "from": "runtime",
+          "to": "database",
+          "auth": "Server-side connection string over TLS.",
+          "latency_note": "Render and Neon regions are chosen independently; pick the same cloud region. Latency is not measured."
+        },
+        {
+          "from": "runtime",
+          "to": "object_storage",
+          "auth": "Scoped S3 access key held by the API.",
+          "latency_note": "Cross-provider transfer; include it in the application outbound meter. Latency is not measured."
+        }
       ]
     },
     {
       "id": "recipe-b",
       "name": "Container API, PostgreSQL and object storage",
-      "runtimes": ["python", "docker"],
+      "runtimes": [
+        "python",
+        "docker"
+      ],
       "slots": [
-        {"category": "runtime", "card_ids": ["render-web-starter-hobby", "render-web-starter-pro"]},
-        {"category": "database", "card_ids": ["neon-free", "neon-launch"]},
-        {"category": "object_storage", "card_ids": ["cloudflare-r2-standard", "backblaze-b2"]}
+        {
+          "category": "runtime",
+          "card_ids": [
+            "render-web-starter-hobby",
+            "render-web-starter-pro"
+          ]
+        },
+        {
+          "category": "database",
+          "card_ids": [
+            "neon-free",
+            "neon-launch"
+          ]
+        },
+        {
+          "category": "object_storage",
+          "card_ids": [
+            "cloudflare-r2-standard",
+            "backblaze-b2"
+          ]
+        }
       ],
       "edges": [
-        {"from": "runtime", "to": "database", "auth": "Server-side connection string over TLS.", "latency_note": "Render and Neon regions are chosen independently; pick the same cloud region. Latency is not measured."},
-        {"from": "runtime", "to": "object_storage", "auth": "Scoped S3 application key held by the API.", "latency_note": "Cross-provider transfer; include it in the application outbound meter. Latency is not measured."}
+        {
+          "from": "runtime",
+          "to": "database",
+          "auth": "Server-side connection string over TLS.",
+          "latency_note": "Render and Neon regions are chosen independently; pick the same cloud region. Latency is not measured."
+        },
+        {
+          "from": "runtime",
+          "to": "object_storage",
+          "auth": "Scoped S3 application key held by the API.",
+          "latency_note": "Cross-provider transfer; include it in the application outbound meter. Latency is not measured."
+        }
+      ]
+    },
+    {
+      "id": "recipe-c",
+      "name": "Cost-optimized bare metal / VPS, PostgreSQL and S3 object storage",
+      "currency": "eur",
+      "runtimes": [
+        "docker"
+      ],
+      "slots": [
+        {
+          "category": "runtime",
+          "card_ids": [
+            "hetzner-cloud-cx23-eu",
+            "scaleway-dev1-s",
+            "upcloud-starter-1gb"
+          ]
+        },
+        {
+          "category": "database",
+          "card_ids": [
+            "scaleway-managed-postgres"
+          ]
+        },
+        {
+          "category": "object_storage",
+          "card_ids": [
+            "hetzner-object-storage",
+            "scaleway-object-storage"
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "from": "runtime",
+          "to": "database",
+          "auth": "Private network or TLS connection string.",
+          "latency_note": "Low latency within European data centers."
+        },
+        {
+          "from": "runtime",
+          "to": "object_storage",
+          "auth": "S3 access key held by the application.",
+          "latency_note": "Standard S3 latency in EU region."
+        }
+      ]
+    },
+    {
+      "id": "recipe-d",
+      "name": "Enterprise PaaS compute, managed PostgreSQL and serverless AI inference",
+      "currency": "usd",
+      "runtimes": [
+        "python",
+        "docker"
+      ],
+      "slots": [
+        {
+          "category": "runtime",
+          "card_ids": [
+            "northflank-paygo",
+            "fly-io-shared-1gb",
+            "render-web-starter-pro"
+          ]
+        },
+        {
+          "category": "database",
+          "card_ids": [
+            "supabase-pro",
+            "neon-launch"
+          ]
+        },
+        {
+          "category": "inference",
+          "card_ids": [
+            "together-ai-serverless",
+            "groq-paygo",
+            "deepinfra-serverless"
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "from": "runtime",
+          "to": "database",
+          "auth": "Server-side connection pooler string over TLS.",
+          "latency_note": "Direct managed database connection with pooling."
+        },
+        {
+          "from": "runtime",
+          "to": "inference",
+          "auth": "OpenAI-compatible Bearer API key held by backend workers.",
+          "latency_note": "Sub-100ms streaming token inference over global Anycast."
+        }
       ]
     }
   ]

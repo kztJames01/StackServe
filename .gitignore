@@ -71,6 +71,7 @@ Thumbs.db
 CLAUDE.md
 AGENTS.md
 docs/*
+reports/
 
 # Misc
 *.log

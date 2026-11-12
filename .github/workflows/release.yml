@@ -1,0 +1,142 @@
+name: release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/kztjames01/stackfit-mcp
+  UV_CACHE_DIR: /tmp/stackfit-uv-cache
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      version: ${{ steps.metadata.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.94.0
+        with:
+          components: rustfmt, clippy
+      - uses: astral-sh/setup-uv@v5
+      - name: Check release tag and metadata
+        id: metadata
+        env:
+          RELEASE_REF: ${{ github.ref }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import tomllib
+          from pathlib import Path
+
+          manifest = json.loads(Path("server.json").read_text())
+          version = manifest["version"]
+          assert re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version)
+          assert os.environ["RELEASE_REF"] == f"refs/tags/v{version}"
+          cargo = tomllib.loads(Path("Cargo.toml").read_text())
+          assert cargo["workspace"]["package"]["version"] == version
+          python = tomllib.loads(Path("python/stackfit_rag/pyproject.toml").read_text())
+          assert python["project"]["version"] == version
+          assert manifest["name"] == "io.github.kztJames01/stackfit-mcp"
+          assert manifest["packages"][0]["identifier"] == f"{os.environ['IMAGE']}:{version}"
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"version={version}\n")
+          PY
+      - name: Rust checks
+        run: |
+          cargo fmt --all -- --check
+          cargo clippy --all-targets --all-features --locked -- -D warnings
+          cargo test --all-features --workspace --locked
+          cargo build -p stackfit-mcp --locked
+      - name: Python and protocol checks
+        working-directory: python/stackfit_rag
+        env:
+          STACKFIT_PROFILE_BIN: ${{ github.workspace }}/target/debug/stackfit-mcp
+        run: |
+          uv sync --locked
+          uv run ruff check . ../../scripts
+          uv run ruff format --check . ../../scripts
+          uv run python -m stackfit_rag.maintenance validate
+          uv run pytest
+      - name: Validate registry schema
+        run: |
+          curl --fail --silent --show-error --location https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json -o /tmp/server.schema.json
+          echo '3fba09590c99f61735d234822279f4223fab9e300c0a81e81c91ab62a4114de0  /tmp/server.schema.json' | sha256sum --check
+          python/stackfit_rag/.venv/bin/python - <<'PY'
+          import json
+          from pathlib import Path
+          from jsonschema import Draft7Validator
+
+          schema = json.loads(Path("/tmp/server.schema.json").read_text())
+          Draft7Validator.check_schema(schema)
+          Draft7Validator(schema).validate(json.loads(Path("server.json").read_text()))
+          PY
+      - uses: docker/setup-buildx-action@v3
+      - name: Build and test release image
+        env:
+          RELEASE_VERSION: ${{ steps.metadata.outputs.version }}
+        run: |
+          docker buildx build --platform linux/amd64 --load -t "$IMAGE:$RELEASE_VERSION" .
+          python3 scripts/container_smoke.py --image "$IMAGE:$RELEASE_VERSION" --platform linux/amd64 --network none
+          docker save "$IMAGE:$RELEASE_VERSION" -o /tmp/release-image.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tested-image
+          path: /tmp/release-image.tar
+          retention-days: 7
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: release
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Require release environment opt-in
+        env:
+          RELEASE_ENABLED: ${{ vars.STACKFIT_RELEASE_ENABLED }}
+        run: test "$RELEASE_ENABLED" = true
+      - uses: actions/download-artifact@v4
+        with:
+          name: tested-image
+          path: /tmp
+      - name: Load tested image
+        run: docker load -i /tmp/release-image.tar
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish and record registry digest
+        env:
+          RELEASE_VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          docker push "$IMAGE:$RELEASE_VERSION"
+          docker pull "$IMAGE:$RELEASE_VERSION"
+          docker image inspect "$IMAGE:$RELEASE_VERSION" --format '{{index .RepoDigests 0}}' > release-image.txt
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          image = Path("release-image.txt").read_text().strip()
+          assert re.fullmatch(re.escape(os.environ["IMAGE"]) + r"@sha256:[a-f0-9]{64}", image)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write(f"Published linux/amd64 image: `{image}`\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-digest
+          path: release-image.txt
+          retention-days: 90

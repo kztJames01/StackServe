@@ -4,8 +4,8 @@ use thiserror::Error;
 
 use crate::{
     catalog::{
-        Catalog, CatalogError, Charge, Edge, Free, Meter, OpsLevel, Recipe, ServicePlan, Sleep,
-        providers,
+        Catalog, CatalogError, Charge, Currency, Edge, Free, Meter, OpsLevel, Recipe, ServicePlan,
+        Sleep, providers,
     },
     filters::{self, Finding, ReasonCode},
     pricing::{self, Estimate},
@@ -183,12 +183,15 @@ fn evaluate(catalog: &Catalog, candidate: &Candidate<'_>, workload: &Workload) -
     }
     needs_verification.extend(filters::missing_capabilities(&candidate.cards, workload));
     let estimate = pricing::estimate(&catalog.catalog_version, &candidate.cards, workload);
-    let usd_subtotal = estimate
-        .known_subtotal
-        .get(&crate::catalog::Currency::Usd)
-        .copied()
-        .unwrap_or_default();
-    rejected.extend(filters::over_budget(workload, usd_subtotal));
+    if candidate.recipe.currency != Currency::Usd {
+        needs_verification.push(Finding::new(
+            None,
+            ReasonCode::CurrencyNotComparable,
+            "recipe currency is not USD; budget and ranking require an explicit currency conversion policy",
+        ));
+    } else if let Some(usd_subtotal) = estimate.known_subtotal.get(&Currency::Usd) {
+        rejected.extend(filters::over_budget(workload, *usd_subtotal));
+    }
     Evaluation {
         rejected,
         needs_verification,
@@ -237,7 +240,8 @@ pub fn recommend(catalog: &Catalog, workload: &Workload) -> Recommendation {
             });
             continue;
         }
-        match evaluation.estimate.usd_total() {
+        let known_total = evaluation.estimate.usd_total();
+        match known_total {
             Some(total) if evaluation.needs_verification.is_empty() => feasible.push(Feasible {
                 row: ComparisonRow {
                     stack_id: candidate.id.clone(),
@@ -459,6 +463,32 @@ pub fn compare_from_json(input: &[u8], stack_ids: &[String]) -> Result<Compariso
 mod tests {
     use super::*;
 
+    #[test]
+    fn eur_evaluation_requires_currency_verification_with_zero_usd_budget() {
+        let catalog = Catalog::embedded().unwrap();
+        let all = candidates(&catalog);
+        let candidate = all
+            .iter()
+            .find(|item| item.recipe.id == "recipe-c")
+            .unwrap();
+        let workload = Workload::parse(
+            br#"{
+            "runtime":"docker", "db_engine":"postgresql", "residency":"eu",
+            "commercial_use":true, "sleep_tolerant":false, "backup_required":true,
+            "storage_gb_month":"100", "egress_gb":"50", "budget_month_usd":"0"
+        }"#,
+        )
+        .unwrap();
+        let result = evaluate(&catalog, candidate, &workload);
+        assert!(
+            result
+                .needs_verification
+                .iter()
+                .any(|finding| finding.code == ReasonCode::CurrencyNotComparable)
+        );
+        assert!(result.estimate.eur_total().is_some());
+    }
+
     fn row(id: &str, total: i64, providers: usize, ops: u32) -> ComparisonRow {
         ComparisonRow {
             stack_id: id.to_owned(),
@@ -486,11 +516,11 @@ mod tests {
     fn candidates_are_bounded_explicit_combinations() {
         let catalog = Catalog::embedded().unwrap();
         let all = candidates(&catalog);
-        assert_eq!(all.len(), 16);
+        assert_eq!(all.len(), 40);
         assert!(all.iter().all(|candidate| candidate.cards.len() >= 3));
         let mut ids: Vec<_> = all.iter().map(|candidate| candidate.id.clone()).collect();
         ids.sort();
         ids.dedup();
-        assert_eq!(ids.len(), 16);
+        assert_eq!(ids.len(), 40);
     }
 }

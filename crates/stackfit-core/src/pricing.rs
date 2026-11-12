@@ -78,6 +78,15 @@ impl Estimate {
             None
         }
     }
+
+    pub fn eur_total(&self) -> Option<Decimal> {
+        let totals = self.total_known.as_ref()?;
+        if totals.len() == 1 {
+            totals.get(&Currency::Eur).copied()
+        } else {
+            None
+        }
+    }
 }
 
 pub fn estimate(catalog_version: &str, cards: &[&ServicePlan], workload: &Workload) -> Estimate {
@@ -447,7 +456,7 @@ mod tests {
 
     #[test]
     fn unpriced_card_is_unknown_and_never_free() {
-        let result = price("hetzner-cloud-cx23-eu", json!({}));
+        let result = price("aikido-security-free", json!({}));
         assert!(result.lines.is_empty() && result.total_known.is_none());
     }
 

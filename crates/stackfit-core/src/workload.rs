@@ -76,6 +76,12 @@ pub struct Workload {
     pub cpu_seconds: Option<Decimal>,
     #[serde(default)]
     pub memory_gib_seconds: Option<Decimal>,
+    #[serde(default)]
+    pub tokens_input_million: Option<Decimal>,
+    #[serde(default)]
+    pub tokens_output_million: Option<Decimal>,
+    #[serde(default)]
+    pub gpu_hours: Option<Decimal>,
 }
 
 impl Workload {
@@ -101,6 +107,9 @@ impl Workload {
             self.db_cu_hours,
             self.cpu_seconds,
             self.memory_gib_seconds,
+            self.tokens_input_million,
+            self.tokens_output_million,
+            self.gpu_hours,
         ];
         if meters
             .into_iter()
@@ -141,6 +150,9 @@ impl Workload {
             Meter::DbCuHours => self.db_cu_hours,
             Meter::CpuSeconds => self.cpu_seconds,
             Meter::MemoryGibSeconds => self.memory_gib_seconds,
+            Meter::TokensInputMillion => self.tokens_input_million,
+            Meter::TokensOutputMillion => self.tokens_output_million,
+            Meter::GpuHours => self.gpu_hours,
         }
     }
 
@@ -163,6 +175,9 @@ impl Workload {
             &mut scaled.db_cu_hours,
             &mut scaled.cpu_seconds,
             &mut scaled.memory_gib_seconds,
+            &mut scaled.tokens_input_million,
+            &mut scaled.tokens_output_million,
+            &mut scaled.gpu_hours,
         ] {
             scale(meter, traffic);
         }

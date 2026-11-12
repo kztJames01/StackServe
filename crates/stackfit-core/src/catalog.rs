@@ -6,7 +6,7 @@ use thiserror::Error;
 
 use crate::protocol::iso_date;
 
-pub const MAX_CARDS: usize = 64;
+pub const MAX_CARDS: usize = 128;
 pub const MAX_COMBINATIONS: usize = 64;
 const EMBEDDED: &str = include_str!("../../../catalog/catalog.json");
 
@@ -51,6 +51,9 @@ pub enum Runtime {
 pub enum DbEngine {
     Postgresql,
     Sqlite,
+    Mysql,
+    Mongodb,
+    Redis,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -61,6 +64,7 @@ pub enum Category {
     Database,
     ObjectStorage,
     Security,
+    Inference,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -117,6 +121,9 @@ pub enum Meter {
     DbCuHours,
     CpuSeconds,
     MemoryGibSeconds,
+    TokensInputMillion,
+    TokensOutputMillion,
+    GpuHours,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -250,9 +257,15 @@ pub struct Edge {
 pub struct Recipe {
     pub id: String,
     pub name: String,
+    #[serde(default = "default_recipe_currency")]
+    pub currency: Currency,
     pub runtimes: Vec<Runtime>,
     pub slots: Vec<Slot>,
     pub edges: Vec<Edge>,
+}
+
+fn default_recipe_currency() -> Currency {
+    Currency::Usd
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -329,10 +342,13 @@ impl Catalog {
                 if card.status != Status::Modeled {
                     return Err(recipe_error(recipe, &format!("card {id} is not modeled")));
                 }
-                if card.currency != Currency::Usd {
+                if card.currency != recipe.currency {
                     return Err(recipe_error(
                         recipe,
-                        &format!("card {id} is not priced in USD"),
+                        &format!(
+                            "card {id} currency {:?} does not match recipe currency {:?}",
+                            card.currency, recipe.currency
+                        ),
                     ));
                 }
             }
@@ -474,8 +490,8 @@ mod tests {
     #[test]
     fn embedded_catalog_is_valid_and_sized_for_v1() {
         let catalog = Catalog::embedded().unwrap();
-        assert!((12..=16).contains(&catalog.cards.len()));
-        assert_eq!(catalog.recipes.len(), 2);
+        assert!((40..=64).contains(&catalog.cards.len()));
+        assert_eq!(catalog.recipes.len(), 4);
     }
 
     #[test]
@@ -540,6 +556,7 @@ mod tests {
     #[test]
     fn rejects_price_on_manual_quote_card() {
         let mut value = embedded_value();
+        card_mut(&mut value, "hetzner-cloud-cx23-eu")["status"] = json!("needs_manual_quote");
         let formula = json!({"charges": [{"kind": "fixed", "label": "x", "amount": "1"}]});
         card_mut(&mut value, "hetzner-cloud-cx23-eu")["price_formula"] = formula;
         assert!(load(&value).is_err());

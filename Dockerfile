@@ -25,7 +25,8 @@ WORKDIR /app
 LABEL org.opencontainers.image.title="StackFit MCP" \
       org.opencontainers.image.description="Workload-aware cloud stack advisor with cited evidence and deterministic decimal pricing" \
       org.opencontainers.image.licenses="MIT OR Apache-2.0" \
-      org.opencontainers.image.source="https://github.com/kztJames01/stackfit-mcp"
+      org.opencontainers.image.source="https://github.com/kztJames01/Stackfit" \
+      io.modelcontextprotocol.server.name="io.github.kztJames01/stackfit-mcp"
 
 # The worker and corpus live at stable absolute paths so the editable Python
 # install and the runtime root agree. Public stdout remains MCP-only.

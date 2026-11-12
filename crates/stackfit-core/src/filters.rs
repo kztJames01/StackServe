@@ -35,6 +35,7 @@ pub enum ReasonCode {
     QuotaExceeded,
     QuotaUnknown,
     OverBudget,
+    CurrencyNotComparable,
     CapabilityUnverified,
 }
 
@@ -49,7 +50,7 @@ impl ReasonCode {
             Self::BackupNotIncluded | Self::BackupUnverified => Filter::Backup,
             Self::S3FeatureUnverified => Filter::S3Compatibility,
             Self::QuotaExceeded | Self::QuotaUnknown => Filter::Quota,
-            Self::OverBudget => Filter::Budget,
+            Self::OverBudget | Self::CurrencyNotComparable => Filter::Budget,
             Self::CapabilityUnverified => Filter::Capability,
         }
     }

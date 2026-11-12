@@ -293,3 +293,131 @@ fn both_project_bundles_validate_and_match_hand_calculated_totals() {
         assert!(adr.contains("2026-11-07"));
     }
 }
+
+#[test]
+fn recipe_c_and_recipe_d_evaluate_in_engine() {
+    let workload_json = serde_json::json!({
+        "runtime": "docker",
+        "db_engine": "postgresql",
+        "residency": "eu",
+        "commercial_use": true,
+        "sleep_tolerant": false,
+        "backup_required": true,
+        "storage_gb_month": "100",
+        "egress_gb": "50"
+    });
+    let result = recommend_from_json(&serde_json::to_vec(&workload_json).unwrap()).unwrap();
+    let recipe_c_evals: Vec<_> = result
+        .conditional
+        .iter()
+        .filter(|row| row.stack_id.starts_with("recipe-c/"))
+        .collect();
+    assert_eq!(recipe_c_evals.len(), 6);
+
+    let workload_ai_json = serde_json::json!({
+        "runtime": "python",
+        "db_engine": "postgresql",
+        "residency": "any",
+        "commercial_use": true,
+        "sleep_tolerant": false,
+        "backup_required": true,
+        "db_cu_hours": "50",
+        "db_gb": "2",
+        "app_outbound_gb": "15",
+        "egress_gb": "20",
+        "tokens_input_million": "10",
+        "tokens_output_million": "2"
+    });
+    let ai_result = recommend_from_json(&serde_json::to_vec(&workload_ai_json).unwrap()).unwrap();
+    let recipe_d_evals: Vec<_> = ai_result
+        .comparison
+        .iter()
+        .filter(|row| row.stack_id.starts_with("recipe-d/"))
+        .collect();
+    assert_eq!(recipe_d_evals.len(), 18);
+}
+
+#[test]
+fn eur_recipes_never_enter_usd_rankings_or_satisfy_a_usd_budget() {
+    for budget in [None, Some("0"), Some("100000")] {
+        let mut workload = serde_json::json!({
+            "runtime": "docker",
+            "db_engine": "postgresql",
+            "residency": "eu",
+            "commercial_use": true,
+            "sleep_tolerant": false,
+            "backup_required": true,
+            "storage_gb_month": "100",
+            "egress_gb": "50"
+        });
+        if let Some(budget) = budget {
+            workload["budget_month_usd"] = serde_json::json!(budget);
+        }
+        let input = serde_json::to_vec(&workload).unwrap();
+        let result = recommend_from_json(&input).unwrap();
+        assert!(
+            result
+                .comparison
+                .iter()
+                .all(|row| !row.stack_id.starts_with("recipe-c/"))
+        );
+        assert!(
+            result
+                .selections
+                .iter()
+                .all(|row| !row.stack_id.starts_with("recipe-c/"))
+        );
+        let conditional: Vec<_> = result
+            .conditional
+            .iter()
+            .filter(|row| row.stack_id.starts_with("recipe-c/"))
+            .collect();
+        assert_eq!(conditional.len(), 6);
+        for item in conditional {
+            assert!(item.estimate.eur_total().is_some());
+            assert!(item.estimate.usd_total().is_none());
+            assert!(
+                item.conditions
+                    .iter()
+                    .any(|finding| finding.code == ReasonCode::CurrencyNotComparable)
+            );
+            let comparison =
+                compare_from_json(&input, std::slice::from_ref(&item.stack_id)).unwrap();
+            for scenario in &comparison.stacks[0].scenarios {
+                assert!(scenario.estimate.eur_total().is_some());
+                assert!(
+                    scenario
+                        .needs_verification
+                        .iter()
+                        .any(|finding| finding.code == ReasonCode::CurrencyNotComparable)
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn usd_budget_boundary_keeps_exact_budget_and_rejects_lower_budget() {
+    for (budget, feasible) in [("10.59", false), ("10.60", true), ("10.61", true)] {
+        let mut workload: serde_json::Value =
+            serde_json::from_slice(&fixture("node-sporadic.json")).unwrap();
+        workload["budget_month_usd"] = serde_json::json!(budget);
+        let result = recommend_from_json(&serde_json::to_vec(&workload).unwrap()).unwrap();
+        assert_eq!(
+            result
+                .comparison
+                .iter()
+                .any(|row| row.stack_id == NODE_STACK),
+            feasible
+        );
+        if !feasible {
+            assert!(result.rejected.iter().any(|row| {
+                row.stack_id == NODE_STACK
+                    && row
+                        .findings
+                        .iter()
+                        .any(|finding| finding.code == ReasonCode::OverBudget)
+            }));
+        }
+    }
+}
