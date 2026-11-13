@@ -1,4 +1,4 @@
-# Contributing to StackFit MCP
+# Contributing to StackServe MCP
 
 - If available locally, read `docs/architecture.md`, `docs/research.md` and `docs/PLAN.md` first. They are intentionally untracked; the durable boundary summary is in `README.md`.
 - Rust + Python only; no TypeScript.

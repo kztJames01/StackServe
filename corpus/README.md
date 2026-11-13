@@ -23,12 +23,12 @@ compatibility is inferred. Filters use exact matches. Unknown runtime versions
 and unspecified region metadata do not match a requested runtime or region.
 Region tags describe evidence coverage, not whole-stack residency certification.
 
-From `python/stackfit_rag`:
+From `python/stackserve_rag`:
 
 ```sh
 uv sync --locked
-uv run python -m stackfit_rag.maintenance validate
-uv run python -m stackfit_rag.maintenance refresh-sources
+uv run python -m stackserve_rag.maintenance validate
+uv run python -m stackserve_rag.maintenance refresh-sources
 ```
 
 Refresh fetches only the curated URLs, refuses source redirects, and places raw
@@ -43,9 +43,9 @@ are not shipped; `source_hash` fingerprints the fetched Markdown representation.
 
 ```sh
 uv sync --locked --extra vector
-uv run --extra vector python -m stackfit_rag.maintenance download-model
-uv run --extra vector python -m stackfit_rag.maintenance build-index
-uv run --extra vector python -m stackfit_rag.evaluate --write
+uv run --extra vector python -m stackserve_rag.maintenance download-model
+uv run --extra vector python -m stackserve_rag.maintenance build-index
+uv run --extra vector python -m stackserve_rag.evaluate --write
 ```
 
 `model.json` pins MiniLM's revision, Apache-2.0 license, 384 dimensions, tokenizer,

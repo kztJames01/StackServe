@@ -72,8 +72,11 @@ CLAUDE.md
 AGENTS.md
 docs/*
 reports/
+specs/
 
 # Misc
 *.log
 tmp/
 .cache/
+render.yaml
+specs/
