@@ -1,0 +1,7 @@
+{
+  "name": "stackserve",
+  "version": "0.1.0",
+  "description": "Workload-aware cloud stack advisor with deterministic decimal pricing, compatibility validation, and setup bundles.",
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}

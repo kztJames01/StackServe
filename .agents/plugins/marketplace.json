@@ -1,0 +1,20 @@
+{
+  "name": "stackserve-local",
+  "interface": {
+    "displayName": "StackServe"
+  },
+  "plugins": [
+    {
+      "name": "stackserve",
+      "source": {
+        "source": "local",
+        "path": "."
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "NONE"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

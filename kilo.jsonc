@@ -1,0 +1,8 @@
+{
+  "mcp": {
+    "stackserve": {
+      "type": "local",
+      "command": ["./target/release/stackserve-mcp", "serve"]
+    }
+  }
+}

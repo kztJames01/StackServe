@@ -1,0 +1,5 @@
+name: stackserve
+version: 0.1.0
+description: Workload-aware cloud stack advisor, decimal cost modeler, and setup bundle generator
+skills: ./skills/
+mcp: ./kilo.jsonc
