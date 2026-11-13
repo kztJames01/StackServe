@@ -22,7 +22,7 @@ permissions:
   contents: read
 
 env:
-  IMAGE: stackfit-mcp:ci
+  IMAGE: stackserve-mcp:ci
 
 jobs:
   image:

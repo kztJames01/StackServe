@@ -28,9 +28,9 @@ jobs:
       - name: clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
       - name: validate catalog
-        run: cargo test -p stackfit-core catalog::tests --locked
+        run: cargo test -p stackserve-core catalog::tests --locked
       - name: validate recipes and setup bundles
-        run: cargo test -p stackfit-core bundle::tests --locked
+        run: cargo test -p stackserve-core bundle::tests --locked
       - name: test
         run: cargo test --all-features --workspace
 
@@ -42,32 +42,32 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - name: sync
         run: uv sync --locked
-        working-directory: python/stackfit_rag
+        working-directory: python/stackserve_rag
       - name: ruff
         run: uv run ruff check . ../../scripts && uv run ruff format --check . ../../scripts
-        working-directory: python/stackfit_rag
+        working-directory: python/stackserve_rag
       - name: validate curated corpus
-        run: uv run python -m stackfit_rag.maintenance validate
-        working-directory: python/stackfit_rag
+        run: uv run python -m stackserve_rag.maintenance validate
+        working-directory: python/stackserve_rag
       - name: pytest
         run: uv run pytest
-        working-directory: python/stackfit_rag
+        working-directory: python/stackserve_rag
 
   contract:
     name: shared protocol contract
     runs-on: ubuntu-latest
     env:
-      STACKFIT_PROFILE_BIN: ${{ github.workspace }}/target/debug/stackfit-mcp
+      STACKSERVE_PROFILE_BIN: ${{ github.workspace }}/target/debug/stackserve-mcp
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@1.94.0
       - uses: astral-sh/setup-uv@v5
-      - run: cargo test -p stackfit-core protocol::tests::shared_fixture --locked
-      - run: cargo build -p stackfit-mcp --locked
+      - run: cargo test -p stackserve-core protocol::tests::shared_fixture --locked
+      - run: cargo build -p stackserve-mcp --locked
       - run: uv sync --locked
-        working-directory: python/stackfit_rag
+        working-directory: python/stackserve_rag
       - run: uv run pytest tests/test_protocol.py tests/test_profile_schema.py tests/test_mcp_search.py
-        working-directory: python/stackfit_rag
+        working-directory: python/stackserve_rag
 
   secret-scan:
     name: secret scan (gitleaks)

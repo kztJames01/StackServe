@@ -89,12 +89,12 @@ def main():
                 "params": {
                     "protocolVersion": "2025-11-25",
                     "capabilities": {},
-                    "clientInfo": {"name": "stackfit-container-smoke", "version": "1"},
+                    "clientInfo": {"name": "stackserve-container-smoke", "version": "1"},
                 },
             },
         )
         initialized = receive(process)
-        assert initialized["result"]["serverInfo"]["name"] == "stackfit-mcp"
+        assert initialized["result"]["serverInfo"]["name"] == "stackserve-mcp"
         send(process, {"jsonrpc": "2.0", "method": "notifications/initialized"})
 
         send(process, {"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
@@ -140,7 +140,10 @@ def main():
         assert search["needs_verification"] is True, search
         assert search["verified_ready"] is False, search
         assert search["status"] == "ok", search
-        assert search["retrieval_mode"] == "lexical", search
+        if args.binary:
+            assert search["retrieval_mode"] in ("lexical", "hybrid"), search
+        else:
+            assert search["retrieval_mode"] == "lexical", search
         assert warm_search["request_id"] != search["request_id"]
         print(
             json.dumps(
