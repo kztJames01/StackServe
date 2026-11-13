@@ -1,7 +1,7 @@
 use std::{fs, path::PathBuf, str::FromStr};
 
 use rust_decimal::Decimal;
-use stackfit_core::{
+use stackserve_core::{
     bundle::{ArtifactStatus, generate_bundle_from_json, scan_for_secrets},
     engine::{CliffKind, Comparison, Recommendation, Role, compare_from_json, recommend_from_json},
     filters::{Filter, ReasonCode},

@@ -3,10 +3,10 @@ import sys
 
 from pydantic import ValidationError
 
-from stackfit_rag.corpus import IntegrityError, load_corpus
-from stackfit_rag.embeddings import VectorSearch
-from stackfit_rag.protocol import Request, Response
-from stackfit_rag.retrieval import Retriever
+from stackserve_rag.corpus import IntegrityError, load_corpus
+from stackserve_rag.embeddings import VectorSearch
+from stackserve_rag.protocol import Request, Response
+from stackserve_rag.retrieval import Retriever
 
 MAX_LINE_BYTES = 65_536
 

@@ -3,7 +3,7 @@ import json
 from datetime import date
 from pathlib import Path
 
-from stackfit_rag.protocol import CORPUS_VERSION, Chunk, Filters, Section
+from stackserve_rag.protocol import CORPUS_VERSION, Chunk, Filters, Section
 
 ROOT = Path(__file__).resolve().parents[4]
 CORPUS_DIR = ROOT / "corpus"

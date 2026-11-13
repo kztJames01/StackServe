@@ -407,5 +407,5 @@
     }
   ],
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://stackfit.local/schemas/protocol.schema.json"
+  "$id": "https://stackserve.local/schemas/protocol.schema.json"
 }

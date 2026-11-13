@@ -5,7 +5,7 @@ import jsonschema
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
-from stackfit_rag.protocol import Request, Response
+from stackserve_rag.protocol import Request, Response
 
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURES = ROOT / "fixtures" / "protocol"

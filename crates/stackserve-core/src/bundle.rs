@@ -1047,7 +1047,7 @@ fn render_bundle_files(ctx: &RenderContext<'_>) -> Result<Vec<GeneratedFile>, Bu
     } = *ctx;
     let mut env_lines = vec![
         format!(
-            "# StackFit setup bundle ({}) — status: prepared",
+            "# StackServe setup bundle ({}) — status: prepared",
             recipe.recipe_id
         ),
         "# Placeholders only. Replace each value in your provider environment settings; never commit real secrets.".to_owned(),

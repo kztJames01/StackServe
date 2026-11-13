@@ -3,12 +3,12 @@ from datetime import date, timedelta
 
 import pytest
 
-from stackfit_rag.corpus import IntegrityError, digest, load_corpus, with_freshness
-from stackfit_rag.embeddings import VectorSearch, metadata, validate_vectors
-from stackfit_rag.evaluate import report_path
-from stackfit_rag.protocol import Filters, Request
-from stackfit_rag.retrieval import Retriever, bm25, rrf
-from stackfit_rag.worker import Worker, sanitize
+from stackserve_rag.corpus import IntegrityError, digest, load_corpus, with_freshness
+from stackserve_rag.embeddings import VectorSearch, metadata, validate_vectors
+from stackserve_rag.evaluate import report_path
+from stackserve_rag.protocol import Filters, Request
+from stackserve_rag.retrieval import Retriever, bm25, rrf
+from stackserve_rag.worker import Worker, sanitize
 
 TODAY = date(2026, 11, 7)
 
@@ -215,7 +215,7 @@ def test_missing_model_and_missing_runtime_disclosed(tmp_path, monkeypatch):
     def unavailable(*args):
         raise ImportError("test runtime missing")
 
-    monkeypatch.setattr("stackfit_rag.embeddings.LocalModel", unavailable)
+    monkeypatch.setattr("stackserve_rag.embeddings.LocalModel", unavailable)
     assert VectorSearch(sections, hash_, path).rank("query", sections) == (
         None,
         "vector_runtime_unavailable",
@@ -223,8 +223,8 @@ def test_missing_model_and_missing_runtime_disclosed(tmp_path, monkeypatch):
 
 
 def test_corrupt_corpus_and_nonofficial_source_rejected(tmp_path):
-    from stackfit_rag.corpus import CORPUS_DIR
-    from stackfit_rag.protocol import Section
+    from stackserve_rag.corpus import CORPUS_DIR
+    from stackserve_rag.protocol import Section
     from pydantic import ValidationError
 
     (tmp_path / "manifest.json").write_bytes((CORPUS_DIR / "manifest.json").read_bytes())
@@ -246,7 +246,7 @@ def test_worker_artifact_error_does_not_echo_private_query(monkeypatch):
     def broken():
         raise ValueError("PRIVATE_VALUE")
 
-    monkeypatch.setattr("stackfit_rag.worker.load_corpus", broken)
+    monkeypatch.setattr("stackserve_rag.worker.load_corpus", broken)
     result = Worker().answer(request(query="password=PRIVATE_VALUE").model_dump_json().encode())
     assert result.status == "error" and result.retrieval_mode == "none"
     assert "PRIVATE_VALUE" not in result.model_dump_json()
@@ -255,11 +255,11 @@ def test_worker_artifact_error_does_not_echo_private_query(monkeypatch):
 def test_actual_worker_protocol_is_bounded_and_persistent():
     import subprocess
     import sys
-    from stackfit_rag.protocol import Response
+    from stackserve_rag.protocol import Response
 
     data = request().model_dump_json().encode() + b"\n"
     process = subprocess.run(
-        [sys.executable, "-m", "stackfit_rag.worker"],
+        [sys.executable, "-m", "stackserve_rag.worker"],
         input=data * 2,
         capture_output=True,
         timeout=60,
@@ -272,7 +272,7 @@ def test_actual_worker_protocol_is_bounded_and_persistent():
         assert result.status == "ok" and result.chunks
     assert not process.stderr
     malformed = subprocess.run(
-        [sys.executable, "-m", "stackfit_rag.worker"],
+        [sys.executable, "-m", "stackserve_rag.worker"],
         input=b"x" * 65_537 + b"\n",
         capture_output=True,
         timeout=10,

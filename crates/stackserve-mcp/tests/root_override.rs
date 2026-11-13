@@ -3,7 +3,7 @@
 
 #[cfg(unix)]
 #[test]
-fn stackfit_root_selects_packaged_worker() {
+fn stackserve_root_selects_packaged_worker() {
     use std::os::unix::fs::PermissionsExt;
     use std::process::Command;
     use std::time::{SystemTime, UNIX_EPOCH};
@@ -12,8 +12,9 @@ fn stackfit_root_selects_packaged_worker() {
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_nanos();
-    let root = std::env::temp_dir().join(format!("stackfit-root-{}-{unique}", std::process::id()));
-    let worker_dir = root.join("python/stackfit_rag");
+    let root =
+        std::env::temp_dir().join(format!("stackserve-root-{}-{unique}", std::process::id()));
+    let worker_dir = root.join("python/stackserve_rag");
     let bin_dir = worker_dir.join(".venv/bin");
     std::fs::create_dir_all(&bin_dir).unwrap();
 
@@ -28,15 +29,15 @@ fn stackfit_root_selects_packaged_worker() {
     std::fs::write(
         &worker,
         format!(
-            "#!/bin/sh\npwd > '{}'\nread line\ncat <<'STACKFIT_EOF'\n{response}\nSTACKFIT_EOF\n",
+            "#!/bin/sh\npwd > '{}'\nread line\ncat <<'STACKSERVE_EOF'\n{response}\nSTACKSERVE_EOF\n",
             cwd_marker.display()
         ),
     )
     .unwrap();
     std::fs::set_permissions(&worker, std::fs::Permissions::from_mode(0o700)).unwrap();
 
-    let output = Command::new(env!("CARGO_BIN_EXE_stackfit-mcp"))
-        .env("STACKFIT_ROOT", &root)
+    let output = Command::new(env!("CARGO_BIN_EXE_stackserve-mcp"))
+        .env("STACKSERVE_ROOT", &root)
         .args(["search", "Render PORT"])
         .output()
         .unwrap();
@@ -59,14 +60,14 @@ fn stackfit_root_selects_packaged_worker() {
     assert_eq!(
         response["warnings"],
         serde_json::json!(["fake_root_worker"]),
-        "the build-time worker path was used instead of STACKFIT_ROOT"
+        "the build-time worker path was used instead of STACKSERVE_ROOT"
     );
     assert_eq!(actual_cwd, Some(expected_cwd));
 }
 
 #[cfg(unix)]
 #[test]
-fn empty_stackfit_root_falls_back_to_the_build_root() {
+fn empty_stackserve_root_falls_back_to_the_build_root() {
     use std::os::unix::fs::PermissionsExt;
     use std::process::Command;
     use std::time::{SystemTime, UNIX_EPOCH};
@@ -76,7 +77,7 @@ fn empty_stackfit_root_falls_back_to_the_build_root() {
         .unwrap()
         .as_nanos();
     let scratch = std::env::temp_dir().join(format!(
-        "stackfit-empty-root-{}-{unique}",
+        "stackserve-empty-root-{}-{unique}",
         std::process::id()
     ));
     std::fs::create_dir_all(&scratch).unwrap();
@@ -90,15 +91,15 @@ fn empty_stackfit_root_falls_back_to_the_build_root() {
     std::fs::write(
         &worker,
         format!(
-            "#!/bin/sh\npwd > '{}'\nread line\ncat <<'STACKFIT_EOF'\n{response}\nSTACKFIT_EOF\n",
+            "#!/bin/sh\npwd > '{}'\nread line\ncat <<'STACKSERVE_EOF'\n{response}\nSTACKSERVE_EOF\n",
             marker.display()
         ),
     )
     .unwrap();
     std::fs::set_permissions(&worker, std::fs::Permissions::from_mode(0o700)).unwrap();
 
-    let output = Command::new(env!("CARGO_BIN_EXE_stackfit-mcp"))
-        .env("STACKFIT_ROOT", "")
+    let output = Command::new(env!("CARGO_BIN_EXE_stackserve-mcp"))
+        .env("STACKSERVE_ROOT", "")
         .arg("--python")
         .arg(&worker)
         .args(["search", "Render PORT"])
@@ -107,7 +108,7 @@ fn empty_stackfit_root_falls_back_to_the_build_root() {
 
     let cwd = std::fs::read_to_string(&marker).ok();
     let build_root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let expected_cwd = std::fs::canonicalize(build_root.join("python/stackfit_rag")).unwrap();
+    let expected_cwd = std::fs::canonicalize(build_root.join("python/stackserve_rag")).unwrap();
     let actual_cwd = cwd
         .as_deref()
         .map(str::trim)

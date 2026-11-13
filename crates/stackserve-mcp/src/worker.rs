@@ -1,7 +1,7 @@
 use std::{path::PathBuf, process::Stdio, time::Duration};
 
 use anyhow::{Context, Result, bail};
-use stackfit_core::protocol::{MAX_LINE_BYTES, WorkerRequest, WorkerResponse};
+use stackserve_core::protocol::{MAX_LINE_BYTES, WorkerRequest, WorkerResponse};
 use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
     process::{Child, ChildStdin, ChildStdout, Command},
@@ -49,7 +49,7 @@ impl Worker {
         } else {
             let mut child = Command::new(&self.python)
                 .arg("-m")
-                .arg("stackfit_rag.worker")
+                .arg("stackserve_rag.worker")
                 .current_dir(&self.directory)
                 .stdin(Stdio::piped())
                 .stdout(Stdio::piped())
@@ -133,7 +133,7 @@ mod tests {
             .unwrap()
             .as_nanos();
         let script = std::env::temp_dir().join(format!(
-            "stackfit-{suffix}-{}-{unique}.sh",
+            "stackserve-{suffix}-{}-{unique}.sh",
             std::process::id()
         ));
         std::fs::write(&script, format!("#!/bin/sh\n{body}")).unwrap();
@@ -150,7 +150,7 @@ mod tests {
             .unwrap()
             .as_nanos();
         let path = std::env::temp_dir().join(format!(
-            "stackfit-response-{suffix}-{}-{unique}.jsonl",
+            "stackserve-response-{suffix}-{}-{unique}.jsonl",
             std::process::id()
         ));
         std::fs::write(

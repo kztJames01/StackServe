@@ -17,7 +17,7 @@ TOOL_NAMES = {
 
 async def start_server(*arguments):
     return await asyncio.create_subprocess_exec(
-        os.environ["STACKFIT_PROFILE_BIN"],
+        os.environ["STACKSERVE_PROFILE_BIN"],
         "serve",
         *arguments,
         stdin=asyncio.subprocess.PIPE,
@@ -48,11 +48,11 @@ async def initialize(process):
             "params": {
                 "protocolVersion": "2025-11-25",
                 "capabilities": {},
-                "clientInfo": {"name": "stackfit-contract-test", "version": "1"},
+                "clientInfo": {"name": "stackserve-contract-test", "version": "1"},
             },
         },
     )
-    assert (await receive(process))["result"]["serverInfo"]["name"] == "stackfit-mcp"
+    assert (await receive(process))["result"]["serverInfo"]["name"] == "stackserve-mcp"
     await send(process, {"jsonrpc": "2.0", "method": "notifications/initialized"})
 
 
@@ -73,7 +73,7 @@ def fixture(relative):
 
 
 @pytest.mark.skipif(
-    not os.environ.get("STACKFIT_PROFILE_BIN"), reason="contract job supplies binary"
+    not os.environ.get("STACKSERVE_PROFILE_BIN"), reason="contract job supplies binary"
 )
 def test_mcp_search_round_trip():
     async def run():
@@ -151,7 +151,7 @@ def test_mcp_search_round_trip():
 
 
 @pytest.mark.skipif(
-    not os.environ.get("STACKFIT_PROFILE_BIN"), reason="contract job supplies binary"
+    not os.environ.get("STACKSERVE_PROFILE_BIN"), reason="contract job supplies binary"
 )
 def test_retrieval_unavailable_preserves_deterministic_tools(tmp_path):
     async def run():

@@ -2,8 +2,8 @@ import json
 import math
 from pathlib import Path
 
-from stackfit_rag.corpus import CORPUS_DIR, ROOT, IntegrityError, digest, read_bounded
-from stackfit_rag.protocol import CORPUS_VERSION, Section
+from stackserve_rag.corpus import CORPUS_DIR, ROOT, IntegrityError, digest, read_bounded
+from stackserve_rag.protocol import CORPUS_VERSION, Section
 
 MODEL_DIR = ROOT / "models" / "minilm"
 INDEX_PATH = ROOT / "index" / "provider.index"

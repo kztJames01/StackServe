@@ -1,11 +1,11 @@
 [project]
-name = "stackfit-rag"
+name = "stackserve-rag"
 version = "0.1.0"
 requires-python = "==3.12.*"
 dependencies = ["pydantic==2.12.5"]
 
 [project.scripts]
-stackfit-rag-worker = "stackfit_rag.worker:main"
+stackserve-rag-worker = "stackserve_rag.worker:main"
 
 [project.optional-dependencies]
 vector = [

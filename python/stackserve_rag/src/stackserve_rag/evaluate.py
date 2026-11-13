@@ -4,10 +4,10 @@ import time
 from datetime import date
 from pathlib import Path
 
-from stackfit_rag.corpus import ROOT, load_corpus, read_bounded
-from stackfit_rag.embeddings import VectorSearch, model_spec
-from stackfit_rag.protocol import CORPUS_VERSION, Filters, Request
-from stackfit_rag.retrieval import Retriever
+from stackserve_rag.corpus import ROOT, load_corpus, read_bounded
+from stackserve_rag.embeddings import VectorSearch, model_spec
+from stackserve_rag.protocol import CORPUS_VERSION, Filters, Request
+from stackserve_rag.retrieval import Retriever
 
 
 def report_path(day: date | None = None) -> Path:
@@ -89,7 +89,7 @@ def evaluate(day: date | None = None) -> str:
         f"Corpus `{CORPUS_VERSION}`: {len(sections)} curated sections, SHA-256 `{corpus_hash}`.",
         f"Model `{spec['model_id']}` at `{spec['revision']}`, {spec['dimension']} dimensions; `{spec['index_version']}`.",
         "",
-        "Command: `uv run --locked --extra vector python -m stackfit_rag.evaluate --write`.",
+        "Command: `uv run --locked --extra vector python -m stackserve_rag.evaluate --write`.",
         "",
         "Twenty fixed labels: 18 queries with relevant evidence and two unsupported exact-filter queries.",
         "Macro Recall@5 averages only the 18 nonempty relevance sets; both negative cases must return no chunks.",

@@ -3,8 +3,8 @@ import json
 import subprocess
 from pathlib import Path
 
-from stackfit_rag.corpus import ROOT, IntegrityError, digest, load_corpus, read_bounded
-from stackfit_rag.embeddings import MODEL_DIR, build_index, model_spec
+from stackserve_rag.corpus import ROOT, IntegrityError, digest, load_corpus, read_bounded
+from stackserve_rag.embeddings import MODEL_DIR, build_index, model_spec
 
 
 def fetch(url: str, path: Path, maximum: int, redirects: bool = False) -> bytes:

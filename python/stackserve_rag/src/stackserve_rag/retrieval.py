@@ -3,8 +3,8 @@ import re
 from collections import Counter
 from datetime import date
 
-from stackfit_rag.corpus import matches, with_freshness
-from stackfit_rag.protocol import Request, Response, Section
+from stackserve_rag.corpus import matches, with_freshness
+from stackserve_rag.protocol import Request, Response, Section
 
 STOP_WORDS = frozenset(
     "a an and are as at be by can for from how i in is it of on or the to use with".split()

@@ -481,7 +481,7 @@ wheels = [
 ]
 
 [[package]]
-name = "stackfit-rag"
+name = "stackserve-rag"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
