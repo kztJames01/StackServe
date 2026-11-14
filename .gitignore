@@ -83,5 +83,5 @@ tmp/
 frontend/node_modules/
 frontend/.next/
 frontend/out/
-render.yaml
+
 specs/
