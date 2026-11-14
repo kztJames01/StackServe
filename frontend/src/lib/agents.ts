@@ -1,4 +1,4 @@
-export const BIN = "/absolute/path/to/stackserve/target/release/stackserve-mcp";
+export const REMOTE_MCP_URL = "https://mcp.stackserve.net/mcp";
 
 export type Snippet = {
   label: string;
@@ -14,11 +14,9 @@ export type AgentEnv = {
 };
 
 export const BUILD_SNIPPET: Snippet = {
-  label: "Build once from a repository checkout",
+  label: "Install locally on $PATH (optional offline CLI)",
   language: "bash",
-  code: `git clone https://github.com/kztJames01/Stackfit stackserve && cd stackserve
-(cd python/stackserve_rag && uv sync --locked)
-cargo build -p stackserve-mcp --release`,
+  code: `cargo install --git https://github.com/kztJames01/StackServe stackserve-mcp`,
 };
 
 export const AGENT_ENVS: AgentEnv[] = [
@@ -26,14 +24,13 @@ export const AGENT_ENVS: AgentEnv[] = [
     id: "cursor",
     name: "Cursor",
     snippet: {
-      label: "Project config",
+      label: "Project or global config",
       language: "json",
       file: ".cursor/mcp.json",
       code: `{
   "mcpServers": {
     "stackserve": {
-      "command": "${BIN}",
-      "args": ["serve"]
+      "url": "${REMOTE_MCP_URL}"
     }
   }
 }`,
@@ -43,36 +40,50 @@ export const AGENT_ENVS: AgentEnv[] = [
     id: "opencode",
     name: "OpenCode",
     snippet: {
-      label: "Add from the CLI",
-      language: "bash",
-      code: `opencode mcp add stackserve -- ${BIN} serve`,
+      label: "Remote MCP config",
+      language: "json",
+      file: "opencode.json",
+      code: `{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "stackserve": {
+        "type": "remote",
+        "url": "${REMOTE_MCP_URL}",
+        "enabled": true
+      }
+    }
+  }
+}`,
     },
   },
   {
     id: "codex",
     name: "Codex",
     snippet: {
-      label: "Register",
+      label: "Install plugin or add remote MCP",
       language: "bash",
-      code: `codex mcp add stackserve -- ${BIN} serve`,
+      code: `codex plugin marketplace add kztJames01/StackServe
+codex plugin add stackserve@stackserve-marketplace`,
     },
   },
   {
     id: "claude-code",
     name: "Claude Code",
     snippet: {
-      label: "Register",
+      label: "Register remote HTTP server",
       language: "bash",
-      code: `claude mcp add --transport stdio stackserve -- ${BIN} serve`,
+      code: `claude mcp add --scope user --transport http stackserve ${REMOTE_MCP_URL}`,
     },
   },
   {
     id: "cli",
     name: "CLI",
     snippet: {
-      label: "Recommend stacks for a fixture workload",
+      label: "Install once, then run offline",
       language: "bash",
-      code: "./target/release/stackserve-mcp recommend fixtures/workloads/node-sporadic.json",
+      code: `cargo install --git https://github.com/kztJames01/StackServe stackserve-mcp
+stackserve-mcp recommend workload.json`,
     },
   },
 ];

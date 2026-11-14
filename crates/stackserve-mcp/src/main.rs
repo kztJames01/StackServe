@@ -3,12 +3,13 @@
 mod worker;
 
 use std::{
+    collections::HashMap,
     path::PathBuf,
     sync::{
         Arc,
         atomic::{AtomicU64, Ordering},
     },
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 use anyhow::{Context, Result, anyhow};
@@ -439,7 +440,99 @@ async fn require_bearer_token(
     }
 }
 
+const DEFAULT_HTTP_RATE_LIMIT_PER_MIN: u32 = 60;
+const RATE_LIMIT_MAX_BUCKETS: usize = 4096;
+
+#[derive(Clone)]
+struct RateLimiter {
+    limit_per_min: u32,
+    buckets: Arc<tokio::sync::Mutex<HashMap<String, (Instant, u32)>>>,
+}
+
+impl RateLimiter {
+    fn new(limit_per_min: u32) -> Self {
+        Self {
+            limit_per_min,
+            buckets: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
+        }
+    }
+
+    async fn check(&self, key: &str) -> bool {
+        let now = Instant::now();
+        let window = Duration::from_secs(60);
+        let mut guard = self.buckets.lock().await;
+        if guard.len() >= RATE_LIMIT_MAX_BUCKETS {
+            guard.retain(|_, (started, _)| now.duration_since(*started) < window);
+            if guard.len() >= RATE_LIMIT_MAX_BUCKETS {
+                guard.clear();
+            }
+        }
+        let entry = guard.entry(key.to_owned()).or_insert((now, 0));
+        if now.duration_since(entry.0) >= window {
+            *entry = (now, 1);
+            true
+        } else if entry.1 < self.limit_per_min {
+            entry.1 += 1;
+            true
+        } else {
+            false
+        }
+    }
+}
+
+fn client_rate_limit_key(request: &Request<Body>) -> String {
+    request
+        .headers()
+        .get("x-forwarded-for")
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| value.split(',').next())
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .unwrap_or("direct")
+        .to_owned()
+}
+
+async fn enforce_rate_limit(
+    State(limiter): State<RateLimiter>,
+    request: Request<Body>,
+    next: Next,
+) -> Response {
+    let key = client_rate_limit_key(&request);
+    if limiter.check(&key).await {
+        next.run(request).await
+    } else {
+        let mut response = (
+            StatusCode::TOO_MANY_REQUESTS,
+            Json(json!({
+                "status": "error",
+                "error": { "code": "rate_limited", "message": "too many requests; retry after 60 seconds" }
+            })),
+        )
+            .into_response();
+        response
+            .headers_mut()
+            .insert(header::RETRY_AFTER, HeaderValue::from_static("60"));
+        response
+    }
+}
+
+fn resolve_http_rate_limit() -> u32 {
+    std::env::var("STACKSERVE_HTTP_RATE_LIMIT_PER_MIN")
+        .ok()
+        .and_then(|raw| raw.trim().parse::<u32>().ok())
+        .filter(|val| *val > 0)
+        .unwrap_or(DEFAULT_HTTP_RATE_LIMIT_PER_MIN)
+}
+
 fn build_http_router(worker: Arc<Worker>, bearer_token: Option<String>) -> Router {
+    build_http_router_with_limit(worker, bearer_token, resolve_http_rate_limit())
+}
+
+fn build_http_router_with_limit(
+    worker: Arc<Worker>,
+    bearer_token: Option<String>,
+    rate_limit_per_min: u32,
+) -> Router {
     let request_ids = Arc::new(AtomicU64::new(1));
     let mcp_service = StreamableHttpService::new(
         move || {
@@ -454,7 +547,11 @@ fn build_http_router(worker: Arc<Worker>, bearer_token: Option<String>) -> Route
 
     let mcp_router = Router::new()
         .nest_service("/mcp", mcp_service)
-        .layer(DefaultBodyLimit::max(2 * 1024 * 1024));
+        .layer(DefaultBodyLimit::max(2 * 1024 * 1024))
+        .layer(middleware::from_fn_with_state(
+            RateLimiter::new(rate_limit_per_min),
+            enforce_rate_limit,
+        ));
     let mcp_router = match bearer_token {
         Some(token) => mcp_router.layer(middleware::from_fn_with_state(
             Arc::new(token),
@@ -579,5 +676,36 @@ mod tests {
         assert!(text.contains("stackserve-mcp"), "unexpected body: {text}");
 
         handle.abort();
+    }
+
+    #[tokio::test]
+    async fn http_mcp_rate_limits_excess_requests() {
+        let root = root_dir();
+        let app = build_http_router_with_limit(
+            Arc::new(Worker::new(
+                root.join("python/stackserve_rag/.venv/bin/python"),
+                root.join("python/stackserve_rag"),
+            )),
+            None,
+            2,
+        );
+        let init_body = r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test","version":"1"}}}"#;
+        for expected_status in [
+            StatusCode::OK,
+            StatusCode::OK,
+            StatusCode::TOO_MANY_REQUESTS,
+        ] {
+            let req = Request::builder()
+                .method("POST")
+                .uri("/mcp")
+                .header(header::HOST, "127.0.0.1")
+                .header("x-forwarded-for", "203.0.113.10")
+                .header(header::CONTENT_TYPE, "application/json")
+                .header(header::ACCEPT, "application/json, text/event-stream")
+                .body(Body::from(init_body))
+                .unwrap();
+            let resp = tower::ServiceExt::oneshot(app.clone(), req).await.unwrap();
+            assert_eq!(resp.status(), expected_status);
+        }
     }
 }

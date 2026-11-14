@@ -1,5 +1,14 @@
-name: stackserve
+id: git/github.com/kztJames01/StackServe
+name: StackServe
 version: 0.1.0
 description: Workload-aware cloud stack advisor, decimal cost modeler, and setup bundle generator
+category: development
+author:
+  name: Kaung Zaw Thant
+  url: https://github.com/kztJames01
+url: https://github.com/kztJames01/StackServe
+homepage: https://stackserve.net
+license: MIT OR Apache-2.0
+content: https://github.com/kztJames01/StackServe
 skills: ./skills/
 mcp: ./kilo.jsonc

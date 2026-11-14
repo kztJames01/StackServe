@@ -16,19 +16,17 @@ export function Connect() {
       <SectionHead
         id="connect-title"
         title="Works where you already code."
-        lede="StackServe runs as a local stdio MCP server, or straight from the terminal. Pick your tool and paste one snippet."
+        lede="Connect directly to https://mcp.stackserve.net/mcp with zero local build, or install the offline CLI."
       />
 
       <div className="mt-12 flex flex-col gap-3 border-y border-hairline py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <p className="text-[16px] text-fg-2">
-          <span className="text-fg">First, build once.</span> Needs a Rust toolchain and{" "}
-          <span className="font-mono text-[14px]">uv</span>; ends with{" "}
-          <span className="font-mono text-[14px] whitespace-nowrap text-fg">
-            cargo build -p stackserve-mcp --release
-          </span>
-          .
+          <span className="text-fg">Prefer offline local execution?</span> Install{" "}
+          <span className="font-mono text-[14px] text-fg">stackserve-mcp</span> onto your{" "}
+          <span className="font-mono text-[14px]">$PATH</span> or run the GHCR container with{" "}
+          <span className="font-mono text-[14px] whitespace-nowrap text-fg">--network none</span>.
         </p>
-        <CopyButton text={BUILD_SNIPPET.code} label="Copy build commands" />
+        <CopyButton text={BUILD_SNIPPET.code} label="Copy cargo install" />
       </div>
 
       <div
@@ -80,8 +78,8 @@ export function Connect() {
         </div>
       </div>
       <p className="mt-5 text-[15px] text-fg-2">
-        Replace the path with your build’s binary. These are connection guides for a local build, not certified
-        integrations.
+        Remote HTTP connects to <span className="font-mono text-fg">https://mcp.stackserve.net/mcp</span> with no
+        local build required.
       </p>
     </Section>
   );

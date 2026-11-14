@@ -2,12 +2,19 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.kztJames01/stackserve-mcp",
   "title": "StackServe MCP",
-  "description": "Offline cloud stack advice with cited provider evidence, decimal estimates, and setup bundles.",
+  "description": "Workload-aware cloud stack advisor with cited provider evidence, deterministic decimal estimates, and setup bundles.",
   "version": "0.1.0",
+  "websiteUrl": "https://stackserve.net",
   "repository": {
-    "url": "https://github.com/kztJames01/Stackfit",
+    "url": "https://github.com/kztJames01/StackServe",
     "source": "github"
   },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.stackserve.net/mcp"
+    }
+  ],
   "packages": [
     {
       "registryType": "oci",

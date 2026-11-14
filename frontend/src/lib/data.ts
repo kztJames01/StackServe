@@ -1,7 +1,7 @@
 export const CATALOG_VERSION = "2026-11-11.1";
 export const CORPUS_VERSION = "2026-11-09.1";
 export const CHECKED_AT = "2026-11-07";
-export const REPO_URL = "https://github.com/kztJames01/Stackfit";
+export const REPO_URL = "https://github.com/kztJames01/StackServe";
 
 export type ToolName =
   "profile_project" | "search_provider_docs" | "recommend_stacks" | "compare_stacks" | "generate_setup_bundle";

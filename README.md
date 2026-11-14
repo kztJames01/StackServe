@@ -1,47 +1,83 @@
 # StackServe MCP
 
-Workload-aware cloud stack advisor. An MCP server that recommends complete, compatible cloud stacks with line-item decimal cost estimates, caveats, a cheaper baseline and a performance-oriented alternative, plus project-specific setup bundles.
+Workload-aware cloud stack advisor. An MCP server that recommends complete, compatible cloud stacks with line-item decimal cost estimates (`rust_decimal`), caveats, a cheaper baseline and a performance-oriented alternative, plus project-specific setup bundles.
 
-Five MCP tools: `profile_project`, `search_provider_docs`, `recommend_stacks`, `compare_stacks`, and `generate_setup_bundle`.
+## Tools
 
-## Workflow
+| Tool | Purpose |
+| --- | --- |
+| `profile_project` | Extract runtime, database, storage, and unresolved questions from a project brief or repo |
+| `search_provider_docs` | Retrieve cited official provider doc chunks with `source_url` and `verified_at` |
+| `recommend_stacks` | Filter incompatible services and rank feasible stacks by cost and operational trade-offs |
+| `compare_stacks` | Compare itemized decimal costs across current, `3x` traffic, and `10x` storage/egress scenarios |
+| `generate_setup_bundle` | Emit `.env.example`, `DEPLOYMENT.md`, `architecture-decision.md`, `provisioning-prompt.md`, and `resource-manifest.json` |
 
+## Quick Connect (Remote MCP)
+
+Connect directly to the hosted Streamable HTTP endpoint (`https://mcp.stackserve.net/mcp`) with zero local build:
+
+### Claude Code
+```sh
+claude mcp add --scope user --transport http stackserve https://mcp.stackserve.net/mcp
 ```
-Project profile & unresolved questions
-  -> Hybrid/lexical retrieval of provider documentation
-  -> Compatibility rules
-  -> Deterministic decimal estimates
-  -> Setup bundle & decision record
+Or install as a plugin:
+```text
+/plugin marketplace add kztJames01/StackServe
+/plugin install stackserve@stackserve-marketplace
 ```
 
-### Quick start (CLI & local MCP)
+### OpenAI Codex
+```sh
+codex plugin marketplace add kztJames01/StackServe
+codex plugin add stackserve@stackserve-marketplace
+```
+Or add to `~/.codex/config.toml`:
+```toml
+[mcp_servers.stackserve]
+url = "https://mcp.stackserve.net/mcp"
+```
+
+### Cursor
+Add to `.cursor/mcp.json` (or `~/.cursor/mcp.json`):
+```json
+{
+  "mcpServers": {
+    "stackserve": {
+      "url": "https://mcp.stackserve.net/mcp"
+    }
+  }
+}
+```
+
+### OpenCode & Kilo
+Add to `opencode.json` or `kilo.jsonc`:
+```json
+{
+  "mcp": {
+    "stackserve": {
+      "type": "remote",
+      "url": "https://mcp.stackserve.net/mcp"
+    }
+  }
+}
+```
+
+## Offline Local CLI & Docker
+
+Run completely offline without network access:
 
 ```sh
-(cd python/stackserve_rag && uv sync --locked)
-cargo build -p stackserve-mcp --release
+# Docker (offline stdio)
+docker run --rm -i --network none ghcr.io/kztjames01/stackserve-mcp:0.1.0
 
-# CLI workflow
-./target/release/stackserve-mcp profile fixtures/briefs/a-node-postgres-uploads.json
-./target/release/stackserve-mcp search "Render PORT binding"
-./target/release/stackserve-mcp recommend fixtures/workloads/node-sporadic.json
-./target/release/stackserve-mcp compare fixtures/workloads/node-sporadic.json \
-  --stack "recipe-a/cloudflare-pages-free+render-web-starter-hobby+neon-free+cloudflare-r2-standard"
-./target/release/stackserve-mcp bundle fixtures/projects/a-node-uploads.json
-
-# Start MCP server (stdio)
-./target/release/stackserve-mcp serve
-```
-
-### Docker (offline stdio)
-
-```sh
-docker buildx build -t stackserve-mcp:local --load .
-docker run --rm -i --network none stackserve-mcp:local
+# Or install the CLI onto $PATH
+cargo install --git https://github.com/kztJames01/StackServe stackserve-mcp
+stackserve-mcp recommend workload.json
 ```
 
 ## Privacy & limits
 
-- Project inputs are processed locally; StackServe does not provision resources, collect telemetry, or require cloud credentials. Never supply real secrets as project evidence.
+- StackServe does not provision resources, collect telemetry, or require cloud credentials. Never supply real secrets as project evidence.
 - Estimates use a pinned catalog snapshot—always verify each line item's `source_url` and `checked_at` against official provider pricing and terms before purchase.
 
 ## License
