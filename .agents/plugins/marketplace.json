@@ -19,12 +19,12 @@
       "homepage": "https://stackserve.net",
       "repository": "https://github.com/kztJames01/StackServe",
       "source": {
-        "source": "git",
-        "url": "https://github.com/kztJames01/StackServe"
+        "source": "local",
+        "path": "./"
       },
       "policy": {
         "installation": "AVAILABLE",
-        "authentication": "NONE"
+        "authentication": "ON_USE"
       },
       "category": "Developer Tools"
     }

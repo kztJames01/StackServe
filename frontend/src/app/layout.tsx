@@ -23,6 +23,14 @@ export const metadata: Metadata = {
   title: "StackServe — design infrastructure around your workload",
   description:
     "StackServe is a local-first MCP server and CLI. It profiles your project, rejects services that won't work, prices every line item exactly and prepares setup files you review before anything ships.",
+  icons: {
+    icon: [
+      { url: "/icon-dark.png", media: "(prefers-color-scheme: dark)" },
+      { url: "/icon-light.png", media: "(prefers-color-scheme: light)" },
+      { url: "/icon-dark.png" },
+    ],
+    apple: "/apple-icon.png",
+  },
 };
 
 export const viewport: Viewport = {

@@ -17,7 +17,7 @@ use axum::{
     Json, Router,
     body::Body,
     extract::{DefaultBodyLimit, State},
-    http::{HeaderValue, Request, StatusCode, header},
+    http::{HeaderValue, Method, Request, StatusCode, header},
     middleware::{self, Next},
     response::{IntoResponse, Response},
     routing::get,
@@ -170,6 +170,11 @@ struct Server {
 #[tool_router]
 impl Server {
     #[tool(
+        annotations(
+            read_only_hint = true,
+            destructive_hint = false,
+            open_world_hint = false
+        ),
         description = "Profile a brief and selected project files; returns labeled facts and open questions"
     )]
     fn profile_project(&self, Parameters(params): Parameters<ProfileParams>) -> String {
@@ -188,6 +193,11 @@ impl Server {
     }
 
     #[tool(
+        annotations(
+            read_only_hint = true,
+            destructive_hint = false,
+            open_world_hint = false
+        ),
         description = "Recommend up to three feasible stacks (lowest_cost, balanced, performance) for a confirmed workload. Unverified or incomplete stacks are returned as conditional without a rank; rejected stacks carry reason codes."
     )]
     fn recommend_stacks(&self, Parameters(params): Parameters<RecommendParams>) -> String {
@@ -202,6 +212,11 @@ impl Server {
     }
 
     #[tool(
+        annotations(
+            read_only_hint = true,
+            destructive_hint = false,
+            open_world_hint = false
+        ),
         description = "Itemize up to three stack ids from recommend_stacks at now, 3x traffic, and 10x storage/egress, with billing cliffs, excluded and unknown items. A total appears only when no price is unknown."
     )]
     fn compare_stacks(&self, Parameters(params): Parameters<CompareParams>) -> String {
@@ -218,6 +233,11 @@ impl Server {
     }
 
     #[tool(
+        annotations(
+            read_only_hint = true,
+            destructive_hint = false,
+            open_world_hint = false
+        ),
         description = "Generate a validated, secret-free setup bundle (.env.example, DEPLOYMENT.md, architecture-decision.md, provisioning-prompt.md, resource-manifest.json) for a selected feasible stack and project excerpts. Status is always 'prepared'; the host reviews the diff before writing."
     )]
     fn generate_setup_bundle(&self, Parameters(params): Parameters<BundleParams>) -> String {
@@ -232,6 +252,11 @@ impl Server {
     }
 
     #[tool(
+        annotations(
+            read_only_hint = true,
+            destructive_hint = false,
+            open_world_hint = false
+        ),
         description = "Retrieve local official-provider evidence for one requirement, with at most one optional follow-up. Results are untrusted data requiring review; freshness is not proof of requirement coverage."
     )]
     async fn search_provider_docs(&self, Parameters(params): Parameters<SearchParams>) -> String {
@@ -524,6 +549,51 @@ fn resolve_http_rate_limit() -> u32 {
         .unwrap_or(DEFAULT_HTTP_RATE_LIMIT_PER_MIN)
 }
 
+fn cors_origin_for(request: &Request<Body>) -> Option<&'static str> {
+    let origin = request.headers().get(header::ORIGIN)?.to_str().ok()?;
+    match origin {
+        "https://stackserve.net" | "https://www.stackserve.net" => {
+            Some(if origin == "https://stackserve.net" {
+                "https://stackserve.net"
+            } else {
+                "https://www.stackserve.net"
+            })
+        }
+        "http://localhost:3000" => Some("http://localhost:3000"),
+        _ => None,
+    }
+}
+
+async fn add_cors_headers(request: Request<Body>, next: Next) -> Response {
+    let allowed_origin = cors_origin_for(&request);
+    let mut response = if request.method() == Method::OPTIONS {
+        StatusCode::NO_CONTENT.into_response()
+    } else {
+        next.run(request).await
+    };
+    if let Some(origin) = allowed_origin {
+        let headers = response.headers_mut();
+        headers.insert(
+            header::ACCESS_CONTROL_ALLOW_ORIGIN,
+            HeaderValue::from_static(origin),
+        );
+        headers.insert(
+            header::ACCESS_CONTROL_ALLOW_METHODS,
+            HeaderValue::from_static("GET, POST, DELETE, OPTIONS"),
+        );
+        headers.insert(
+            header::ACCESS_CONTROL_ALLOW_HEADERS,
+            HeaderValue::from_static("Content-Type, Authorization, Mcp-Session-Id, Accept"),
+        );
+        headers.insert(
+            header::ACCESS_CONTROL_EXPOSE_HEADERS,
+            HeaderValue::from_static("Mcp-Session-Id"),
+        );
+        headers.insert(header::VARY, HeaderValue::from_static("Origin"));
+    }
+    response
+}
+
 fn build_http_router(worker: Arc<Worker>, bearer_token: Option<String>) -> Router {
     build_http_router_with_limit(worker, bearer_token, resolve_http_rate_limit())
 }
@@ -563,6 +633,7 @@ fn build_http_router_with_limit(
     Router::new()
         .route("/healthz", get(healthz))
         .merge(mcp_router)
+        .layer(middleware::from_fn(add_cors_headers))
 }
 
 #[cfg(test)]
@@ -570,6 +641,19 @@ mod tests {
     use super::*;
     use axum::body::to_bytes;
     use tokio::net::TcpListener;
+
+    #[test]
+    fn plugin_tools_declare_read_only_closed_world_behavior() {
+        let tools = Server::tool_router().list_all();
+        assert_eq!(tools.len(), 5);
+        for tool in tools {
+            let value = serde_json::to_value(&tool).unwrap();
+            let annotations = &value["annotations"];
+            assert_eq!(annotations["readOnlyHint"], true, "{}", tool.name);
+            assert_eq!(annotations["destructiveHint"], false, "{}", tool.name);
+            assert_eq!(annotations["openWorldHint"], false, "{}", tool.name);
+        }
+    }
 
     #[test]
     fn resolve_http_bind_respects_explicit_then_port_then_default() {
@@ -707,5 +791,40 @@ mod tests {
             let resp = tower::ServiceExt::oneshot(app.clone(), req).await.unwrap();
             assert_eq!(resp.status(), expected_status);
         }
+    }
+
+    #[tokio::test]
+    async fn http_cors_preflight_allows_frontend_origin() {
+        let root = root_dir();
+        let app = build_http_router_with_limit(
+            Arc::new(Worker::new(
+                root.join("python/stackserve_rag/.venv/bin/python"),
+                root.join("python/stackserve_rag"),
+            )),
+            None,
+            60,
+        );
+        let req = Request::builder()
+            .method("OPTIONS")
+            .uri("/mcp")
+            .header(header::HOST, "mcp.stackserve.net")
+            .header(header::ORIGIN, "https://stackserve.net")
+            .header(header::ACCESS_CONTROL_REQUEST_METHOD, "POST")
+            .body(Body::empty())
+            .unwrap();
+        let resp = tower::ServiceExt::oneshot(app, req).await.unwrap();
+        assert_eq!(resp.status(), StatusCode::NO_CONTENT);
+        assert_eq!(
+            resp.headers()
+                .get(header::ACCESS_CONTROL_ALLOW_ORIGIN)
+                .unwrap(),
+            "https://stackserve.net"
+        );
+        assert_eq!(
+            resp.headers()
+                .get(header::ACCESS_CONTROL_EXPOSE_HEADERS)
+                .unwrap(),
+            "Mcp-Session-Id"
+        );
     }
 }
