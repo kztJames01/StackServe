@@ -78,7 +78,14 @@ stackserve-mcp recommend workload.json
 ## Privacy & limits
 
 - StackServe does not provision resources, collect telemetry, or require cloud credentials. Never supply real secrets as project evidence.
+- Remote MCP calls send their supplied arguments to the hosted service. Local offline execution and hosted execution have different privacy boundaries; infrastructure logging and retention must be covered by the hosted service's published privacy policy.
 - Estimates use a pinned catalog snapshot—always verify each line item's `source_url` and `checked_at` against official provider pricing and terms before purchase.
+
+## Chat plugin preparation
+
+`plugin.json` and `mcp.json` provide portable Agent Plugins source for the existing five tools. `skills/stackserve/SKILL.md` describes chat usage; a custom embedded UI is not required. The initial intended listing is free, by Kaung Zaw Thant, in all available countries.
+
+This source is not a published or submission-ready plugin. See [the readiness report](reports/plugin-readiness.md) for live endpoint verification, listing pages, demo, and review requirements. Only package the manifests, referenced assets, and `skills/stackserve/` for public upload; do not archive the repository, local configuration, model artifacts, or dependencies. Existing client-specific manifests remain for their respective clients.
 
 ## License
 

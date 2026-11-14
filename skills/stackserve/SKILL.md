@@ -5,11 +5,19 @@ description: Workload-aware cloud stack advisor. Use when the user asks what clo
 
 # StackServe Cloud Architecture Advisor
 
-Use StackServe's deterministic engine and local provider-documentation RAG to turn application requirements into compatible, cost-transparent, deployable infrastructure stacks.
+Use StackServe's deterministic engine and bundled provider documentation to turn application requirements into compatible stacks, cost estimates, and prepared setup files.
+
+## Chat usage
+
+Use only the tools needed for the user's request. The remote server receives the arguments supplied to it; it cannot inspect the user's computer or cloud accounts. Ask for a short workload brief first. Request only relevant non-secret excerpts when needed, never entire repositories, conversation histories, `.env` contents, credentials, or billing details. Selected file paths label supplied content; they do not grant filesystem access.
+
+In normal chat, show generated files as text or host-supported downloadable artifacts. Do not assume a shell, local checkout, or write permission exists. The CLI alternatives below apply only in an environment where the user has installed StackServe.
+
+Cloud prices describe estimates, not offers to transact. Link to informational provider evidence, not checkout, subscription, or upgrade flows. Do not sell services or add affiliate links. StackServe itself does not deploy, purchase, rotate secrets, monitor production, or send alerts.
 
 ## Workflow
 
-Follow this 5-step sequence using the `stackserve` MCP tools (or the `stackserve-mcp` CLI if running in shell-only mode):
+For a full advisory workflow, use this sequence with the `stackserve` MCP tools (or the installed `stackserve-mcp` CLI in a shell environment):
 
 1. **Profile the project** — Call `profile_project` (CLI: `./target/release/stackserve-mcp profile <brief.json>`) with the user's workload brief and any relevant non-secret manifest/source excerpts.
    - Surface labeled `constraint` vs `assumption` vs `inference` fields and `questions[]` for missing usage meters.
