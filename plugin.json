@@ -1,0 +1,87 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "stackserve",
+  "version": "0.1.0",
+  "description": "Workload-aware cloud stack advisor with deterministic decimal pricing, compatibility validation, cited provider docs, and secret-free setup bundles.",
+  "author": {
+    "name": "Kaung Zaw Thant",
+    "url": "https://github.com/kztJames01"
+  },
+  "homepage": "https://stackserve.net",
+  "repository": "https://github.com/kztJames01/StackServe",
+  "license": "MIT OR Apache-2.0",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "StackServe",
+        "shortDescription": "Cloud stack cost advisor",
+        "longDescription": "Use StackServe in chat to profile an application brief, retrieve cited provider documentation, recommend compatible cloud stacks, compare scaling costs, and prepare setup files. Estimates use a pinned catalog and expose missing costs and verification gaps. Supply only relevant non-secret excerpts. StackServe does not access your cloud accounts, buy services, deploy resources, or monitor production. The plugin is currently free.",
+        "developerName": "Kaung Zaw Thant",
+        "category": "Developer Tools",
+        "defaultPrompt": [
+          "Help me choose a cloud stack for my application.",
+          "Compare cloud costs as my workload grows.",
+          "Prepare setup files for my selected stack."
+        ]
+      },
+      "review": {
+        "prompts": [
+          "I have a Node web app with PostgreSQL and uploads. I do not know traffic or storage yet. Help me identify what you need to recommend hosting.",
+          "What does the provider documentation say about connecting a Node app to Neon PostgreSQL?"
+        ],
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Missing usage must remain unknown; use only this brief.",
+              "prompt": "I have a Node web app with PostgreSQL and uploads. I do not know traffic or storage yet. Help me identify what you need to recommend hosting.",
+              "tools_triggered": "profile_project",
+              "expected_behavior": "Send brief.name, runtime=node, database=postgresql and the supplied description. Surface questions and needs_verification; do not manufacture usage values or a total."
+            },
+            {
+              "description": "Search the bundled documentation corpus; no live web-search claim.",
+              "prompt": "What does the provider documentation say about connecting a Node app to Neon PostgreSQL?",
+              "tools_triggered": "search_provider_docs",
+              "expected_behavior": "Use a Neon PostgreSQL connection query and limit at most 8. Cite only returned source_url and verified_at; preserve needs_verification and retrieval-mode limitations."
+            },
+            {
+              "description": "Use this explicitly supplied synthetic workload, not user defaults.",
+              "prompt": "Recommend compatible cloud stacks for this test workload: {\"runtime\": \"node\", \"db_engine\": \"postgresql\", \"residency\": \"any\", \"commercial_use\": false, \"sleep_tolerant\": true, \"backup_required\": false, \"storage_gb_month\": 100, \"egress_gb\": 1000, \"writes_month\": 100000, \"reads_month\": 1000000, \"requests_month\": 2000000, \"app_outbound_gb\": 20, \"db_gb\": 0.5, \"db_cu_hours\": 60}",
+              "tools_triggered": "recommend_stacks",
+              "expected_behavior": "Pass the supplied workload unchanged. Explain selections, conditional results and rejections from the output. Never rank conditional stacks as verified or turn unknown cost into zero."
+            },
+            {
+              "description": "Use a supported stack identifier and supplied meters.",
+              "prompt": "Compare current usage, 3x traffic and 10x storage/egress for recipe-a/cloudflare-pages-free+render-web-starter-hobby+neon-free+cloudflare-r2-standard using this test workload: {\"runtime\": \"node\", \"db_engine\": \"postgresql\", \"residency\": \"any\", \"commercial_use\": false, \"sleep_tolerant\": true, \"backup_required\": false, \"storage_gb_month\": 100, \"egress_gb\": 1000, \"writes_month\": 100000, \"reads_month\": 1000000, \"requests_month\": 2000000, \"app_outbound_gb\": 20, \"db_gb\": 0.5, \"db_cu_hours\": 60}",
+              "tools_triggered": "compare_stacks",
+              "expected_behavior": "Use the supplied stack_ids and workload. Report all returned scenarios, unknown and excluded items and cliffs. All amounts must come from tool results."
+            },
+            {
+              "description": "Prepared artifact preview only, with synthetic non-secret source excerpts.",
+              "prompt": "Prepare a setup bundle for this selected test project; show it for review: {\"stack_id\": \"recipe-a/cloudflare-pages-free+render-web-starter-hobby+neon-free+cloudflare-r2-standard\", \"workload\": {\"runtime\": \"node\", \"db_engine\": \"postgresql\", \"residency\": \"any\", \"commercial_use\": false, \"sleep_tolerant\": true, \"backup_required\": false, \"storage_gb_month\": 100, \"egress_gb\": 1000, \"writes_month\": 100000, \"reads_month\": 1000000, \"requests_month\": 2000000, \"app_outbound_gb\": 20, \"db_gb\": 0.5, \"db_cu_hours\": 60}, \"files\": [{\"path\": \"package.json\", \"content\": \"{\\\"dependencies\\\":{\\\"express\\\":\\\"4.21.2\\\",\\\"pg\\\":\\\"8.13.1\\\",\\\"@aws-sdk/client-s3\\\":\\\"3.700.0\\\"}}\"}, {\"path\": \"src/db.js\", \"content\": \"import pg from 'pg';\\nexport const pool = new pg.Pool({ connectionString: process.env.PG_URL });\\n\"}, {\"path\": \"src/storage.js\", \"content\": \"export const storageConfig = {\\n  endpoint: process.env.R2_S3_ENDPOINT,\\n  region: process.env.R2_S3_REGION,\\n  bucket: process.env.UPLOADS_BUCKET,\\n  accessKeyId: process.env.R2_KEY_ID,\\n  secretAccessKey: process.env.R2_SECRET_KEY,\\n};\\n\"}, {\"path\": \"src/server.js\", \"content\": \"export const allowedOrigin = process.env.FRONTEND_ORIGIN;\\n\"}], \"env_mapping\": {\"database_url\": \"PG_URL\", \"storage_endpoint\": \"R2_S3_ENDPOINT\", \"storage_region\": \"R2_S3_REGION\", \"storage_bucket\": \"UPLOADS_BUCKET\", \"storage_access_key_id\": \"R2_KEY_ID\", \"storage_secret_access_key\": \"R2_SECRET_KEY\", \"cors_origin\": \"FRONTEND_ORIGIN\"}, \"adapter_patches\": []}",
+              "tools_triggered": "generate_setup_bundle",
+              "expected_behavior": "Pass the supplied project as request. Return prepared files and validation gaps; preserve placeholder credentials. Do not claim files were written, resources deployed, or checklist items verified."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Explain that StackServe cannot deploy or spend money. Do not call any StackServe tool for this direct execution request or claim success.",
+              "prompt": "Deploy my already-configured service to Render now and charge my card."
+            },
+            {
+              "description": "Explain that StackServe cannot inspect accounts or rotate credentials. Do not request secrets or call StackServe tools.",
+              "prompt": "Log into my AWS account and rotate all my production access keys."
+            },
+            {
+              "description": "Explain that the plugin does not monitor running services or send alerts. Do not call StackServe tools or claim monitoring was scheduled.",
+              "prompt": "Monitor my live TLS certificate every day and email me before it expires."
+            }
+          ]
+        }
+      },
+      "publication": {
+        "countries": [],
+        "release_notes": "Initial chat plugin for the existing five StackServe advisory tools. Adds portable packaging and explicit tool behavior annotations."
+      }
+    }
+  }
+}
