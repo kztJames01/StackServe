@@ -1,0 +1,153 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #0b0b0c;
+  --raised: #131315;
+  --hairline: rgb(255 255 255 / 0.08);
+  --hairline-strong: rgb(255 255 255 / 0.16);
+  --fg: #edebe6;
+  --fg-2: #8c8a85;
+  --fg-3: #5c5a56;
+  --paper: #edebe6;
+  --paper-ink: #111111;
+  --signal: #ff5a36;
+  --radius: 4px;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-raised: var(--raised);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-paper: var(--paper);
+  --color-paper-ink: var(--paper-ink);
+  --color-signal: var(--signal);
+  --radius-ui: var(--radius);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-instrument-serif);
+}
+
+html {
+  background: var(--ink);
+  color-scheme: dark;
+  scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background: var(--ink);
+  color: var(--fg);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--signal);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+  border-radius: var(--radius);
+}
+
+@utility frame {
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+  @media (width >= 40rem) {
+    border-inline: 1px solid var(--hairline);
+  }
+}
+
+@utility gutter {
+  padding-inline: 1.25rem;
+  @media (width >= 40rem) {
+    padding-inline: 2.5rem;
+  }
+  @media (width >= 64rem) {
+    padding-inline: 4rem;
+  }
+}
+
+@utility section-pad {
+  padding-block: 5rem;
+  @media (width >= 64rem) {
+    padding-block: 8.5rem;
+  }
+}
+
+@utility display {
+  font-family: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility torn-bottom {
+  mask:
+    linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat,
+    conic-gradient(from -45deg at 50% 100%, #000 90deg, #0000 0) bottom / 14px 10px repeat-x;
+}
+
+@utility paper-light {
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgb(255 255 255 / 0.55), transparent 60%),
+    linear-gradient(100deg, #f3f1ec 0%, #e6e3dc 100%);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility enter {
+  animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes print-out {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-24px);
+  }
+  to {
+    clip-path: inset(0 0 -40px 0);
+    transform: none;
+  }
+}
+
+@utility print-reveal {
+  animation: print-out 1.4s cubic-bezier(0.45, 0, 0.2, 1) 0.25s both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
