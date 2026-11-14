@@ -2,6 +2,17 @@
   "name": "stackserve",
   "version": "0.1.0",
   "description": "Workload-aware cloud stack advisor with deterministic decimal pricing, compatibility validation, cited provider docs, and secret-free setup bundles.",
+  "author": {
+    "name": "Kaung Zaw Thant",
+    "url": "https://github.com/kztJames01"
+  },
+  "homepage": "https://stackserve.net",
+  "repository": "https://github.com/kztJames01/StackServe",
+  "license": "MIT OR Apache-2.0",
+  "category": "Developer Tools",
+  "interface": {
+    "displayName": "StackServe"
+  },
   "skills": "./skills/",
   "mcpServers": "./.mcp.json"
 }

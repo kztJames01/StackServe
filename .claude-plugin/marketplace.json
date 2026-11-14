@@ -1,0 +1,26 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "stackserve-marketplace",
+  "owner": {
+    "name": "Kaung Zaw Thant"
+  },
+  "plugins": [
+    {
+      "name": "stackserve",
+      "displayName": "StackServe",
+      "version": "0.1.0",
+      "description": "Workload-aware cloud stack advisor with deterministic decimal pricing, compatibility validation, cited provider docs, and setup bundles.",
+      "author": {
+        "name": "Kaung Zaw Thant"
+      },
+      "homepage": "https://stackserve.net",
+      "repository": "https://github.com/kztJames01/StackServe",
+      "category": "development",
+      "keywords": ["cloud", "architecture", "pricing", "mcp", "infrastructure"],
+      "source": {
+        "source": "local",
+        "path": "."
+      }
+    }
+  ]
+}

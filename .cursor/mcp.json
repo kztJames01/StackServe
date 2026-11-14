@@ -1,8 +1,7 @@
 {
   "mcpServers": {
     "stackserve": {
-      "command": "./target/release/stackserve-mcp",
-      "args": ["serve"]
+      "url": "https://mcp.stackserve.net/mcp"
     }
   }
 }

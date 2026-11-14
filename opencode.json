@@ -3,8 +3,8 @@
   "mcp": {
     "servers": {
       "stackserve": {
-        "type": "local",
-        "command": ["./target/release/stackserve-mcp", "serve"],
+        "type": "remote",
+        "url": "https://mcp.stackserve.net/mcp",
         "enabled": true
       }
     }
