@@ -1,0 +1,19 @@
+id: stackserve
+name: StackServe
+description: >-
+  Profile application briefs, retrieve cited provider documentation, compare
+  compatible cloud stacks and decimal cost estimates, and prepare setup files.
+  Uses a pinned catalog and reports unknown costs and verification gaps.
+  Does not deploy resources or access cloud accounts. Currently free.
+author: kztJames01
+url: https://github.com/kztJames01/StackServe
+category: development
+content:
+  - name: Hosted MCP (OAuth)
+    content: |
+      {
+        "type": "streamable-http",
+        "url": "https://mcp.stackserve.net/mcp"
+      }
+    prerequisites:
+      - A client supporting MCP OAuth and access through the hosted sign-in policy

@@ -37,10 +37,19 @@ export default function PrivacyPage() {
         </section>
 
         <section className="mt-10 space-y-3 border-t border-hairline pt-8">
-          <h2 className="text-xl font-medium">2. IP Addresses &amp; Rate Limiting</h2>
+          <h2 className="text-xl font-medium">2. Authentication, IP Addresses &amp; Rate Limiting</h2>
           <p className="text-fg-2 leading-relaxed">
-            To prevent abuse on the public unauthenticated endpoint, StackServe
-            reads the client IP header (
+            Hosted access at{" "}
+            <code className="font-mono text-fg">
+              https://mcp.stackserve.net/mcp
+            </code>{" "}
+            uses Cloudflare Access OAuth (
+            <code className="font-mono text-fg">
+              stackserve.cloudflareaccess.com
+            </code>
+            ) to authenticate sessions. The StackServe origin server does not
+            maintain user accounts or profile tables; it only reads the client
+            IP header (
             <code className="font-mono text-fg">x-forwarded-for</code>) into an
             in-memory rate-limit bucket (60 requests per 60-second window,
             bounded to 4,096 buckets in RAM). Rate-limit counters expire
@@ -51,11 +60,12 @@ export default function PrivacyPage() {
         <section className="mt-10 space-y-3 border-t border-hairline pt-8">
           <h2 className="text-xl font-medium">3. Hosting Platform Logs</h2>
           <p className="text-fg-2 leading-relaxed">
-            The hosted MCP service runs on Render and the static website runs on
-            IONOS. Standard infrastructure-level HTTP access and error logs
-            (request timestamp, path, status code) may be retained transiently
-            by the hosting provider according to their standard platform log
-            retention policies.
+            The hosted MCP service runs behind Cloudflare Workers/Access on
+            Render and the static website runs on IONOS. Standard
+            infrastructure-level HTTP access and error logs (request timestamp,
+            path, status code) may be retained transiently by the hosting and
+            edge providers according to their standard platform log retention
+            policies.
           </p>
         </section>
 
@@ -66,7 +76,14 @@ export default function PrivacyPage() {
             briefs. For zero network transmission, run StackServe locally via
             Docker or{" "}
             <code className="font-mono text-fg">cargo install</code>. Questions
-            about privacy can be raised at{" "}
+            about privacy can be sent to{" "}
+            <a
+              href="mailto:alphakzt99@gmail.com"
+              className="font-mono text-[14px] text-fg underline decoration-hairline-strong underline-offset-4 hover:decoration-fg"
+            >
+              alphakzt99@gmail.com
+            </a>{" "}
+            or raised at{" "}
             <a
               href={`${REPO_URL}/issues`}
               target="_blank"

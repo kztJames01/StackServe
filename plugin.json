@@ -15,14 +15,22 @@
       "interface": {
         "displayName": "StackServe",
         "shortDescription": "Cloud stack cost advisor",
-        "longDescription": "Use StackServe in chat to profile an application brief, retrieve cited provider documentation, recommend compatible cloud stacks, compare scaling costs, and prepare setup files. Estimates use a pinned catalog and expose missing costs and verification gaps. Supply only relevant non-secret excerpts. StackServe does not access your cloud accounts, buy services, deploy resources, or monitor production. The plugin is currently free.",
+        "longDescription": "Use StackServe in chat to profile an application brief, retrieve cited provider documentation, recommend compatible cloud stacks, compare scaling costs, and prepare setup files. Estimates use a pinned catalog and expose missing costs and verification gaps. Supply only relevant non-secret excerpts. StackServe does not access your cloud accounts, buy services, deploy resources, or monitor production.",
         "developerName": "Kaung Zaw Thant",
         "category": "Developer Tools",
         "defaultPrompt": [
           "Help me choose a cloud stack for my application.",
           "Compare cloud costs as my workload grows.",
           "Prepare setup files for my selected stack."
-        ]
+        ],
+        "logo": "./assets/stackserve-light.png",
+        "logoDark": "./assets/stackserve-dark.png",
+        "composerIcon": "./assets/stackserve-light.png",
+        "composerIconDark": "./assets/stackserve-dark.png",
+        "websiteURL": "https://stackserve.net/",
+        "supportURL": "https://stackserve.net/support",
+        "privacyPolicyURL": "https://stackserve.net/privacy",
+        "termsOfServiceURL": "https://stackserve.net/terms"
       },
       "review": {
         "prompts": [

@@ -26,18 +26,33 @@ Or install as a plugin:
 /plugin install stackserve@stackserve-marketplace
 ```
 
-### OpenAI Codex
+### OpenAI Codex CLI plugin
 ```sh
 codex plugin marketplace add kztJames01/StackServe
 codex plugin add stackserve@stackserve-marketplace
 ```
-Or add to `~/.codex/config.toml`:
+Start a new CLI session after installation.
+
+### Codex VS Code extension (MCP)
+
+The installed Codex extension can expose the OpenAI plugin directory, as shown in the owner's screenshots. Directory publication is separate from installing this repository through the CLI marketplace. Until StackServe is approved and available in that directory, connect its five tools directly through MCP:
+
+```sh
+codex mcp add stackserve --url https://mcp.stackserve.net/mcp
+codex mcp login stackserve
+```
+
+Alternatively, merge this entry into `~/.codex/config.toml`, then complete OAuth sign-in:
 ```toml
 [mcp_servers.stackserve]
 url = "https://mcp.stackserve.net/mcp"
 ```
 
-### Cursor
+### Cursor plugin and MCP
+
+The root `plugin.json`, `mcp.json`, and `skills/` form a portable Agent Plugin supported by Cursor. Public listing in Cursor's marketplace requires a separate submission and review. See [client distribution](distribution/README.md) for the submission path and verification status.
+
+For direct MCP access before marketplace approval:
 Add to `.cursor/mcp.json` (or `~/.cursor/mcp.json`):
 ```json
 {
@@ -50,7 +65,8 @@ Add to `.cursor/mcp.json` (or `~/.cursor/mcp.json`):
 ```
 
 ### OpenCode & Kilo
-Add to `opencode.json` or `kilo.jsonc`:
+
+For Kilo, merge the following into project `.kilo/kilo.json` or global `~/.config/kilo/kilo.json`. For OpenCode, use `opencode.json`:
 ```json
 {
   "mcp": {
@@ -101,7 +117,7 @@ stackserve-mcp recommend workload.json
 
 `plugin.json` and `mcp.json` provide portable Agent Plugins source for the existing five tools. `skills/stackserve/SKILL.md` describes chat usage; a custom embedded UI is not required. The initial intended listing is free, by Kaung Zaw Thant, in all available countries.
 
-This source is not a published or submission-ready plugin. See [the readiness report](reports/plugin-readiness.md) for live endpoint verification, listing pages, demo, and review requirements. Only package the manifests, referenced assets, and `skills/stackserve/` for public upload; do not archive the repository, local configuration, model artifacts, or dependencies. Existing client-specific manifests remain for their respective clients.
+Repository installation and public-directory approval are separate. See [client distribution](distribution/README.md) for installation, marketplace submission, and verification status. The OpenAI public-directory listing remains incomplete. Only package the manifests, referenced assets, and `skills/stackserve/`; do not archive the repository, local configuration, model artifacts, or dependencies. Existing client-specific manifests remain for their respective clients.
 
 ## License
 

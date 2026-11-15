@@ -11,7 +11,13 @@
   "license": "MIT OR Apache-2.0",
   "category": "Developer Tools",
   "interface": {
-    "displayName": "StackServe"
+    "displayName": "StackServe",
+    "logo": "./assets/stackserve-light.png",
+    "logoDark": "./assets/stackserve-dark.png",
+    "composerIcon": "./assets/stackserve-light.png",
+    "composerIconDark": "./assets/stackserve-dark.png",
+    "shortDescription": "Cloud stack cost advisor",
+    "category": "Developer Tools"
   },
   "skills": "./skills/",
   "mcpServers": "./.mcp.json"

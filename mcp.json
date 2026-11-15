@@ -3,7 +3,17 @@
   "mcpServers": {
     "stackserve": {
       "type": "streamable-http",
-      "url": "https://mcp.stackserve.net/mcp"
+      "url": "https://mcp.stackserve.net/mcp",
+      "extensions": {
+        "com.openai": {
+          "auth": {
+            "type": "oauth",
+            "client": {
+              "mode": "dcr"
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -25,6 +25,16 @@ export default function SupportPage() {
         <section className="mt-10 space-y-4 border-t border-hairline pt-8">
           <h2 className="text-xl font-medium">Contact &amp; Bug Reports</h2>
           <p className="text-fg-2 leading-relaxed">
+            For support, account or reviewer access questions, email{" "}
+            <a
+              href="mailto:alphakzt99@gmail.com"
+              className="font-mono text-[14px] text-fg underline decoration-hairline-strong underline-offset-4 hover:decoration-fg"
+            >
+              alphakzt99@gmail.com
+            </a>
+            .
+          </p>
+          <p className="text-fg-2 leading-relaxed">
             For bug reports, pricing catalog corrections, plugin issues, or
             feature requests, open an issue on GitHub:
           </p>
@@ -43,15 +53,12 @@ export default function SupportPage() {
         <section className="mt-10 space-y-3 border-t border-hairline pt-8">
           <h2 className="text-xl font-medium">Hosted MCP Endpoint</h2>
           <p className="text-fg-2 leading-relaxed">
-            The public read-only MCP endpoint is available at{" "}
+            The hosted read-only MCP endpoint is available at{" "}
             <code className="font-mono text-fg">
               https://mcp.stackserve.net/mcp
             </code>{" "}
-            with a health check at{" "}
-            <code className="font-mono text-fg">
-              https://mcp.stackserve.net/healthz
-            </code>
-            . Requests are rate-limited to 60 requests per minute per client IP.
+            (OAuth-protected via Cloudflare Access, with origin rate limiting of
+            60 requests per minute per client IP).
           </p>
           <p className="text-fg-2 leading-relaxed">
             If you hit rate limits or prefer offline execution, you can run the
